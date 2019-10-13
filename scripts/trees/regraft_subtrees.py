@@ -80,7 +80,6 @@ def topo_changes(lca, stree, leaves_to_move, outgr, authorized_sp):
 
     #We keep all sister outgroup genes together and as direct outgroups of the corrected tree
     if len(sister_outgroup_genes) > 1:
-        print(node_max)
         #duplicated_sp_tree is modified in-place
         duplicated_sp_subtree = gt.keep_sis_genes_together(duplicated_sp_subtree, outgr,
                                                            sister_outgroup_genes,
@@ -236,6 +235,9 @@ def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections
                                               corrections, the last tuple element should be a dict
                                               containing features to add to each leaf as .nhx tags.
         brlengths (bool, optional): Whether branch-lengths should be computed
+
+    Returns:
+        bool: True if no Exception was raised.
     """
 
     try:
@@ -257,7 +259,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections
             #extract ali and tree with species tag
             seq = ut.get_subali(ali, d_sp.keys(), d_sp)
             ut.write_fasta(seq, outfolder+"/tmp_"+whole_tree+".fa")
-            wtree.write(outfile=outfolder+"/tmp_"+whole_tree, format=ete3_format, features=["S"])
+            wtree.write(outfile=outfolder+"/tmp_"+whole_tree, format=1, features=["S"])
 
             #compute branch-length
             os.system("treebest phyml -t opt -n "+outfolder+"/tmp_"+whole_tree+".fa "+\
@@ -280,7 +282,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections
         #remove temp
         os.remove(outfolder+"/"+whole_tree)
 
-        wtree = Tree(outfolder+"/"+prefix+"_"+whole_tree, format=ete3_format)
+        wtree = Tree(outfolder+"/"+prefix+"_"+whole_tree, format=1)
         for leaf in wtree.get_leaves():
             leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
 
@@ -304,9 +306,11 @@ def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections
         wtree.write(outfile=outfolder+"/"+prefix+"_"+whole_tree, format=ete3_format,
                     features=all_features, format_root_node=True)
 
+        return True
+
     except Exception:
 
-        sys.stderr.write(traceback.print_exc())
+        traceback.print_exc()
         raise
 
 
@@ -332,16 +336,24 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, pre
 
     with open(trees, "r") as infile_t, open(alis, "r") as infile_a:
 
+        async_res = []
+
         for i, (input_tree, input_ali) in enumerate(zip(ut.read_multiple_objects(infile_t),
                                                         ut.read_multiple_objects(infile_a))):
 
             if i in modified_trees:
-                pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
+                res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
                                                           input_ali, prefix, modified_trees,
                                                           brlengths))
+                async_res += [res]
 
-        pool.close()
-        pool.join()
+    pool.close()
+    pool.join()
+
+    for res in async_res:
+        if not res.get():
+            sys.stderr.write("An error occured in a child process\n")
+            sys.exit(1)
 
 
 

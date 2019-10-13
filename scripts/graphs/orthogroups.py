@@ -422,7 +422,7 @@ def worker_cut_graph(family, fam, res):
 
     except Exception:
 
-        print(traceback.print_exc())
+        traceback.print_exc()
         raise
 
 def print_out_stats(stats_dict, wgd=''):
