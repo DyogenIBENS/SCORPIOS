@@ -1,0 +1,98 @@
+
+#######################################
+# SCORPiOs EXAMPLE CONFIGURATION FILE #
+#######################################
+
+#better to use species tree aware gene trees and whole-genome data
+
+### Input data ###
+
+# The gene tree forest to correct: a single file with trees in the .nhx format
+# Trees should be separated by '//'
+# .nhx tags at internal nodes should have the `D` attribute for duplication/speciation (D=Y or D=N)
+# .nhx tags at leaves should have the `S` attribute to indicate the species to which the gene belong
+# Optionally, DD and DCS can help flag dubious duplication at internal nodes
+trees:  data/example/forest.nhx
+
+# The corresponding multiple alignments: a single file with alignments in the fasta format
+# These should be nucleotide alignments (CDS back-translated protein alignments)
+# Alignments should be separated by '//'
+# They should appear in the same order as their corresponding tree in the forest
+# Gene names should be the same as in the trees
+alis:  data/example/ali.fa
+
+# The genes coordinate files for all duplicated species + outgroup to use in synteny analyses
+# Two formats are accepted:
+# Either minimal .bed with 4 columns CHR BEG END GENE
+# Or a DYOGEN .bz2 file with 5 or 6 columns : CHR BEG END STRAND GENE (TRANSCRIPT)
+# Gene names should be the same as in the trees and alignments
+genes: data/example/genes/genes.%s.bed
+
+# The species tree in newick format with ancestors as internal node names
+# It should contain all species in the gene tree forest (marked by the `S` attribute)
+# Species name should not contain underscores '_'
+species_tree: data/example/species_tree.nwk
+
+
+### Output ###
+
+# Tag added to output folder name, all results will be stored in the folder SCORPiOs_jobname
+# The corrected gene tree forest will be SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx
+# .nhx tags are added to corrected trees in the corrected forest:
+# leaves of corrected subtrees are marked with a tag "CORR_`WGD`_ID"
+# leaves rearranged to regraft subtrees are marked with "MOVED_`WGD`_ID".
+jobname: 'example'
+
+
+### Running options ###
+
+# Maximum number of cores to use (will never use more than this number)
+# It will be restricted to the number of threads specified via --cores
+ncores: 14
+
+# Memory (--buffer_size) parameter for a bash sort. If decreased, more /tmp space will be used.
+buffer_size: 10G
+
+
+### Parameters ###
+
+# Each WGD event in the species tree should be indicated via the name of the ancestor of all duplicated species
+# Then, for each WGD, provide one or several outgroup species to use in the synteny analysis
+# Any non-duplicated species can be used as outgroup
+# Phylogenetically close outgroup should be preferred as synteny with duplicated species will be more conserved
+# Multiple outgroups are to be given as a comma-separated list, in priority order
+WGDs:
+  Clupeocephala: 'Lepisosteus.oculatus,Amia.calva'
+  Salmonidae: 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes'
+
+# Size of the sliding window used in the synteny analysis
+windowSize: 15
+
+# Cut-off on synteny similarity scores (between 0 and 1)
+cutoff: 0
+
+# Whether branch-lengths should be recomputed after correction ('y') or not ('n').
+# 'y' will be forced by SCORPiOs in iterative correction mode
+brlength: 'n'
+
+# Species with a poorer assembly quality that should not be used in the synteny analysis
+# You should still provide their genes coordinate file
+# Comment it out if you want to use all species
+lowcov_sp: 'data/example/lowcov'
+
+# Whether to ignore tree-synteny inconsistencies when an orthogroup graph community contains only a single gene
+# These are poorly-supported WGD duplication nodes
+ignoreSingleGeneCom: 'y'
+
+# Whether each individual corrected tree and its non-corrected counterpart should be saved, each in a .nhx files
+# This facilitates direct inspection of corrections
+save_tmp_trees: 'y'
+
+# Whether more detailed intermediary outputs should be saved
+# setting save_subtrees_lktest to 'y' saves, in addtion to files listed in the README:
+# constrained tree topologies, profileNJ and treebest synteny-aware trees, and au-tests outputs
+save_subtrees_lktest: 'y'
+
+# Iterative-correction related option, (automatically updated by the wrapper `iterate_scorpios.sh`)
+# 0 if SCORPiOs is run in simple mode, current iteration otherwise
+current_iter: 0

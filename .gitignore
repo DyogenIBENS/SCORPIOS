@@ -1,0 +1,9 @@
+.snakemake/
+SCORPiOs_*/
+*__pycache__/
+*.pyc
+data/*
+!data/example/*
+config*
+!config_example.yaml
+

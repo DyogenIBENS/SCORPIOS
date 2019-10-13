@@ -1,0 +1,19 @@
+name: scorpios
+channels:
+  - eparey
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - consel=0.20
+  - emboss=6.5.7
+  - ete3=3.1.1
+  - fastphylo=1.0.3
+  - networkx=2.3
+  - phyml=3.1
+  - pip=19.1.1
+  - python=3.6.8
+  - six=1.12.0
+  - snakemake=5.5.4
+  - snakemake-minimal=5.5.4
+  - treebest=1.9.2.post1

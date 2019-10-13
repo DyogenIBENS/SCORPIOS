@@ -1,0 +1,90 @@
+rule get_gene_families:
+    """
+    Phylogenetic orthologs between the outgroup and ingroups (duplicated species).
+    """
+    input: input_trees
+    output: orthology_table = OrthoTableStrict,
+            genes_without_orthologs = UNCERTAIN
+    shell: """
+    python -m scripts.synteny.duplicated_families -t {input} -n {wildcards.outgr}\
+    -d {wildcards.wgd} {anc_arg} -s {config[species_tree]} -g {config[genes]}\
+    -o {output.orthology_table} -u {output.genes_without_orthologs}
+    """
+
+
+rule gene_tree_orthologies:
+    """
+    Phylogenetic orthologs in all pairs of ingroups.
+    """
+    input: input_trees
+    output: a=directory(TreesOrthologies+'/{wgd}')
+    shell: """
+    python -m scripts.trees.orthologs -d {wildcards.wgd} \
+    -s {config[species_tree]} -t {input_trees} -o {output.a}\
+    {lowcov_arg} {anc_arg}
+    """
+
+
+checkpoint outgroup_chromosomes:
+    """
+    Creates a file with chromosomes in the outgroup having entries in the orthologytable.
+    """
+    input: OrthoTableStrict
+    output: Chr
+    run:
+        with open(input[0], 'r') as infile:
+            c_outgr = {line.split('\t')[0] for i, line in enumerate(infile) if i != 0}
+
+        with open(output[0], 'w') as outfile:
+            for chrom in c_outgr:
+                outfile.write(chrom+'\n')
+
+
+rule add_families_with_synteny_evidence:
+    """
+    Updates the orthology table with synteny-supported orthologies.
+    """
+    input: a=OrthoTableStrict, b=UNCERTAIN, c=Chr
+    output: OrthoTable
+    params: no_graph = fam_no_graph.replace("{{outgr}}", "{{wildcards.outgr}}")\
+                                   .replace("{{wgd}}","{{wildcards.wgd}}"),
+    shell: """
+    python -m scripts.synteny.missed_orthologies -i {input.a} -u {input.b} -c {input.c} -o {output}\
+    -wgd {wildcards.wgd},{wildcards.outgr} -w {config[windowSize]} -f {params.no_graph}
+    """
+
+if int(ITER) > 1:
+
+    rule filter_out_unchanged_regions:
+        """
+        If run in iterative mode, filter orthologytable entries to regions with an updated synteny
+        context compared to previous iteration.
+        """
+        input: OrthoTable
+        output: regions
+        params: OrthoTable = OrthoTable.replace("{{wgd}}", "{{wildcards.wgd}}"),
+                OrthoTable_prev = OrthoTable_prev.replace("{{wgd}}", "{{wildcards.wgd}}"),
+                regions = regions.replace("{{outgr}}", "{{wildcards.outgr}}").replace("{{wgd}}",\
+                                          "{{wildcards.wgd}}"),
+                Acc_prev = Acc_prev.replace("{{wgd}}", "{{wildcards.wgd}}"),
+                no_graph = fam_no_graph.replace("{{outgr}}", "{{wildcards.outgr}}")\
+                                       .replace("{{wgd}}","{{wildcards.wgd}}"),
+                wgd = lambda wildcards: wildcards.wgd+","+wildcards.outgr,
+                combin = incombin.replace("{{wgd}}", "{{wildcards.wgd}}")
+
+        run:
+            filter_regions.make_region_file(params.OrthoTable, params.OrthoTable_prev,\
+                                            params.Acc_prev, params.regions, config['windowSize'],
+                                            params.no_graph, params.wgd, params.combin)
+else:
+
+    rule pass_filter:
+        """
+        If run in iterative mode, filter orthologytable entries to regions with an updated synteny
+        context compared to previous iteration.
+        """
+        input: OrthoTable
+        output: regions
+        shell: """
+        touch {output}
+        """
