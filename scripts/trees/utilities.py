@@ -110,8 +110,8 @@ def get_subali(ali_string, genes, d_names=None):
     Args:
         ali_string (str): alignment string in fasta format.
         genes (list): list of genes to extract.
-        d_names (dict, optional): dictionary to transform gene names, for instance to add species.
-        If used, all genes have to be in this mapping dictionary.
+        d_names (dict, optional): dictionary to add suffix to gene names, for instance to add
+        species. If used, all genes have to be in this mapping dictionary.
 
 
     Returns:
