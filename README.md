@@ -133,7 +133,7 @@ bash iterate_scorpios.sh --j=myjobname --snake_args="--configfile config.yaml"
 
 All outputs of a SCORPiOs run are stored in a folder named SCORPiOs_jobname, with the jobname specified in the config file.
 
-The main output is the **SCORPiOs corrected gene trees forest**. The commands above generate `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run and, `SCORPiOs_example/SCORPiOs_corrected_forest_1.nhx` & `SCORPiOs_example/SCORPiOs_corrected_forest_2.nhx` for the iterative run. SCORPiOS adds correction tags in trees that allow to inspect corrections with external gene tree visualisation softwares.
+The main output is the **SCORPiOs corrected gene trees forest**. The commands above generate `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run and, `SCORPiOs_example/SCORPiOs_corrected_forest_1.nhx` & `SCORPiOs_example/SCORPiOs_corrected_forest_2.nhx` for the iterative run. When run in iterative mode, outputs are suffixed with a digit representing the iteration number. This number is set to 0 in simple mode and starts at 1 in iterative mode. In the corrected forest, SCORPiOS adds correction tags that allow to inspect corrections with external gene tree visualisation softwares.
 
 Some intermediary outputs are also stored in different sub-folders (see below for a detailed description). In addition, SCORPiOs writes statistics on key steps of the workflow to the standard output. Thus, to separate output statistics from snakemake logs, you can run:
 
@@ -155,7 +155,7 @@ A gene family in SCORPiOs consists of an outgroup gene and all gene copies in WG
 
 The Orthology table is stored in a single file in the `Families/` sub-folder. Raw synteny-predicted orthologies are stored in a single file in `Synteny/`. Predicted orthology groups based on community detection in synteny graphs are stored in a single file in `Graphs/`, along with a summary of the community detection step. Finally, `Corrections/` stores two files, one detailing trees vs synteny consistency and another with the list of successfully corrected trees.
 
-Several tags such as the name of the corrected WGD, the outgroup species used and SCORPiOS iteration number are added to each output file, in order to identify it. When run in simple mode, the iteration number is set to 0.
+Several tags such as the name of the corrected WGD, the outgroup species used and SCORPiOS iteration number are added to each output file, in order to precisely identify outputs, even for complex configuration.
 
 Additional files can be saved if specified in the configuration file, see [config_example.yaml](config_example.yaml) for details.
 
