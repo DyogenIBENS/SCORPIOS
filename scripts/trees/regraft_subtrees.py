@@ -343,8 +343,8 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, pre
 
             if i in modified_trees:
                 res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
-                                                          input_ali, prefix, modified_trees,
-                                                          brlengths))
+                                                                input_ali, prefix, modified_trees,
+                                                                brlengths))
                 async_res += [res]
 
     pool.close()
