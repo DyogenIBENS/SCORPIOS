@@ -259,7 +259,8 @@ def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections
             #extract ali and tree with species tag
             seq = ut.get_subali(ali, d_sp.keys(), d_sp)
             ut.write_fasta(seq, outfolder+"/tmp_"+whole_tree+".fa")
-            wtree.write(outfile=outfolder+"/tmp_"+whole_tree, format=1, features=["S"])
+            wtree.write(outfile=outfolder+"/tmp_"+whole_tree, format=1, features=["S"],
+                        format_root_node=True)
 
             #compute branch-length
             os.system("treebest phyml -t opt -n "+outfolder+"/tmp_"+whole_tree+".fa "+\
@@ -272,8 +273,9 @@ def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections
         #otherwise, we just write the tree to file
         else:
 
-            ete3_format = 8
-            wtree.write(outfile=outfolder+"/"+whole_tree, format=ete3_format)
+            ete3_format = 9
+            wtree.write(outfile=outfolder+"/"+whole_tree, format=ete3_format,
+                        format_root_node=True)
 
         #Reconcile the tree
         os.system("treebest sdi -s "+ARGS['Species_tree']+" "+outfolder+"/"+whole_tree+\
