@@ -25,8 +25,8 @@ from ete3 import Tree
 
 from . import utilities as ut
 from . import genetree as gt
-from ..synteny import utilities as sy
-from ..graphs import combine_outgroups as comb
+from scripts.synteny import utilities as sy
+from scripts.graphs import combine_outgroups as comb
 
 
 def load_pred_file(input_file, outgr, d_orthotable):
