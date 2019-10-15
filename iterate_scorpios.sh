@@ -76,7 +76,6 @@ if [ -z "$snake_args" ]; then
   exit 1
 fi
 
-echo "$snake_args" >&2
 #extract config related args from snakemake args, to invoke the --config option correctly below
 snake_config_args=${snake_args#*--config }
 if [ "$snake_config_args" == "$snake_args" ]; then
@@ -90,7 +89,6 @@ else
 
 fi
 
-echo "$snake_args $snake_config_args">&2
 
 #run SCORPiOs iteratively
 for i in $(seq $iteration $max_iter); do
