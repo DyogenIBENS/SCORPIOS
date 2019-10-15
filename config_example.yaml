@@ -39,8 +39,8 @@ species_tree: data/example/species_tree.nwk
 # Tag added to output folder name, all results will be stored in the folder SCORPiOs_jobname
 # The corrected gene tree forest will be SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx
 # .nhx tags are added to corrected trees in the corrected forest:
-# leaves of corrected subtrees are marked with a tag "CORR_`WGD`_ID"
-# leaves rearranged to regraft subtrees are marked with "MOVED_`WGD`_ID".
+# leaves of corrected subtrees are marked with a tag "CORR_ID_`WGD`"
+# leaves rearranged to regraft subtrees are marked with "MOVED_ID_`WGD`".
 jobname: 'example'
 
 

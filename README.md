@@ -133,7 +133,7 @@ bash iterate_scorpios.sh --j=myjobname --snake_args="--configfile config.yaml"
 
 All outputs of a SCORPiOs run are stored in a folder named SCORPiOs_jobname, with the jobname specified in the config file.
 
-The main output is the **SCORPiOs corrected gene trees forest**. The commands above generate `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run and, `SCORPiOs_example/SCORPiOs_corrected_forest_1.nhx` & `SCORPiOs_example/SCORPiOs_corrected_forest_2.nhx` for the iterative run. When run in iterative mode, outputs are suffixed with a digit representing the iteration number. This number is set to 0 in simple mode and starts at 1 in iterative mode. In the corrected forest, SCORPiOS adds correction tags that allow to inspect corrections with external gene tree visualisation softwares.
+The main output is the **SCORPiOs corrected gene trees forest**. The commands above generate `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run and, `SCORPiOs_example/SCORPiOs_corrected_forest_1.nhx` & `SCORPiOs_example/SCORPiOs_corrected_forest_2.nhx` for the iterative run. When in iterative mode, outputs are suffixed with a digit representing the iteration number. This number is set to 0 in simple mode and starts at 1 in iterative mode. In the corrected forest, SCORPiOS adds correction tags that allow to inspect corrections with external gene tree visualisation softwares.
 
 Some intermediary outputs are also stored in different sub-folders (see below for a detailed description). In addition, SCORPiOs writes statistics on key steps of the workflow to the standard output. Thus, to separate output statistics from snakemake logs, you can run:
 
