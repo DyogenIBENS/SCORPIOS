@@ -43,7 +43,7 @@ checkpoint gene_trees_to_correct:
     Save all subtrees, subalignment and constrained tree where contraint is absent in input trees.
     """
     input: graph_cuts=expand_graphs_outgr, graph_cuts_summaries=expand_graphcut_summary,
-           orthotables=expand_orthotables_outgr
+           orthotables=expand_orthotables_outgr, alis = config['alis']
 
     output: ctrees = directory(CTREES+"/{wgd}/"), subalis = directory(SUBALIS+"/{wgd}/"),
             subtrees = directory(SUBTREES+"/{wgd}/")

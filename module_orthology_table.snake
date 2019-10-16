@@ -2,12 +2,12 @@ rule get_gene_families:
     """
     Phylogenetic orthologs between the outgroup and ingroups (duplicated species).
     """
-    input: input_trees
+    input: input_trees, config["species_tree"]
     output: orthology_table = OrthoTableStrict,
             genes_without_orthologs = UNCERTAIN
     shell: """
-    python -m scripts.synteny.duplicated_families -t {input} -n {wildcards.outgr}\
-    -d {wildcards.wgd} {anc_arg} -s {config[species_tree]} -g {config[genes]}\
+    python -m scripts.synteny.duplicated_families -t {input[0]} -n {wildcards.outgr}\
+    -d {wildcards.wgd} {anc_arg} -s {input[1]} -g {config[genes]}\
     -o {output.orthology_table} -u {output.genes_without_orthologs}
     """
 
@@ -16,7 +16,7 @@ rule gene_tree_orthologies:
     """
     Phylogenetic orthologs in all pairs of ingroups.
     """
-    input: input_trees
+    input: input_trees,  config["species_tree"]
     output: a=directory(TreesOrthologies+'/{wgd}')
     shell: """
     python -m scripts.trees.orthologs -d {wildcards.wgd} \
