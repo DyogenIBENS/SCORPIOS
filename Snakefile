@@ -95,7 +95,7 @@ wildcard_constraints:
 
 #Final output
 rule Target:
-    input: outTrees
+    input: "SCORPiOs_"+config['jobname']+"/.cleanup_"+str(ITER)
 
 #include the 4 modules
 include: "module_orthology_table.snake"
