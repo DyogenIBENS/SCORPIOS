@@ -345,7 +345,7 @@ def print_out_stats(stats_dict, wgd=''):
         print("\n")
         print(" {} total subtrees with predicted synteny constraints out of {}".format(tot,
                                                                                        tot+multi))
-        print(" ({} discarded multigenic subtrees)".format(multi))
+        print(" ({} discarded inconsistent multigenic subtrees)".format(multi))
 
         print(" {} out of {} ({} %) synteny-consistent subtrees".format(cons, tot, consp))
 
