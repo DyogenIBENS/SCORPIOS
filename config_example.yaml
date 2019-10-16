@@ -15,11 +15,12 @@
 trees:  data/example/forest.nhx
 
 # The corresponding multiple alignments: a single file with alignments in the fasta format
+# The file can be gzipped (.gz) or not
 # These should be nucleotide alignments (CDS back-translated protein alignments)
 # Alignments should be separated by '//'
 # They should appear in the same order as their corresponding tree in the forest
 # Gene names should be the same as in the trees
-alis:  data/example/ali.fa
+alis:  data/example/ali.fa.gz
 
 # The genes coordinate files for all duplicated species + outgroup to use in synteny analyses
 # Two formats are accepted:

@@ -20,6 +20,7 @@ import os
 import argparse
 import sys
 from collections import Counter, OrderedDict
+import gzip
 
 from ete3 import Tree
 
@@ -451,8 +452,13 @@ if __name__ == '__main__':
 
     STATS = {}
 
+    OPEN = open
+
+    if ARGS["alisFile"].split('.')[-1] == 'gz':
+        OPEN = gzip.open
+
     with open(ARGS["treesFile"], "r") as infile_t,\
-         open(ARGS["alisFile"], "r") as infile_a,\
+         OPEN(ARGS["alisFile"], "rt") as infile_a,\
          open(ARGS["summary"], 'w') as outfile_summary:
 
         for TREE, ALI in zip(ut.read_multiple_objects(infile_t),

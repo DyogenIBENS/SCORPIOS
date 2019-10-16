@@ -17,6 +17,7 @@ import traceback
 import os
 import sys
 import argparse
+import gzip
 import itertools
 
 from ete3 import Tree
@@ -336,7 +337,11 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, pre
 
     pool = multiprocessing.Pool(ncores)
 
-    with open(trees, "r") as infile_t, open(alis, "r") as infile_a:
+    OPEN = open
+    if alis.split('.')[-1] == 'gz':
+        OPEN = gzip.open
+
+    with open(trees, "r") as infile_t, OPEN(alis, "rt") as infile_a:
 
         async_res = []
 
