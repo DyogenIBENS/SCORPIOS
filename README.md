@@ -3,7 +3,7 @@
 [Zenodo code DOI badge] [License badge] [![Snakemake](https://img.shields.io/badge/snakemake-≥5.5.4-brightgreen.svg)](https://snakemake.bitbucket.io)
 
 
- SCORPiOs is a synteny-guided gene tree correction snakemake pipeline. SCORPiOs builds optimized gene trees, consistent with a known WGD event, local synteny context, as well as gene sequence evolution.
+ SCORPiOs is a synteny-guided gene tree correction [Snakemake](https://snakemake.readthedocs.io/en/stable/) pipeline. SCORPiOs builds optimized gene trees, consistent with a known WGD event, local synteny context, as well as gene sequence evolution.
 
 If you use SCORPiOs, please cite:
 
@@ -72,7 +72,7 @@ In brief, SCORPiOS input files are:
 - Gene coordinates files
 - A species tree
 
-The only required snakemake arguments to run SCORPiOs are `--configfile` and the `--use-conda` flag. Optionally, you can specify the number of threads via the `--cores` option. For more advanced snakemake usage, you can look at the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executable.html).
+The only required snakemake arguments to run SCORPiOs are `--configfile` and the `--use-conda` flag. Optionally, you can specify the number of threads via the `--cores` option. For more advanced snakemake usage, you can look at the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/)).
 
 
 To run SCORPiOS on example data:
