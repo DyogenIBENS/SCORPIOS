@@ -200,6 +200,8 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
 
         #save edition tags in a dict, we will put them as NHX attributes in the end
         #otherwise they would be wiped out by treebest during reconciliation or br-length computing
+        #This should be checked again, I am not sure treebest removes .nhx attributes anymore
+        #Perhaps storing attributes and putting them back at the end is not nescessary
         d_edit = gt.save_nhx_tags(['CORR_ID_'+tag, 'MOVED_ID_'+tag],
                                   [all_subtrees_leaves, all_missing_leaves])
 
