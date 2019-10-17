@@ -11,22 +11,22 @@ If you use SCORPiOs, please cite:
 
 ## Table of content
   - [Installation](#installation)
-    - [Installing conda](#conda)
-    - [Installing SCORPiOs](#iscorpios)
+    - [Installing conda](#installing-conda)
+    - [Installing SCORPiOs](#installing-scorpios)
   - [Usage](#usage)
-    - [Running SCORPiOS on example data](#example)
-      - [Example 1: Simple SCORPiOs run](#ex1)
-      - [Example 2: SCORPiOs in iterative mode](#ex2)
-    - [Running SCORPiOS on your data](#data)
-    - [Understanding SCORPiOs outputs](#outputs)
+    - [Running SCORPiOS on example data](#running-scorpios-on-example-data)
+      - [Example 1: Simple SCORPiOs run](#example-1-simple-scorpios-run)
+      - [Example 2: SCORPiOs in iterative mode](#example-2-scorpios-in-iterative-mode)
+    - [Running SCORPiOS on your data](#running-scorpios-on-your-data)
+    - [Understanding SCORPiOs outputs](#understanding-scorpios-outputs)
       - [Basic](#basic)
       - [Advanced](#advanced)
   - [Authors](#authors)
   - [License](#license)
 
-## <a name="installation"></a>Installation
+## Installation
 
-### <a name="conda"></a>Installing conda
+### Installing conda
 
 The Miniconda3 package management system manages all SCORPiOs dependencies, including python packages and other softwares.
 
@@ -38,7 +38,7 @@ To install Miniconda3:
 
 - Open a new terminal, run `conda update conda` and press y to confirm updates
 
-### <a name="iscorpios"></a> Installing SCORPiOs
+### Installing SCORPiOs
 
 - Clone the repository and go to SCORPiOs root folder
 ```
@@ -51,15 +51,15 @@ cd SCORPiOs
 conda env create -f envs/scorpios.yaml
 ```
 
-## <a name="usage"></a> Usage
+## Usage
 
-### <a name="examples"></a> Running SCORPiOs on example data
+### Running SCORPiOs on example data
 
 Before any SCORPiOs run, you should:
  - go to SCORPiOs root folder,
  - activate the conda environment with `conda activate scorpios`.
 
-#### <a name="ex1"></a> Example 1: Simple SCORPiOs run
+#### Example 1: Simple SCORPiOs run
 
 Inputs and parameters to execute SCORPiOs have to be specified in a configuration file.
 An example configuration file is provided: [config_example.yaml](config_example.yaml).
@@ -81,7 +81,7 @@ To run SCORPiOS on example data:
 snakemake --configfile config_example.yaml --use-conda --cores 4
 ```
 
-#### <a name="ex2"></a> Example 2: SCORPiOs in iterative mode
+#### Example 2: SCORPiOs in iterative mode
 
 SCORPiOs can run in iterative mode, meaning that SCORPiOS improves gene trees a first time, and then uses the corrected forest as input for a new correction run. Correcting gene trees improves orthologies accuracy, which in turn makes synteny conservation patterns more informative, allowing to better integrate it into the gene tree reconstruction. Usually, a small number of iterations (2-3) suffice to reach convergence.
 
@@ -104,7 +104,7 @@ Optional
 --starting_iter=ITER, starting iteration, to resume a run at a given iteration, default=1.
 ```
 
-### <a name="data"></a> Running SCORPiOs on your data
+### Running SCORPiOs on your data
 After correct formatting of your input data (see [config_example.yaml](config_example.yaml)), you have to create a new configuration file, using the provided example:
 
 - Copy the example config file `cp config_example.yaml config.yaml`
@@ -127,9 +127,9 @@ or
 bash iterate_scorpios.sh --j=myjobname --snake_args="--configfile config.yaml"
 ```
 
-### <a name="outputs"></a> Understanding SCORPiOs outputs
+### Understanding SCORPiOs outputs
 
-#### <a name="basic"></a> Basic
+#### Basic
 
 All outputs of a SCORPiOs run are stored in a folder named SCORPiOs_jobname, with the jobname specified in the config file.
 
@@ -147,7 +147,7 @@ or
 bash iterate_scorpios.sh --j=example --snake_args="--configfile config_example.yaml" >out 2>err
 ```
 
-#### <a name="advanced"></a> Advanced
+#### Advanced
 
 To go beyond description statistics printed to the standard output, one might want to further investigate results of a SCORPiOS run, for one or several given gene families. This section quickly introduces key SCORPiOs concepts, in order to better understand intermediary outputs. For a detailed description of SCORPiOs, see [SCORPiOs publication](TODO link).
 
@@ -159,11 +159,11 @@ Several tags such as the name of the corrected WGD, the outgroup species used an
 
 Additional files can be saved if specified in the configuration file, see [config_example.yaml](config_example.yaml) for details.
 
-## <a name="authors"></a> Authors
+## Authors
 * [**Elise Parey**](parey@biologie.ens.fr)
 * **Hugues Roest Crollius**
 * **Camille Berthelot**
 
-## <a name="license"></a> License
+## License
 
 TODO
