@@ -339,11 +339,11 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, pre
 
     pool = multiprocessing.Pool(ncores)
 
-    OPEN = open
+    open_f = open
     if alis.split('.')[-1] == 'gz':
-        OPEN = gzip.open
+        open_f = gzip.open
 
-    with open(trees, "r") as infile_t, OPEN(alis, "rt") as infile_a:
+    with open(trees, "r") as infile_t, open_f(alis, "rt") as infile_a:
 
         async_res = []
 
