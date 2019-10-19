@@ -1,6 +1,6 @@
 # SCORPiOs - Synteny-guided CORrection of Paralogies and Orthologies
 
-[Zenodo code DOI badge] [License badge] [![Snakemake](https://img.shields.io/badge/snakemake-≥5.5.4-brightgreen.svg)](https://snakemake.bitbucket.io)
+[Zenodo code DOI badge] [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Snakemake](https://img.shields.io/badge/snakemake-≥5.5.4-brightgreen.svg)](https://snakemake.bitbucket.io)
 
 
  SCORPiOs is a synteny-guided gene tree correction [Snakemake](https://snakemake.readthedocs.io/en/stable/) pipeline. SCORPiOs builds optimized gene trees, consistent with a known WGD event, local synteny context, as well as gene sequence evolution.
@@ -166,4 +166,5 @@ Additional files can be saved if specified in the configuration file, see [confi
 
 ## License
 
-TODO
+This code may be freely distributed and modified under the terms of the GNU General Public License version 3 (GPL v3)
+- [LICENSE GPLv3](LICENSE.txt)
