@@ -23,6 +23,7 @@ If you use SCORPiOs, please cite:
       - [Advanced](#advanced)
   - [Authors](#authors)
   - [License](#license)
+  - [References](#references)
 
 ## Installation
 
@@ -168,3 +169,12 @@ Additional files can be saved if specified in the configuration file, see [confi
 
 This code may be freely distributed and modified under the terms of the GNU General Public License version 3 (GPL v3)
 - [LICENSE GPLv3](LICENSE.txt)
+
+## References
+
+SCORPiOs uses the following tools to build and test gene trees:
+
+- ProfileNJ
+- TreeBeST
+- PHyML
+- consel
