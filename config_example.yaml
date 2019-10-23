@@ -87,12 +87,12 @@ ignoreSingleGeneCom: 'y'
 
 # Whether each individual corrected tree and its non-corrected counterpart should be saved, each in a .nhx files
 # This facilitates direct inspection of corrections
-save_tmp_trees: 'y'
+save_tmp_trees: 'n'
 
 # Whether more detailed intermediary outputs should be saved
 # setting save_subtrees_lktest to 'y' saves, in addtion to files listed in the README:
 # constrained tree topologies, profileNJ and treebest synteny-aware trees, and au-tests outputs
-save_subtrees_lktest: 'y'
+save_subtrees_lktest: 'n'
 
 # Iterative-correction related option, (automatically updated by the wrapper `iterate_scorpios.sh`)
 # 0 if SCORPiOs is run in simple mode, current iteration otherwise
