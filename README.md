@@ -160,7 +160,7 @@ Several tags such as the name of the corrected WGD, the outgroup species used an
 Additional files can be saved if specified in the configuration file, see [config_example.yaml](config_example.yaml) for details.
 
 ## Authors
-* [**Elise Parey**](parey@biologie.ens.fr)
+* [**Elise Parey**](mailto:parey@biologie.ens.fr)
 * **Hugues Roest Crollius**
 * **Camille Berthelot**
 
