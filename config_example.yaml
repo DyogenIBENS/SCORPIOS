@@ -3,15 +3,15 @@
 # SCORPiOs EXAMPLE CONFIGURATION FILE #
 #######################################
 
-#better to use species tree aware gene trees and whole-genome data
 
 ### Input data ###
 
 # The gene tree forest to correct: a single file with trees in the .nhx format
 # Trees should be separated by '//'
 # .nhx tags at internal nodes should have the `D` attribute for duplication/speciation (D=Y or D=N)
-# .nhx tags at leaves should have the `S` attribute to indicate the species to which the gene belong
-# Optionally, DD and DCS can help flag dubious duplication at internal nodes
+# .nhx tags at leaves should have the `S` attribute to indicate the species to which the gene belongs
+# Optionally, DD and DCS can help flag dubious duplication at internal nodes DD=Y or DCS=0 for dubious duplications
+# SCORPiOs is more suited to correct species tree aware gene trees
 trees:  data/example/forest.nhx
 
 # The corresponding multiple alignments: a single file with alignments in the fasta format
@@ -24,13 +24,13 @@ alis:  data/example/ali.fa.gz
 
 # The genes coordinate files for all duplicated species + outgroup to use in synteny analyses
 # Two formats are accepted:
-# Either minimal .bed with 4 columns CHR BEG END GENE
-# Or a DYOGEN .bz2 file with 5 or 6 columns : CHR BEG END STRAND GENE (TRANSCRIPT)
+# Either a minimal .bed with 4 columns: chromosome start end gene_name
+# Or a DYOGEN .bz2 file with 5 or 6 columns: chromosome start end strand gene_name (transcript)
 # Gene names should be the same as in the trees and alignments
 genes: data/example/genes/genes.%s.bed
 
 # The species tree in newick format with ancestors as internal node names
-# It should contain all species in the gene tree forest (marked by the `S` attribute)
+# It should contain all species in the gene tree forest (marked by the `S` attribute in gene trees)
 # Species name should not contain underscores '_'
 species_tree: data/example/species_tree.nwk
 
@@ -47,7 +47,7 @@ jobname: 'example'
 
 ### Running options ###
 
-# Maximum number of cores to use (will never use more than this number)
+# Maximum number of threads (will never use more than this number)
 # It will be restricted to the number of threads specified via --cores
 ncores: 14
 
@@ -78,7 +78,7 @@ brlength: 'n'
 
 # Species with a poorer assembly quality that should not be used in the synteny analysis
 # You should still provide their genes coordinate file
-# Comment it out if you want to use all species
+# Comment it out if you want to use all species in the synteny analysis
 lowcov_sp: 'data/example/lowcov'
 
 # Whether to ignore tree-synteny inconsistencies when an orthogroup graph community contains only a single gene
