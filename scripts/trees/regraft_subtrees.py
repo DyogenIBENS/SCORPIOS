@@ -218,7 +218,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
 
 
 
-def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections=None,
+def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', corrections=None,
                       brlengths=True):
 
     """
@@ -231,6 +231,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections
         tree (ete3.Tree): input tree to reconcile.
         outfolder (str): path to write the output
         tree_id (str): identifier of the tree, used in the output .nhx file name.
+        sptree (str): name of the species tree file
         ali (str, optional): the fasta multiple alignment, required if branch lengths have to be
                              computed
         prefix (str, optional): string to add as prefix to the output file
@@ -281,7 +282,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections
                         format_root_node=True)
 
         #Reconcile the tree
-        os.system("treebest sdi -s "+ARGS['Species_tree']+" "+outfolder+"/"+whole_tree+\
+        os.system("treebest sdi -s "+sptree+" "+outfolder+"/"+whole_tree+\
                   " > "+outfolder+"/"+prefix+"_"+whole_tree)
 
         #remove temp
@@ -319,8 +320,8 @@ def worker_rec_brlgth(tree, outfolder, treeid, ali='', prefix='cor', corrections
         raise
 
 
-def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, prefix="cor",
-                            brlengths=True):
+def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, sptree,
+                            prefix="cor", brlengths=True):
     """
     Reconciles with the species tree and optionaly compute branch-lengths for a subset of trees in
     `modified_trees` of a gene trees forest, in parallel. Each output reconciled tree is written
@@ -332,6 +333,7 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, pre
         ncores (int): number of cores to use for parallel execution
         modified_trees (dict): gene trees to reconcile
         folder_cor (str): path to store each output reconciled tree file
+        sptree (str): name of the species tree file
         prefix (str, optional): prefix to add to output trees
         brlengths (bool, optional): Whether branch-lengths should be computed
 
@@ -352,8 +354,8 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, pre
 
             if i in modified_trees:
                 res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
-                                                                input_ali, prefix, modified_trees,
-                                                                brlengths))
+                                                                sptree, input_ali, prefix,
+                                                                modified_trees, brlengths))
                 async_res += [res]
 
     pool.close()
@@ -515,7 +517,7 @@ if __name__ == '__main__':
 
     #reconcile with the species tree and re-compute branch-lengths
     multiprocess_rec_brlgth(ARGS["out"]+'_'+str(j), ARGS["alisFile"], NCORES, CORRECTION_STATS,
-                            CORFOLDER, brlengths=ARGS["branch_lengths"])
+                            CORFOLDER, ARGS["Species_tree"], brlengths=ARGS["branch_lengths"])
 
     #clean temp
     os.remove(ARGS["out"]+'_'+str(j))
