@@ -1,3 +1,9 @@
+
+"""
+SCORPiOs snakemake module to predict gene orthologies and paralogies using synteny conservation
+patterns, for all pairs of duplicated species.
+"""
+
 rule synteny_orthologies_paralogies:
     """
     Identifies post-WGD orthologs and paralogs in all pairs of duplicated species, using synteny.

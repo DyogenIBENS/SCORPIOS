@@ -1,3 +1,9 @@
+
+"""
+SCORPiOs snakemake module to build an exhasutive orthology table between ingroup WGD duplicated
+species and one outgroup non-duplicated species.
+"""
+
 rule get_gene_families:
     """
     Phylogenetic orthologs between the outgroup and ingroups (duplicated species).

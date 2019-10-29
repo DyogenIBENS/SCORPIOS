@@ -1,3 +1,8 @@
+
+"""
+SCORPiOs snakemake module to build test and regraft synteny aware subtrees for inconsistent subtrees.
+"""
+
 rule remove_anc_in_sptree:
     """
     Removes ancestor names from the species tree, to input it to profileNJ.

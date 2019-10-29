@@ -1,3 +1,9 @@
+
+"""
+SCORPiOs snakemake module to identify orthologous gene communtities in orthology graphs and derive
+topological constraints on corresponding gene trees.
+"""
+
 rule cut_orthology_graphs:
     """
     Loads orthology graphs and uses community detection algorithms to identify orthogroups.
