@@ -27,7 +27,11 @@ def out_name(name, jobname, iteration, wcard_wgd=False, wcard_outgr=False):
 JNAME = config["jobname"]
 ITER = config['current_iter']
 
-input_trees = config["trees"]
+if "trees" in config and os.path.isfile(config["trees"]):
+    input_trees = config["trees"]
+else:
+    input_trees = out_name("input_forest", JNAME, ITER)+'.nhx'
+
 OrthoTableStrict = out_name("Families/OrthoTableStrict", JNAME, ITER, True, True)
 Chr =  out_name("Families/Chr", JNAME, ITER, True, True)
 OrthoTable = out_name("Families/OrthoTable", JNAME, ITER, True, True)
@@ -74,6 +78,8 @@ if int(ITER) > 0:
     arg_brlength = '-br y'
 
 ## Set parameters from config
+if "genes_sp_mapping" not in config:
+    config["genes_sp_mapping"] = ""
 
 #all WGDs in trees
 anc_other = ''
@@ -97,7 +103,8 @@ wildcard_constraints:
 rule Target:
     input: "SCORPiOs_"+config['jobname']+"/.cleanup_"+str(ITER)
 
-#include the 4 modules
+#include the 5 modules
+include: "module_build_trees.snake"
 include: "module_orthology_table.snake"
 include: "module_synteny_ortho_para.snake"
 include: "module_graphs_orthogroups.snake"

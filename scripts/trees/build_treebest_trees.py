@@ -1,0 +1,148 @@
+#!/usr/bin/env python
+
+"""
+    Script to build starting gene trees with TreeBeST best, from CDS back translated nucleotide
+    alignments, given a species tree and a gene species mapping file.
+
+    Example:
+
+        $ python -m build_treebest_trees -a alis_v89.fa.gz -sp species_tree_v89.nwk
+                                         -m genesp_v89.txt [-o treebest_forest_v89.nhx]
+                                         [-nc 1] [-tmp tmp]
+"""
+
+import os
+import argparse
+import sys
+import gzip
+import multiprocessing
+import traceback
+
+from ete3 import Tree
+
+from . import utilities as ut
+
+
+def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
+
+    """
+    Build a gene tree from the multiple alignment string in `ali`, while accounting for the
+    species tree `sptree`, using treebest best.
+
+    Args:
+        tree (ete3.Tree): input tree to reconcile.
+        ali (str): the fasta multiple alignment
+        genes_sp (str): the corresponding genes to species mapping
+        tree_id (str): identifier of the tree, used in the output .nhx file name.
+
+    Returns:
+        bool: True if no Exception was raised.
+
+    """
+    try:
+        sys.stderr.write("Building tree for alignment number "+str(ali_id)+"\n")
+        mapping = {}
+        genes_sp = genes_sp.strip().split('\n')
+        for line in genes_sp:
+            name, species = line.strip().split('\t')
+            mapping[name] = species
+
+        seq = ut.get_subali(ali, mapping, mapping)
+        tmp_ali = tmp_folder+"tmp_ali_"+str(ali_id)+".fa"
+        out_tree = tmp_folder+"tmp_tree_"+str(ali_id)+".nhx"
+        ut.write_fasta(seq, tmp_ali)
+
+        os.system("treebest best "+tmp_ali+" -f "+sptree+" -X 10 -Z 1e-3 -q > "+out_tree)
+
+        os.remove(tmp_ali)
+
+        return True
+
+    except Exception:
+
+        traceback.print_exc()
+        raise
+
+
+
+if __name__ == '__main__':
+
+    PARSER = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+
+    PARSER.add_argument('-a', '--ali', type=str, help='Single file with all alignments (.fa).',
+                        required=True)
+
+    PARSER.add_argument('-sp', '--species_tree', help='Newick species tree file.', required=True)
+
+    PARSER.add_argument('-m', '--genes_sp_map', help='Single file with corresponding gene to\
+                        species mapping', required=True)
+
+    PARSER.add_argument('-o', '--output', type=str, help='Output name for the output forest',
+                        required=True)
+
+    PARSER.add_argument('-nc', '--ncores', type=int, help='Number of threads', required=False,
+                        default=1)
+
+    PARSER.add_argument('-tmp', '--tmp_folder', type=str, help='Path for tmp invidual trees',
+                        required=False, default='')
+
+    ARGS = vars(PARSER.parse_args())
+
+    if ARGS["tmp_folder"]:
+        os.makedirs(ARGS["tmp_folder"], exist_ok=True)
+
+    sys.stderr.write("Building starting trees with TreeBeST...\n")
+
+    OPEN = open
+    if ARGS["ali"].split('.')[-1] == 'gz':
+        OPEN = gzip.open
+
+    POOL = multiprocessing.Pool(ARGS["ncores"])
+
+    i = 0
+
+    with OPEN(ARGS["ali"], "rt") as INFILE_A, open(ARGS["genes_sp_map"], 'r') as INFILE_GSP:
+
+        ASYNC_RES = []
+
+        for i, (ALI, MAP) in enumerate(zip(ut.read_multiple_objects(INFILE_A),
+                                           ut.read_multiple_objects(INFILE_GSP))):
+
+            RES = POOL.apply_async(worker_build_tree, args=(ALI, MAP, ARGS["species_tree"], i,
+                                                            ARGS["tmp_folder"]))
+            ASYNC_RES += [RES]
+
+    POOL.close()
+    POOL.join()
+
+
+    for RES in ASYNC_RES:
+        if not RES.get():
+            sys.stderr.write("An error occured in a child process\n")
+            sys.exit(1)
+
+
+    sys.stderr.write("Writing trees into a single gene tree forest file...\n")
+
+    with open(ARGS["output"], 'w') as outforest:
+        for j in range(i+1):
+
+            TREE = Tree(ARGS["tmp_folder"]+"tmp_tree_"+str(j)+".nhx")
+            os.remove(ARGS["tmp_folder"]+"tmp_tree_"+str(j)+".nhx")
+
+            #remove sp_name
+            for leaf in TREE.get_leaves():
+                sp_name = leaf.name.split('_')[-1]
+                leaf.name = leaf.name.replace('_'+sp_name, '', 1)
+
+
+            #format root node and iclude fetaures and write
+            TREE = TREE.write(features=["D", "S", "DD", "DCS", "B"], format_root_node=True,
+                              format=1)
+            outforest.write(TREE)
+            outforest.write('\n//\n')
+
+
+    #remove treebest temp...
+    os.remove("filtalign.fa")

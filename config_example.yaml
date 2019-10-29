@@ -6,13 +6,16 @@
 
 ### Input data ###
 
+
 # The gene tree forest to correct: a single file with trees in the .nhx format
+## Remove or comment the `trees` entry below to build starting trees with TreeBeST instead ##
 # Trees should be separated by '//'
 # .nhx tags at internal nodes should have the `D` attribute for duplication/speciation (D=Y or D=N)
 # .nhx tags at leaves should have the `S` attribute to indicate the species to which the gene belongs
 # Optionally, DD and DCS can help flag dubious duplication at internal nodes DD=Y or DCS=0 for dubious duplications
 # SCORPiOs is more suited to correct species tree aware gene trees
-trees:  data/example/forest.nhx
+#trees: data/example/forest.nhx
+
 
 # The corresponding multiple alignments: a single file with alignments in the fasta format
 # The file can be gzipped (.gz) or not
@@ -20,14 +23,24 @@ trees:  data/example/forest.nhx
 # Alignments should be separated by '//'
 # They should appear in the same order as their corresponding tree in the forest
 # Gene names should be the same as in the trees
-alis:  data/example/ali.fa.gz
+alis: data/example/ali.fa.gz
 
-# The genes coordinate files for all duplicated species + outgroup to use in synteny analyses
+
+# Genes - species mapping file : a single file with two columns: gene_name species name
+## Uncomment the `genes_sp_mapping` entry below to build starting trees with TreeBeST ##
+# Families should be separated by '//'
+# They should appear in the same order as their corresponding alignment in the alignments file
+# Gene names and species should be the same as in the alignment and species tree, respectively
+genes_sp_mapping: data/example/genes_sp_mapping.txt
+
+
+# The genes coordinate files for all duplicated species and outgroup(s) to use in synteny analyses
 # Two formats are accepted:
 # Either a minimal .bed with 4 columns: chromosome start end gene_name
 # Or a DYOGEN .bz2 file with 5 or 6 columns: chromosome start end strand gene_name (transcript)
 # Gene names should be the same as in the trees and alignments
 genes: data/example/genes/genes.%s.bed
+
 
 # The species tree in newick format with ancestors as internal node names
 # It should contain all species in the gene tree forest (marked by the `S` attribute in gene trees)

@@ -61,16 +61,15 @@ Before any SCORPiOs run, you should:
 Inputs and parameters to execute SCORPiOs have to be specified in a configuration file.
 An example configuration file is provided: [config_example.yaml](config_example.yaml).
 
-This configuration file allows to execute SCORPiOs on toy example data located in [data/example/](data/example/), that you can use as reference for input formats. More details on input file formats are given in [config_example.yaml](config_example.yaml).
+This configuration file allows to execute SCORPiOs on toy example data located in [data/example/](data/example/), that you can use as reference for input formats. SCORPiOs can either start from an input gene trees forest or build one using TreeBeST. More details on input files and formats can be found in [config_example.yaml](config_example.yaml).
 
 In brief, SCORPiOs input files are:
-- A single file with the gene trees forest to correct
+- A single file with the gene trees forest to correct OR a genes to species mapping file to build a starting forest
 - A single file with the corresponding multiple alignments
 - Gene coordinates files
 - A species tree
 
 The only required snakemake arguments to run SCORPiOs are `--configfile` and the `--use-conda` flag. Optionally, you can specify the number of threads via the `--cores` option. For more advanced snakemake usage, you can look at the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/).
-
 
 To run SCORPiOs on example data:
 
