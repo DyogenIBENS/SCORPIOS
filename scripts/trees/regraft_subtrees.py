@@ -59,7 +59,8 @@ def topo_changes(lca, stree, leaves_to_move, outgr, authorized_sp):
     #node_max is the position where to paste the corrected subtree into the original tree
     leaves_in_cor = {i.name for i in stree.get_leaves()}
     node_max = gt.find_node_with_most_desc(final_tree, leaves_in_cor)
-    node_max.name = 'node_max'
+    if not node_max.is_leaf():
+        node_max.name = 'node_max'
 
     outgroup_subtree = final_tree.copy()
 
@@ -84,12 +85,13 @@ def topo_changes(lca, stree, leaves_to_move, outgr, authorized_sp):
         #duplicated_sp_tree is modified in-place
         duplicated_sp_subtree = gt.keep_sis_genes_together(duplicated_sp_subtree, outgr,
                                                            sister_outgroup_genes,
-                                                           outgroup_subtree)
+                                                           outgroup_subtree, node_max.name)
 
     #if we have remaining leaves (genes outside)
     #we paste the duplicated_sp_subtree+outgroups at node_max
     if pruned:
         node_max.add_child(duplicated_sp_subtree)
+        node_max.name = ''
 
     #otherwise we have placed all leaves as direct outgr and we don't need to update
     else:
@@ -148,7 +150,6 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
 
         #Re-graft each subtree that we corrected
         for cor_subtree in cor_subtrees:
-
             missing_leaves = []
             corrected_tree = gt.get_solution_subtree(to_cor, cor_subtree.name)
             cor_descendants = []

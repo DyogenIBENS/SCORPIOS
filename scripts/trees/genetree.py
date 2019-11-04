@@ -284,12 +284,11 @@ def find_sister_of_outgroup(leaf_outgr, authorized_sp, sister_outgroup_genes):
                     sister_outgroup_genes.append(gene.name)
 
 def keep_sis_genes_together(duplicated_sp_subtree, outgr, sister_outgroup_genes, outgroup_subtree,
-                            node_max=True):
-
+                            node_max='node_max'):
     """
     Keeps genes of all outgroup species together when modifying a gene tree, so that the
     new tree remains species tree consistent for these species that branch between the outgroup and
-    duplicated speies.
+    duplicated species.
 
     Args:
         duplicated_sp_subtree (ete3.Tree) : Synteny-corrected subtree
@@ -297,6 +296,9 @@ def keep_sis_genes_together(duplicated_sp_subtree, outgr, sister_outgroup_genes,
         sister_outgroup_genes (list of str) : genes that are grouped with the outgroup gene in the
                                               original tree and in related species
         outgroup_subtree (ete3.Tree) : subtree with only outgroup and related genes
+        node_max (str, optional) : internal node name in the outgroup subtree where to paste the
+                                   duplicated species subtree. If empty a new tree combining both
+                                   is created.
 
     Returns:
         ete3.Tree : a new tree where the outgroup gene in the synteny-corrected is replaced by the
@@ -308,9 +310,9 @@ def keep_sis_genes_together(duplicated_sp_subtree, outgr, sister_outgroup_genes,
     leaves_to_prune = [i.name for i in duplicated_sp_subtree.get_leaves() if i.name != outgr]
 
     if node_max:
-
-        outgroup_subtree.prune(outgr_subtree_leaves + ['node_max'])
-        node = outgroup_subtree.search_nodes(name="node_max")[0]
+        outgroup_subtree.prune(outgr_subtree_leaves + [node_max])
+        node = outgroup_subtree.search_nodes(name=node_max)[0]
+        node.name = ''
         duplicated_sp_subtree.prune(leaves_to_prune)
         node.add_child(duplicated_sp_subtree.copy())
         duplicated_sp_subtree = outgroup_subtree.copy()
@@ -395,7 +397,7 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
             #stree is modified in-place
             subtree_4r = keep_sis_genes_together(subtree_4r, outgr_gene.name,
                                                  sister_outgroup_genes, outgroup_subtree,
-                                                 node_max=False)
+                                                 node_max='')
 
             lca = stree.get_common_ancestor(sister_outgroup_genes)
             stree.prune([i for i in stree.get_leaves() if i.name not in sister_outgroup_genes] +\
@@ -411,6 +413,10 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
     #remove potential signle child internal nodes artefact
     stree.prune([i for i in stree.get_leaves()])
 
+    #clean up attributes
+    for leaf in stree.get_leaves():
+        if hasattr(leaf, 'missing'):
+            delattr(leaf, 'missing')
 
 if __name__ == '__main__':
     sys.exit()
