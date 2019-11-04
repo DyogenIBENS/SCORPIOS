@@ -32,9 +32,11 @@ def read_summary(input_file):
             if i != 0:
 
                 line = line.strip().split('\t')
-                fam, nb_cuts = line[0], int(line[-1])
-                summary[fam] = nb_cuts
-
+                try:
+                    fam, nb_cuts = line[0], int(line[-1])
+                    summary[fam] = nb_cuts
+                except ValueError:
+                    pass
     return summary
 
 
