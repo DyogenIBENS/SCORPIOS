@@ -14,7 +14,7 @@
 # .nhx tags at leaves should have the `S` attribute to indicate the species to which the gene belongs
 # Optionally, DD and DCS can help flag dubious duplication at internal nodes DD=Y or DCS=0 for dubious duplications
 # SCORPiOs is more suited to correct species tree aware gene trees
-#trees: data/example/forest.nhx
+trees: data/example/forest.nhx
 
 
 # The corresponding multiple alignments: a single file with alignments in the fasta format
@@ -31,7 +31,7 @@ alis: data/example/ali.fa.gz
 # Families should be separated by '//'
 # They should appear in the same order as their corresponding alignment in the alignments file
 # Gene names and species should be the same as in the alignment and species tree, respectively
-genes_sp_mapping: data/example/genes_sp_mapping.txt
+#genes_sp_mapping: data/example/genes_sp_mapping.txt
 
 
 # The genes coordinate files for all duplicated species and outgroup(s) to use in synteny analyses
@@ -45,6 +45,7 @@ genes: data/example/genes/genes.%s.bed
 # The species tree in newick format with ancestors as internal node names
 # It should contain all species in the gene tree forest (marked by the `S` attribute in gene trees)
 # Species name should not contain underscores '_'
+# For better trees reconstruction with TreeBeST, the tree should preferably not contain polytomies
 species_tree: data/example/species_tree.nwk
 
 
