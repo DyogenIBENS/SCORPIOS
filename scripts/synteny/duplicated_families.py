@@ -61,7 +61,7 @@ def get_genes_positions(genes, species, dict_genes):
             ortho_genes.append(dict_genes[species][gene])
 
         else:
-            sys.stderr.write("Warning: {} is not in the genes cooredinate file \n".format(gene))
+            sys.stderr.write("Warning: {} is not in the genes coordinate file \n".format(gene))
             ortho_genes.append(syu.GeneSpeciesPosition(gene, '', ''))
 
     return ortho_genes
