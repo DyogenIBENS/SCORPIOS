@@ -247,6 +247,10 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
 
     try:
 
+        if brlengths:
+            sys.stderr.write("Computing branch lengths for tree number "+str(treeid)+"\n")
+            sys.stderr.flush()
+
         wtree = Tree(tree, format=1)
         d_sp = {}
         whole_tree = treeid
