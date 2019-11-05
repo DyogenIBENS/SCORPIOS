@@ -40,7 +40,16 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
 
     """
     try:
+
+        tmp_ali = tmp_folder+"tmp_ali_"+str(ali_id)+".fa"
+        out_tree = tmp_folder+"tmp_tree_"+str(ali_id)+".nhx"
+
+        if os.path.isfile(out_tree) and os.path.getsize(out_tree) > 0:
+            return True
+
         sys.stderr.write("Building tree for alignment number "+str(ali_id)+"\n")
+        sys.stderr.flush()
+
         mapping = {}
         genes_sp = genes_sp.strip().split('\n')
         for line in genes_sp:
@@ -48,14 +57,21 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
             mapping[name] = species
 
         seq = ut.get_subali(ali, mapping, mapping)
-        tmp_ali = tmp_folder+"tmp_ali_"+str(ali_id)+".fa"
-        out_tree = tmp_folder+"tmp_tree_"+str(ali_id)+".nhx"
+
         ut.write_fasta(seq, tmp_ali)
 
-        os.system("treebest best "+tmp_ali+" -f "+sptree+" -X 10 -Z 1e-3 -q > "+out_tree)
+        return_value = os.system("treebest best "+tmp_ali+" -f "+sptree+" -X 10 -Z 1e-3 -q > "+out_tree)
+
+        #if treebest failed, we try without filtering the alignment
+        if return_value != 0:
+
+            cmd = "treebest best "+tmp_ali+" -F 0 -f "+sptree+" -X 10 -Z 1e-3 -q > "+out_tree
+            return_value = os.system(cmd)
+
+            if return_value != 0:
+                raise Exception('treebest failed to build a tree for alignment {}'.format(ali_id))
 
         os.remove(tmp_ali)
-
         return True
 
     except Exception:
@@ -92,7 +108,7 @@ if __name__ == '__main__':
     if ARGS["tmp_folder"]:
         os.makedirs(ARGS["tmp_folder"], exist_ok=True)
 
-    sys.stderr.write("Building starting trees with TreeBeST...\n")
+    sys.stderr.write("Building starting trees with TreeBeST\n")
 
     OPEN = open
     if ARGS["ali"].split('.')[-1] == 'gz':
@@ -129,20 +145,20 @@ if __name__ == '__main__':
         for j in range(i+1):
 
             TREE = Tree(ARGS["tmp_folder"]+"tmp_tree_"+str(j)+".nhx")
-            os.remove(ARGS["tmp_folder"]+"tmp_tree_"+str(j)+".nhx")
 
             #remove sp_name
             for leaf in TREE.get_leaves():
                 sp_name = leaf.name.split('_')[-1]
                 leaf.name = leaf.name.replace('_'+sp_name, '', 1)
 
-
-            #format root node and iclude fetaures and write
+            #format root node and include features and write
             TREE = TREE.write(features=["D", "S", "DD", "DCS", "B"], format_root_node=True,
                               format=1)
             outforest.write(TREE)
             outforest.write('\n//\n')
 
+    #remove single tree files
+    os.remove(ARGS["tmp_folder"]+"tmp_tree_*.nhx")
 
     #remove treebest temp...
     os.remove("filtalign.fa")
