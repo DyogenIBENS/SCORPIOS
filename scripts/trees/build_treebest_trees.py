@@ -30,6 +30,9 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
     Build a gene tree from the multiple alignment string in `ali`, while accounting for the
     species tree `sptree`, using treebest best.
 
+    If the output tree file already exists, the file will not be updated. This allows to re-
+    execute a SCORPiOs snakemake run without recomputing all trees in case of error. 
+
     Args:
         tree (ete3.Tree): input tree to reconcile.
         ali (str): the fasta multiple alignment
