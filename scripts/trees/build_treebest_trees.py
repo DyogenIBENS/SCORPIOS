@@ -17,6 +17,7 @@ import sys
 import gzip
 import multiprocessing
 import traceback
+import glob
 
 from ete3 import Tree
 
@@ -158,7 +159,9 @@ if __name__ == '__main__':
             outforest.write('\n//\n')
 
     #remove single tree files
-    os.remove(ARGS["tmp_folder"]+"tmp_tree_*.nhx")
+    tmp_trees = glob.glob(ARGS["tmp_folder"]+"tmp_tree_*.nhx")
+    for tmp_tree in tmp_trees:
+        os.remove(tmp_tree)
 
     #remove treebest temp...
     os.remove("filtalign.fa")
