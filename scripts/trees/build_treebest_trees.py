@@ -31,7 +31,7 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
     species tree `sptree`, using treebest best.
 
     If the output tree file already exists, the file will not be updated. This allows to re-
-    execute a SCORPiOs snakemake run without recomputing all trees in case of error. 
+    execute a SCORPiOs snakemake run without recomputing all trees in case of error.
 
     Args:
         tree (ete3.Tree): input tree to reconcile.
@@ -63,8 +63,8 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
         seq = ut.get_subali(ali, mapping, mapping)
 
         ut.write_fasta(seq, tmp_ali)
-
-        return_value = os.system("treebest best "+tmp_ali+" -f "+sptree+" -X 10 -Z 1e-3 -q > "+out_tree)
+        cmd = "treebest best "+tmp_ali+" -f "+sptree+" -X 10 -Z 1e-3 -q > "+out_tree
+        return_value = os.system(cmd)
 
         #if treebest failed, we try without filtering the alignment
         if return_value != 0:
@@ -162,8 +162,8 @@ if __name__ == '__main__':
             outforest.write('\n//\n')
 
     #remove single tree files
-    tmp_trees = glob.glob(ARGS["tmp_folder"]+"tmp_tree_*.nhx")
-    for tmp_tree in tmp_trees:
+    TMP_TREES = glob.glob(ARGS["tmp_folder"]+"tmp_tree_*.nhx")
+    for tmp_tree in TMP_TREES:
         os.remove(tmp_tree)
 
     #remove treebest temp...
