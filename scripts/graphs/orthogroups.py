@@ -6,9 +6,9 @@
     a whole genome duplication.
 
     Example:
-        $ python -m scripts.graphs.orthogroups -i orthology_file.gzip [-o out] [-w n] [-n 1]
-                                                                      [-s Summary] [-ignSg y]
-                                                                      [-wgd '']
+        $ python -m scripts.graphs.orthogroups -i orthology_file.gz [-o out] [-w n] [-n 1]
+                                                                    [-s Summary] [-ignSg y]
+                                                                    [-wgd '']
 """
 
 
