@@ -32,6 +32,16 @@ def one_file_consel(filename, alpha, item_test='1'):
     Returns:
         (str): One of 'error', 'rejected', 'equivalent lower lk', 'equivalent higher lk' or
                'better sign. higher lk'.
+
+    Note:
+        The function returns the 'error' string in two cases:
+        - the input file is empty, in SCORPiOs workflow this happens when the synteny aware tree
+          could not be built with ProfileNJ due to fastdist failing to build the distance matrix.
+        - CONSEL failed to compute the log-likelihoods from the phyml site likelihood file, because
+          one or several sites have likelihood 0. This never happened in any of my WGD datasets, I
+          only observed it with more distant species and genes. Thus, I did not include a cleaning
+          step for the phyml site likelihood file. If the problem arises in the future (see logs),
+          we might need to consider it.
     """
 
     #if consel failed (probably because tree building failed) we return the 'error' value.
@@ -55,7 +65,9 @@ def one_file_consel(filename, alpha, item_test='1'):
                         item = res[2]
                         au_value = res[4]
                         tmp.append((item, au_value))
-            if tmp:
+                        obs = res[3]
+
+            if tmp and obs != 'inf': #safeguard against a rare bug when making au-test
 
                 if tmp[0][0] == item_test:
 
@@ -72,6 +84,10 @@ def one_file_consel(filename, alpha, item_test='1'):
                 else:
 
                     au_result = 'rejected'
+
+            elif tmp:
+
+                sys.stderr.write("Error in {}, CONSEL failed to compute log-lk".format(filename))
 
     return au_result
 
@@ -151,7 +167,7 @@ def count(filenames, name_sol="", alpha=0.05, item='1', parse_name=True, wgd='')
                                                                              higher_p))
         print(" Accepted correction with sign. higher lk:  {} ({}%) ".format(better, better_prop))
         if err:
-            print(" {} subtree not tested ({})".format(err, reason))
+            print(" {} subtrees not tested ({})".format(err, reason))
         print("----------------------------------------------------------------------------")
         print("\n")
 
