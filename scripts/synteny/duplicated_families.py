@@ -352,6 +352,8 @@ if __name__ == '__main__':
     PARSER.add_argument('-u', '--uncertainFamilies', help='File to write genes without\
                          phylogenetic orthologs.', required=False, default="Uncertain_genes")
 
+    PARSER.add_argument('-f', '--format', help='Genes file format', required=False, default="bed")
+
     ARGS = vars(PARSER.parse_args())
 
     #Study species
@@ -365,7 +367,7 @@ if __name__ == '__main__':
     DICTGENOME, DICTGENES = {}, {}
     SPECIES = DUP_SPECIES + [OUTGROUP]
     for SP in SPECIES:
-        GENOME = mygenome.Genome(ARGS["genesFile"] % SP)
+        GENOME = mygenome.Genome(ARGS["genesFile"] % SP, ARGS["format"])
         if SP == OUTGROUP:
             DICTGENOME[SP] = GENOME
         DICTGENES[SP] = {}

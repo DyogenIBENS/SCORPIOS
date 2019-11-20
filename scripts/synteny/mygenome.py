@@ -124,13 +124,14 @@ class Genome:
         dict_genes (dict): For each gene name (key), its position in a `GenePosition` namedtuple.
     """
 
-    def __init__(self, fichier):
+    def __init__(self, fichier, file_format):
 
         """
         Inits a Genome Object from a given gene file.
 
         Arg:
             fichier (str): name of the genes coordinates file.
+            format (str, optional): specify the format
         """
 
         sys.stderr.write("Loading genome of {} ...\n".format(fichier))
@@ -145,7 +146,7 @@ class Genome:
             # list of genes per chromosome
             self.genes_list = collections.defaultdict(list)
 
-            if is_bz2(fichier):
+            if file_format.upper() == "DYOGEN":
 
                 # genesST or genes in DYOGEN format
                 # CHR BEG END STRAND NAME
@@ -165,7 +166,7 @@ class Genome:
                     self.add_gene(gene_names.split(), chrom, beg, end)
 
             #if file is not bzip2, we assume it is a minimal .bed
-            else:
+            elif file_format.upper() == 'BED':
 
                 # .bed minimal: "CHR BEG END NAMES"
                 ###################################
@@ -177,6 +178,9 @@ class Genome:
                                             format, please check\n".format(fichier)
                     (chrom, beg, end, gene_names) = line
                     self.add_gene(gene_names.split(), chrom, int(beg), int(end))
+
+            else:
+                raise ValueError("{} format is not supported\n".format(file_format))
 
 
         self.name = fichier

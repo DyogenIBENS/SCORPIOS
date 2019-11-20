@@ -14,7 +14,7 @@ rule get_gene_families:
     shell: """
     python -m scripts.synteny.duplicated_families -t {input[0]} -n {wildcards.outgr}\
     -d {wildcards.wgd} {anc_arg} -s {input[1]} -g {config[genes]}\
-    -o {output.orthology_table} -u {output.genes_without_orthologs}
+    -o {output.orthology_table} -u {output.genes_without_orthologs} -f {config[genes_format]}
     """
 
 

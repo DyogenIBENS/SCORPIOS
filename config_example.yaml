@@ -35,9 +35,10 @@ alis: data/example/ali.fa.gz
 
 
 # The genes coordinate files for all duplicated species and outgroup(s) to use in synteny analyses
-# Two formats are accepted:
-# Either a minimal .bed with 4 columns: chromosome start end gene_name
-# Or a DYOGEN .bz2 file with 5 or 6 columns: chromosome start end strand gene_name (transcript)
+# Two formats are accepted (files can be bzipped2):
+# Either a minimal bed with 4 columns: chromosome start end gene_name
+# Or a DYOGEN file with 5 or 6 columns: chromosome start end strand gene_name (transcript)
+# If in DYOGEN format a line `genes_format: 'dyogen'` should be added
 # Gene names should be the same as in the trees and alignments
 genes: data/example/genes/genes.%s.bed
 

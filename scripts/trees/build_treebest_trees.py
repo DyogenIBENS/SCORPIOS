@@ -67,6 +67,7 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
         return_value = os.system(cmd)
 
         #if treebest failed, we try without filtering the alignment
+        #TODO it would be better to catch treebest errors using subprocess rather than os.system
         if return_value != 0:
 
             cmd = "treebest best "+tmp_ali+" -F 0 -f "+sptree+" -X 10 -Z 1e-3 -q > "+out_tree

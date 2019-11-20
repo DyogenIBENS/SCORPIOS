@@ -81,6 +81,10 @@ if int(ITER) > 0:
 if "genes_sp_mapping" not in config:
     config["genes_sp_mapping"] = ""
 
+# Set genes file format if dyogen format is specified (otherwise bed is assumed)
+if "genes_format" not in config:
+    config["genes_format"] = "bed"
+
 #all WGDs in trees
 anc_other = ''
 anc_arg = '-ow '+','.join(config['WGDs'].keys())
