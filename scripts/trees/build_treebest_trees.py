@@ -34,10 +34,11 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
     execute a SCORPiOs snakemake run without recomputing all trees in case of error.
 
     Args:
-        tree (ete3.Tree): input tree to reconcile.
         ali (str): the fasta multiple alignment
         genes_sp (str): the corresponding genes to species mapping
-        tree_id (str): identifier of the tree, used in the output .nhx file name.
+        sptree (str): path to the newick species tree
+        ali_id (str): identifier of the tree, used in the output .nhx file name.
+        tmp_folder (str): path to temp individual ali, will store temp individual tree.
 
     Returns:
         bool: True if no Exception was raised.
