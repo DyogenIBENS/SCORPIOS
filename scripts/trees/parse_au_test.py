@@ -34,14 +34,17 @@ def one_file_consel(filename, alpha, item_test='1'):
                'better sign. higher lk'.
 
     Note:
+
         The function returns the 'error' string in two cases:
+
         - the input file is empty, in SCORPiOs workflow this happens when the synteny aware tree
           could not be built with ProfileNJ due to fastdist failing to build the distance matrix.
+
         - CONSEL failed to compute the log-likelihoods from the phyml site likelihood file, because
           one or several sites have likelihood 0. This never happened in any of my WGD datasets, I
           only observed it with more distant species and genes. Thus, I did not include a cleaning
-          step for the phyml site likelihood file. If the problem arises in the future (see logs),
-          we might need to consider it.
+          step for the phyml site likelihood file, nor the alignment. If the problem arises in the
+          future (check logs), we might need to consider it.
     """
 
     #if consel failed (probably because tree building failed) we return the 'error' value.
