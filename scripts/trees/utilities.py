@@ -86,10 +86,16 @@ def delete_gaps_in_all(ali):
         ali (dict): dictionary storing the alignment with gene names as keys and aligned sequences
         as values.
 
+    Note:
+        Throws an assertion error if the alignment is empty
+
     """
+
+    assert len(ali), "Empty alignment"
 
     #transform string to numpy array for efficiency
     ali_array = np.array([list(ali[name]) for name in sorted(ali)])
+
 
     #define and apply a mask to remove gaps in all sequences
     mask = (ali_array == '-').all(0)
