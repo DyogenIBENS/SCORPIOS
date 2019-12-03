@@ -94,3 +94,22 @@ else:
         shell: """
         touch {output}
         """
+
+if config["filter_otable_nosynteny"] == 'y':
+    rule filter_table:
+        input: OrthoTable
+        output: OrthoTableF
+        params: Chr = Chr.replace("{{outgr}}", "{{wildcards.outgr}}").replace("{{wgd}}",\
+                                  "{{wildcards.wgd}}"),
+        shell:"""
+        python -m scripts.synteny.filter_no_synteny_genes -i {input} -chr {params.Chr}\
+        -w {config[windowSize]} -o {output}
+        """
+
+else:
+    rule pass_ofilter:
+        input: OrthoTable
+        output: OrthoTableF
+        shell:"""
+        cp {input} {output}
+        """

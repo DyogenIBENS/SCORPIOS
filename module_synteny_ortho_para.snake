@@ -9,7 +9,7 @@ rule synteny_orthologies_paralogies:
     Identifies post-WGD orthologs and paralogs in all pairs of duplicated species, using synteny.
     Executed in parallel for each chromsome in the outgroup and each pair of duplicated species.
     """
-    input: a=OrthoTable, d=TreesOrthologies+'/{wgd}', e=regions
+    input: a=OrthoTableF, d=TreesOrthologies+'/{wgd}', e=regions
     output: temp(Pairwise_SyntenyOrthoPred+"/{pairwise}_{chr_outgr}_{outgr}_{wgd}.txt")
     params: args_autho = args_autho.replace("{{outgr}}", "{{wildcards.outgr}}").replace("{{wgd}}",\
                                             "{{wildcards.wgd}}")

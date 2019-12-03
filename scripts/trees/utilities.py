@@ -91,7 +91,7 @@ def delete_gaps_in_all(ali):
 
     """
 
-    assert len(ali), "Empty alignment"
+    assert ali, "Empty alignment"
 
     #transform string to numpy array for efficiency
     ali_array = np.array([list(ali[name]) for name in sorted(ali)])

@@ -180,6 +180,7 @@ rule clean_up:
     rm -r {SUBALIS} || true; rm -r {SUBTREES} || true; rm {NO_ANC_TREE} || true;\
     rm -r {TreesOrthologies} || true; rm {params.path}/Chr* || true;\
     rm {params.path}/OrthoTableStrict* || true;\
+    rm {params.path}/OrthoTableFilter* || true;
     rm {params.path}/UNCERTAIN* || true;
     rm -r {Pairwise_SyntenyOrthoPred} || true
     """

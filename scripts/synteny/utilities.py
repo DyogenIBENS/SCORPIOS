@@ -428,7 +428,8 @@ def update_orthologytable(all_genefam, res_dict, sp_list):
 
 
 
-def write_updated_orthotable(all_genefam, outgr, sp_list, chr_outgr, out, wsize=0):
+def write_updated_orthotable(all_genefam, outgr, sp_list, chr_outgr, out, wsize=0,
+                             filt_genes=None):
 
     """
     Writes an orthology table file from data stored in `all_genefam`.
@@ -486,7 +487,10 @@ def write_updated_orthotable(all_genefam, outgr, sp_list, chr_outgr, out, wsize=
                         for gene in genes:
                             stats[species] += 1
                             tot_genes += 1
-                            content.append(gene.name+'|'+gene.chromosome+'-'+str(gene.index))
+                            if gene.name in filt_genes:
+                                content.append(gene.name+'|-')
+                            else:
+                                content.append(gene.name+'|'+gene.chromosome+'-'+str(gene.index))
                         str_content = ('/').join(content)
                         tmp.append(str_content)
 

@@ -35,6 +35,7 @@ else:
 OrthoTableStrict = out_name("Families/OrthoTableStrict", JNAME, ITER, True, True)
 Chr =  out_name("Families/Chr", JNAME, ITER, True, True)
 OrthoTable = out_name("Families/OrthoTable", JNAME, ITER, True, True)
+OrthoTableF = out_name("Families/OrthoTableFilter", JNAME, ITER, True, True)
 TreesOrthologies = out_name("TreesOrthologies", JNAME, ITER)
 SyntenyOrthoPred = out_name("SyntenyOrthoPred", JNAME, ITER, True, True)
 Sorted_SyntenyOrthoPred = out_name("Synteny/Sorted_SyntenyOrthoPred", JNAME, ITER, True, True)
@@ -100,6 +101,8 @@ if "lowcov_sp" in config:
 wildcard_constraints:
     pairwise="[A-Za-z.0-9]+_[A-Za-z.0-9]+" #no underscore in sp names, as also required in ensembl
 
+if "filter_otable_nosynteny" not in config:
+    config["filter_otable_nosynteny"] = 'n'
 
 ### WORKFLOW
 
