@@ -3,7 +3,7 @@ SCORPiOs_*/
 *__pycache__/
 *.pyc
 data/*
-!data/example/*
+!data/example/
 config*
 !config_example.yaml
 
