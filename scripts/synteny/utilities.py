@@ -487,7 +487,7 @@ def write_updated_orthotable(all_genefam, outgr, sp_list, chr_outgr, out, wsize=
                         for gene in genes:
                             stats[species] += 1
                             tot_genes += 1
-                            if gene.name in filt_genes:
+                            if filt_genes and gene.name in filt_genes:
                                 content.append(gene.name+'|-')
                             else:
                                 content.append(gene.name+'|'+gene.chromosome+'-'+str(gene.index))
