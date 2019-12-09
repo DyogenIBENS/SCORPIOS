@@ -40,7 +40,7 @@ To install Miniconda3:
 - Clone the repository and go to SCORPiOs root folder
 ```
 git clone https://github.com/DyogenIBENS/SCORPIOS.git
-cd SCORPiOs
+cd SCORPIOS
 ```
 
 - Create the main conda environment (this may take a few minutes)
