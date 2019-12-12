@@ -68,8 +68,8 @@ def load_tree_orthologies(orthology_file, rev=False):
     return orthos
 
 
-def synteny_orthology_prediction(orthotable, sp1, sp2, chrom, tree_orthos, win_size=15, cutoff=0,
-                                 regions=None):
+def synteny_orthology_prediction(orthotable, sp1, sp2, chrom, tree_orthos, res_orthologies,
+                                 win_size=15, cutoff=0, regions=None):
 
     """
     Compares synteny similarity of duplicated segments stored in the Orthology Table, for `sp1`
@@ -81,6 +81,7 @@ def synteny_orthology_prediction(orthotable, sp1, sp2, chrom, tree_orthos, win_s
         sp1, sp2 (str): Name of compared duplicated species
         chrom (str): Name of the outgroup chromosome
         tree_orthos (dict): Orthologous gene pairs in sp1 and sp2, defined from molecular evolution
+        res_orthologies (dict): dict to store results
         win_size (int, optional): Size of the sliding window to browse the orthology table
         cutoff (int, optional): cutoff on synteny similarity delta scores to predict orthology
         regions (list, optional): List of regions on the outgroup chromosome to restrict the
@@ -90,9 +91,6 @@ def synteny_orthology_prediction(orthotable, sp1, sp2, chrom, tree_orthos, win_s
         dict: Synteny-predicted orthologous gene pairs
 
     """
-
-    #dict to store results
-    all_orthologies = {}
 
     #load orthotable entries for sp1 and sp2
     table_entries_sp1 = ut.complete_load_orthotable(orthotable, chrom, sp1)
@@ -127,9 +125,9 @@ def synteny_orthology_prediction(orthotable, sp1, sp2, chrom, tree_orthos, win_s
 
                     #Store gene orthologies for best threading
                     if abs(s_max) > cutoff:
-                        dup_seg_sp1.update_orthologies(dup_seg_sp2, s_max, best, all_orthologies)
+                        dup_seg_sp1.update_orthologies(dup_seg_sp2, s_max, best, res_orthologies)
 
-    return all_orthologies
+    return res_orthologies
 
 
 def find_best_threading(dup_seg_sp1, dup_seg_sp2, tree_orthos):
@@ -265,6 +263,10 @@ if __name__ == '__main__':
                         help='Filter families when using iterative mode.',
                         required=False, default=None)
 
+    PARSER.add_argument('-chr_list', '--chr_list', type=str, help='If provided the script will run\
+                        for all chromosomes of the outgroup, as provided in the file passed with\
+                        this argument', required=False, default='')
+
     ARGS = vars(PARSER.parse_args())
 
     (SP1, SP2) = ARGS["pair"].split('_')
@@ -277,20 +279,32 @@ if __name__ == '__main__':
         ORTHO_FILE = ARGS["orthoFromTrees"]+'/ens_'+SP2+'_'+SP1+'.txt'
     TREE_ORTHOS = load_tree_orthologies(ORTHO_FILE, REV)
 
-    #if SCORPiOs is run in iterative mode, we restrict regions to use in the synteny analysis
-    #to regions and gene families to regions with updated synteny information
-    #Here `GENES` are all genes within an updated synteny context and `REGIONS` are all windows
-    #they appear in
-    REGIONS, GENES = None, None
-    if ARGS['filter_for_iter']:
 
-        REGIONS, GENES = freg.read_authorized_regions(ARGS['filter_for_iter'], ARGS["chr_outgr"],
-                                                      ARGS['windowSize'])
+    CHROMS = [ARGS["chr_outgr"]]
+    if ARGS["chr_list"]:
 
+        CHROMS = ut.outgr_chromosomes(ARGS["chr_list"])
 
-    #predict gene orthologies using synteny
-    SYNTENY_ORTHOS = synteny_orthology_prediction(ARGS["input"], SP1, SP2, ARGS["chr_outgr"],
-                                                  TREE_ORTHOS, ARGS["windowSize"], ARGS['cutoff'],
-                                                  REGIONS)
+    ALL_GENES = []
+
+    SYNTENY_ORTHOS = {}
+    for CHROM in CHROMS:
+
+        #if SCORPiOs is run in iterative mode, we restrict regions to use in the synteny analysis
+        #to regions and gene families to regions with updated synteny information
+        #Here `GENES` are all genes within an updated synteny context and `REGIONS` are all windows
+        #they appear in
+        REGIONS, GENES = None, None
+        if ARGS['filter_for_iter']:
+
+            REGIONS, GENES = freg.read_authorized_regions(ARGS['filter_for_iter'], CHROM,
+                                                          ARGS['windowSize'])
+            ALL_GENES += GENES
+
+        #predict gene orthologies using synteny
+        SYNTENY_ORTHOS = synteny_orthology_prediction(ARGS["input"], SP1, SP2, CHROM,
+                                                      TREE_ORTHOS, SYNTENY_ORTHOS,
+                                                      ARGS["windowSize"], ARGS['cutoff'], REGIONS)
+
     #write predictions
-    write_orthologies(ARGS["out"], SYNTENY_ORTHOS, SP1, SP2, filter_genes=GENES)
+    write_orthologies(ARGS["out"], SYNTENY_ORTHOS, SP1, SP2, filter_genes=ALL_GENES)

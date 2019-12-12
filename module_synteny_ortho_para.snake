@@ -4,6 +4,15 @@ SCORPiOs snakemake module to predict gene orthologies and paralogies using synte
 patterns, for all pairs of duplicated species.
 """
 
+## parallelization scheme --> snakemake parallelization is inefficient with a large number of jobs
+## if many duplicated species, I convert lots of small jobs into a smaller number of bigger jobs
+args_pairwise_parallel = ""
+BIG_RUN = False
+if "parallel_scheme_large_job" in config and config["parallel_scheme_large_job"] == 'y':
+    BIG_RUN = True
+    args_pairwise_parallel = "-chr_list "+Chr
+
+
 rule synteny_orthologies_paralogies:
     """
     Identifies post-WGD orthologs and paralogs in all pairs of duplicated species, using synteny.
@@ -12,12 +21,14 @@ rule synteny_orthologies_paralogies:
     input: a=OrthoTableF, d=TreesOrthologies+'/{wgd}', e=regions
     output: temp(Pairwise_SyntenyOrthoPred+"/{pairwise}_{chr_outgr}_{outgr}_{wgd}.txt")
     params: args_autho = args_autho.replace("{{outgr}}", "{{wildcards.outgr}}").replace("{{wgd}}",\
-                                            "{{wildcards.wgd}}")
+                                            "{{wildcards.wgd}}"),
+            args_parallel = args_pairwise_parallel.replace("{{outgr}}", "{{wildcards.outgr}}")\
+                                                  .replace("{{wgd}}","{{wildcards.wgd}}")
     shell:"""
     python -m scripts.synteny.pairwise_orthology_synteny -i {input.a} \
     -p {wildcards.pairwise} -chr {wildcards.chr_outgr} \
     -ortho {input.d} -o {output} -w {config[windowSize]} \
-    -cutoff={config[cutoff]} {params.args_autho}
+    -cutoff={config[cutoff]} {params.args_autho} {params.args_parallel}
     """
 
 
@@ -30,6 +41,10 @@ def all_output_species_pair_outgr_chr(wildcards):
     with open(checkpoints.outgroup_chromosomes.get(**wildcards).output[0]) as infile:
 
         chr_outgr += [line.strip() for line in infile]
+
+    if BIG_RUN:
+
+        chr_outgr = ["all_chrom"]
 
     ALL_DUPLICATED_SPECIES = spt.get_species(config["species_tree"], wildcards.wgd,
                                              ','.join(config["WGDs"].keys()), lowcov)
