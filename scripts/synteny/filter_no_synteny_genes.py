@@ -18,6 +18,46 @@ import numpy as np
 from . import syntenycompare as synt
 from . import utilities as ut
 
+def print_out_stats(stats_dict, wgd=''):
+
+    """
+    Prints to stdout some statistics on the genes without syteny support that will be ignored in
+    scorpios synteny analysis.
+
+    Args:
+        stats_dict (dict): a dict with the number of filtered genes per species
+        wgd (str, optional): the wgd for which the filter was run
+
+    """
+
+    outgr = ''
+    if ',' in wgd:
+        wgd, outgr = wgd.split(",")
+
+    if stats_dict:
+
+        print('\n')
+        print("-----------------------Genes without synteny support-------------------------")
+        print(" Whole-genome duplication: {} outgroup {}".format(wgd, outgr))
+        print("\n")
+
+        for species in stats_dict:
+            print(" {} {} orthologs in the final table without synteny support"\
+                  .format(stats_dict[spec], species))
+        print("\n")
+        print("----------------------------------------------------------------------------")
+        print("\n")
+
+    else:
+        print('\n')
+        print("-----------------------Genes without synteny support-------------------------")
+        print("Whole-genome duplication: {}".format(wgd))
+        print("\n")
+        print("0 orthologs in the final table without synteny support")
+        print("----------------------------------------------------------------------------")
+        print("\n")
+
+
 if __name__ == '__main__':
 
     ## Arguments
@@ -38,6 +78,9 @@ if __name__ == '__main__':
     PARSER.add_argument('-w', '--windowSize', type=int, help='Size of the sliding window',
                         required=False, default=15)
 
+    PARSER.add_argument('-wgd', '--wgd', type=str, help='Tag for the run to write along with\
+                        output statistics', required=False, default="")
+
     ARGS = vars(PARSER.parse_args())
 
     ORTHOTABLE = ARGS["input"]
@@ -51,7 +94,6 @@ if __name__ == '__main__':
 
     with open(ARGS["chr_outgr"], 'r') as infile:
         CHROMOSOMES += [line.strip() for line in infile]
-
 
     DGENES = {}
     ALL_ORTHOS = collections.defaultdict(dict)
@@ -93,11 +135,14 @@ if __name__ == '__main__':
                                 DGENES[spec]["nosynteny"].update(set(dup_seg_sp.genes_dict[pos]\
                                                                                    [curr_chrom]))
     NO_SYNT = []
+    STATS = {}
     for spec in DGENES:
         DGENES[spec]["nosynteny"] = DGENES[spec]["nosynteny"].difference(DGENES[spec]["synteny"])
-        print(spec, len(DGENES[spec]["nosynteny"]))
         NO_SYNT += list(DGENES[spec]["nosynteny"])
+        STATS[spec] = STATS.get(spec, 0) + len(DGENES[spec]["nosynteny"])
 
 
     ut.write_updated_orthotable(ALL_ORTHOS, OUTGR, SPECIES, CHROMOSOMES, ARGS["out"],
                                 wsize=ARGS['windowSize'], filt_genes=NO_SYNT)
+
+    print_out_stats(STATS, wgd=ARGS["wgd"])
