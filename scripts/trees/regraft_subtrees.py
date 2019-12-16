@@ -51,9 +51,8 @@ def topo_changes(lca, stree, leaves_to_move, outgr, authorized_sp):
 
     #the final tree will consist in three subtrees pasted together:
     #the corrected duplcated_species_subtree, outgroup_genes and genes to move outside (final_tree)
-    duplicated_sp_subtree = stree.copy()
-    final_tree = lca.copy()
-
+    duplicated_sp_subtree = stree.copy("newick-extended")
+    final_tree = lca.copy("newick-extended")
 
     #find node with max corrected trees descendants
     #node_max is the position where to paste the corrected subtree into the original tree
@@ -62,7 +61,7 @@ def topo_changes(lca, stree, leaves_to_move, outgr, authorized_sp):
     if not node_max.is_leaf():
         node_max.name = 'node_max'
 
-    outgroup_subtree = final_tree.copy()
+    outgroup_subtree = final_tree.copy("newick-extended")
 
     #find all sister genes of outgr that are together in the tree
     #(we'll keep them together in the tree)
@@ -95,7 +94,7 @@ def topo_changes(lca, stree, leaves_to_move, outgr, authorized_sp):
 
     #otherwise we have placed all leaves as direct outgr and we don't need to update
     else:
-        final_tree = duplicated_sp_subtree.copy()
+        final_tree = duplicated_sp_subtree.copy("newick-extended")
 
     #Finally, we remove artefactual single-child internal nodes (due to the mutliple copy-pasting)
     final_tree.prune([i.name for i in final_tree.get_leaves()])
@@ -154,7 +153,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
             corrected_tree = gt.get_solution_subtree(to_cor, cor_subtree.name)
             cor_descendants = []
             for leaf in corrected_tree.get_leaves():
-                leaf.S = d_sp[leaf.name]
+                leaf.add_features(S=d_sp[leaf.name])
                 cor_descendants.append(leaf.name)
 
             all_subtrees_leaves.append(cor_descendants)
@@ -197,7 +196,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
 
             #otherwise directly replace tree
             else:
-                wtree = corrected_tree.copy()
+                wtree = corrected_tree.copy("newick-extended")
 
         #save edition tags in a dict, we will put them as NHX attributes in the end
         #otherwise they would be wiped out by treebest during reconciliation or br-length computing

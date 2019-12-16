@@ -292,8 +292,10 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, stats=None
                 #check if family is not too multigenic, in whih case correction is difficult
                 if not all_families[outgr_leaf[1]].is_multigenic():
 
-
-                    ori_tree = lca.copy()
+                    #we make a copy in case more than 1 subtree is inconsistent
+                    #"newick-extended" copy is iterative (based on ete3 load/write)
+                    #This way we do not risk to hit recusrion limit
+                    ori_tree = lca.copy("newick-extended")
                     ori_tree.prune(leavesnames_in_fam)
 
                     #write original subtrees
