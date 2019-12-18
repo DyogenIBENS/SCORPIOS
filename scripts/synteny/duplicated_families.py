@@ -14,6 +14,7 @@
 import sys
 import argparse
 import itertools
+import random
 
 from ete3 import Tree
 
@@ -72,6 +73,8 @@ def orthologies_with_outgroup(forest, duplicated_sp, outgroup, dict_genes, out):
     """
     Browses a gene tree forest and searches for orthologs with the outgroup.
     Writes genes without phylogenetic orthologs to a file.
+    Also writes files with high-confidence orthologs and paralogs to use to otpimize the synteny
+    support threshold to call orthology.
 
     Args:
         forest (str): Name of the gene trees forest file
@@ -83,11 +86,18 @@ def orthologies_with_outgroup(forest, duplicated_sp, outgroup, dict_genes, out):
     Returns:
         dict: Orthologs of outgroup genes in each duplicated species
 
+    Note (FIXME): Written to work within scorpios as orthologs and paralogs file names are derived
+                  from output file patterns, assuming it contains an '_'.
+
     """
 
     ortho = {e: {} for e in duplicated_sp}
 
-    with open(out, 'w') as outfile, open(forest, 'r') as infile:
+    orthofile = out.replace(out.split("/")[-1].split('_')[0], "orthologs")
+    parafile = out.replace(out.split("/")[-1].split('_')[0], "paralogs")
+
+    with open(out, 'w') as outfile, open(forest, 'r') as infile, open(parafile, 'w') as out_para,\
+         open(orthofile, 'w') as out_ortho:
 
         sys.stderr.write("Browsing gene trees for orthologies with the outgroup...\n")
 
@@ -128,7 +138,6 @@ def orthologies_with_outgroup(forest, duplicated_sp, outgroup, dict_genes, out):
                             seen[subtree] = []
                         seen[subtree].append((topo_distance, branch_distance, j))
                         found = True
-                        #break
 
                 # if no 'true' ortholog
                 # check if all descendants include only outgroup + duplicated species
@@ -150,9 +159,9 @@ def orthologies_with_outgroup(forest, duplicated_sp, outgroup, dict_genes, out):
 
                 # if an ortholog was found, add it to the orthology dict
                 if seen:
+                    content = []
                     seen[subtree].sort(key=lambda x: (x[0], x[1]))
                     outgroup_gene = seen[subtree][0]
-
                     outgroup_gene = outgroup_gene[2].name
                     for species in duplicated_sp:
                         genes = [i.name for i in subtree_leaves if i.S == species]
@@ -161,6 +170,33 @@ def orthologies_with_outgroup(forest, duplicated_sp, outgroup, dict_genes, out):
                         ortho[species][outgroup_gene] = ortho[species].get(outgroup_gene, [])
                         ortho[species][outgroup_gene] += genes
 
+
+                        content += [g.name+'_'+species.replace(' ', '.')+\
+                                         '|'+str(g.chromosome)+\
+                                         '|'+str(g.index) for g in genes]
+
+                    all_ortho = [i[2].name for i in seen[subtree]]
+                    paralogs = [i.name for i in outgroup_genes if i.name not in all_ortho]
+
+                    if paralogs:
+                        paralog = random.choice(paralogs)
+
+                        if paralog in dict_genes[outgroup]\
+                           and outgroup_gene in dict_genes[outgroup]:
+
+                            tmp_dict = dict_genes[outgroup]
+
+                            out_ortho.write(' '.join(content)+'\t')
+                            out_ortho.write(str(outgroup_gene)+'|'+\
+                                            str(tmp_dict[outgroup_gene].chromosome)+'|'+\
+                                            str(tmp_dict[outgroup_gene].index)+'|'+str(0)+'|'+\
+                                            str(0)+'\n')
+
+                            out_para.write(' '.join(content)+'\t')
+                            out_para.write(str(paralog)+'|'+\
+                                           str(tmp_dict[paralog].chromosome)+'|'+\
+                                           str(tmp_dict[paralog].index)+'|'+\
+                                           str(0)+'|'+str(0)+'\n')
 
                 # if no ortholog found
                 # write genes without ortholog along with all outgroup genes in tree

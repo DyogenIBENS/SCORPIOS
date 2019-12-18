@@ -13,6 +13,7 @@
 import collections
 import argparse
 import sys
+import pickle
 
 from . import utilities as syu
 from . import mygenome as myg
@@ -154,7 +155,7 @@ def neighbour_outgr_ortholog(ortho_neighbours, all_outgroup_candidates):
     return outgroup_genes
 
 
-def find_synteny_orthologs(input_file):
+def find_synteny_orthologs(input_file, optimize=False, threshold=2.0, opt_fam=None):
 
     """
     Browses ingroup genes without phylogenetic orthologs in the outgroup and attempts to find
@@ -162,6 +163,10 @@ def find_synteny_orthologs(input_file):
 
     Arg:
         input_file (str): name of the input file storing genes without orthologs in ingroups
+        optimize (bool, optional): option to use if the script is called to optimize the threshold
+        threshold (float, optional): synteny support threshold
+        opt_fam (list, optional): if defined, restricts fmailies to use for optimization to the
+                                  ones in this list
 
     Returns:
         dict: Identified synteny-supported orthologies, stored in nested dict with, for each
@@ -176,23 +181,30 @@ def find_synteny_orthologs(input_file):
 
         res = {}
 
+        store_scores = []
+
+        fam_store = []
+
         for line in infile:
 
             line = line.strip().split('\t')
 
             if len(line) == 3:
 
-                ingroup_genes, outgroup_genes, outgroup_inparalogs = line
+                ingroup_genes_raw, outgroup_genes, outgroup_inparalogs = line
                 outgroup_inparalogs = [tuple(sorted(i.split('|')))\
                                        for i in outgroup_inparalogs.split()]
 
             else:
 
-                ingroup_genes, outgroup_genes = line
+                ingroup_genes_raw, outgroup_genes = line
                 outgroup_inparalogs = []
 
+            if opt_fam and ingroup_genes_raw not in opt_fam:
+                continue
+
             #load clade of duplicated species genes
-            ingroup_genes, unplaced_genes = load_genes(ingroup_genes)
+            ingroup_genes, unplaced_genes = load_genes(ingroup_genes_raw)
 
             #load all outgroup homologous genes
             outgroup_candidates = load_genes(outgroup_genes, outgr=True)[0]['Outgroup']
@@ -247,7 +259,9 @@ def find_synteny_orthologs(input_file):
                 #trees
                 #the down would be that poorer assembly would likely make the score drop
                 #artificially (more gene splits --> higher number of genes in small scaffolds)
-                if max_value / float(len(ingroup_genes)) >= 2.0 and not old_tandem:
+                if (max_value / float(len(ingroup_genes)) >= threshold and not optimize)\
+                   and not old_tandem:
+
 
                     #store orthology
                     res[best] = res.get(best, {})
@@ -257,7 +271,12 @@ def find_synteny_orthologs(input_file):
                         res[best][spec] = res[best].get(spec, [])
                         res[best][spec] += ingroup_genes[spec]
                         res[best][spec] += unplaced_genes[spec]
-    return res
+
+                elif optimize and not old_tandem:
+                    store_scores.append(max_value / float(len(ingroup_genes)))
+                    fam_store.append(ingroup_genes_raw)
+
+    return res, store_scores, fam_store
 
 def print_out_stats(stats_dict, wgd='', file_fam_nograph='out_nog'):
 
@@ -323,6 +342,8 @@ if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description=__doc__,\
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
 
+    #Required
+
     PARSER.add_argument('-i', '--input', help='Orthology table with the outgroup.', required=True)
 
     PARSER.add_argument('-u', '--uncertain_families', help='File with genes without ortholog in\
@@ -331,6 +352,7 @@ if __name__ == '__main__':
     PARSER.add_argument('-c', '--chr', help='File with a list of chromosomes in the outroup.',
                         required=True)
 
+    # Optional
     PARSER.add_argument('-o', '--output', help='Output file.', required=False, default="out")
 
     PARSER.add_argument('-wgd', '--wgd_tag', type=str,
@@ -349,12 +371,33 @@ if __name__ == '__main__':
                               to print out statistics on families in updated regions',
                         required=False, default='out_nog')
 
+    PARSER.add_argument('-s', '--support', type=float,
+                        help='Optimal number of average syntenic orthologs to recover orthologs',
+                        required=False, default=2.0)
+
+
+    PARSER.add_argument('-opt', '--optimize',
+                        help='Run the script in optimize mode: the distribution of the number of\
+                              syntenic orthologs between ingroup genes and the reference outgroup\
+                              will be returned. No orthology table will be created.',
+                        required=False, dest='optimize', action='store_true')
+
+    PARSER.add_argument('-opt_fam', '--optimized_fam',
+                        help='Write name of families used in the optimization',
+                        type=str, default="")
+
+    PARSER.add_argument('-u_opt_fam', '--use_optimized_fam',
+                        help='Use families in input to optimize',
+                        type=str, default="")
+
+    PARSER.set_defaults(optimize=False)
+    PARSER.set_defaults(optimized_fam=False)
     ARGUMENTS = vars(PARSER.parse_args())
 
 
     #Extract header with species list
-    with open(ARGUMENTS["input"], 'r') as INFILE:
-        for LINE in INFILE:
+    with open(ARGUMENTS["input"], 'r') as myinfile:
+        for LINE in myinfile:
             OUTGR = LINE.strip().split('\t')[0]
             SP_LIST = LINE.strip().split('\t')[4:]
             break
@@ -369,19 +412,40 @@ if __name__ == '__main__':
             ALL_ORTHOS[CHROM][SPECIES] = syu.complete_load_orthotable(ARGUMENTS["input"], CHROM,\
                                                                       SPECIES,
                                                                       load_no_position_genes=True)
+    FAM = None
+    if ARGUMENTS["use_optimized_fam"]:
+        with open(ARGUMENTS["use_optimized_fam"]) as myinfile:
+            FAM = [line.strip() for line in myinfile]
+
     #Searches for synteny supported orthologies
-    RES = find_synteny_orthologs(ARGUMENTS["uncertain_families"])
+    RES, SCORES, FAM = find_synteny_orthologs(ARGUMENTS["uncertain_families"],
+                                              ARGUMENTS["optimize"],
+                                              ARGUMENTS["support"],
+                                              FAM)
 
-    #Update the orthology table
-    sys.stderr.write("Insertion of synteny-supported orthologs in the orthology table\n")
-    syu.update_orthologytable(ALL_ORTHOS, RES, SP_LIST)
+    if ARGUMENTS["optimize"]:
 
-    #Write the new orthology table
-    sys.stderr.write("Writing updated Orthology Table\n")
-    STATS = syu.write_updated_orthotable(ALL_ORTHOS, OUTGR, SP_LIST, OUTGR_CHROM,
-                                         ARGUMENTS["output"], wsize=ARGUMENTS['windowsize'])
 
-    if ARGUMENTS["wgd_tag"]:
-        WGD, OUTGR = ARGUMENTS["wgd_tag"].split(',')
-        WGD_TAG = WGD + ' (outgroup '+OUTGR+')'
-        print_out_stats(STATS, wgd=WGD_TAG, file_fam_nograph=ARGUMENTS['fam_nograph'])
+        OUT = ARGUMENTS["uncertain_families"] + "_scores.pkl"
+        with open(OUT, 'wb') as OUTFILE:
+            pickle.dump(SCORES, OUTFILE)
+
+        if ARGUMENTS["optimized_fam"]:
+            with open(ARGUMENTS["optimized_fam"], 'w') as OUTFILE:
+                OUTFILE.write('\n'.join(FAM))
+
+    else:
+
+        #Update the orthology table
+        sys.stderr.write("Insertion of synteny-supported orthologs in the orthology table\n")
+        syu.update_orthologytable(ALL_ORTHOS, RES, SP_LIST)
+
+        #Write the new orthology table
+        sys.stderr.write("Writing updated Orthology Table\n")
+        STATS = syu.write_updated_orthotable(ALL_ORTHOS, OUTGR, SP_LIST, OUTGR_CHROM,
+                                             ARGUMENTS["output"], wsize=ARGUMENTS['windowsize'])
+
+        if ARGUMENTS["wgd_tag"]:
+            WGD, OUTGR = ARGUMENTS["wgd_tag"].split(',')
+            WGD_TAG = WGD + ' (outgroup '+OUTGR+')'
+            print_out_stats(STATS, wgd=WGD_TAG, file_fam_nograph=ARGUMENTS['fam_nograph'])

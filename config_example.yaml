@@ -3,9 +3,9 @@
 # SCORPiOs EXAMPLE CONFIGURATION FILE #
 #######################################
 
-
+##################
 ### Input data ###
-
+##################
 
 # The gene tree forest to correct: a single file with trees in the .nhx format
 ## Remove or comment the `trees` entry below to build starting trees with TreeBeST instead ##
@@ -49,8 +49,9 @@ genes: data/example/genes/genes.%s.bed
 # For better trees reconstruction with TreeBeST, the tree should preferably not contain polytomies
 species_tree: data/example/species_tree.nwk
 
-
-### Output ###
+#####################
+### Output folder ###
+#####################
 
 # Tag added to output folder name, all results will be stored in the folder SCORPiOs_jobname
 # The corrected gene tree forest will be SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx
@@ -59,8 +60,9 @@ species_tree: data/example/species_tree.nwk
 # leaves rearranged to regraft subtrees are marked with "MOVED_ID_`WGD`".
 jobname: 'example'
 
-
+#######################
 ### Running options ###
+#######################
 
 # Maximum number of threads (will never use more than this number)
 # It will be restricted to the number of threads specified via --cores
@@ -69,8 +71,14 @@ ncores: 14
 # Memory (--buffer_size) parameter for a bash sort. If decreased, more /tmp space will be used.
 buffer_size: 10G
 
+# Use a parallelization scheme specific to large jobs ("y" or "n")
+# If many duplicated species (~ >25), the default parallelization scheme is slow in snakemake
+# setting `parallel_scheme_large_job` to 'y' will greatly reduce computation time
+parallel_scheme_large_job: 'n'
 
+##################
 ### Parameters ###
+##################
 
 # Each WGD event in the species tree should be indicated via the name of the ancestor of all duplicated species
 # Then, for each WGD, provide one or several outgroup species to use in the synteny analysis
@@ -81,10 +89,19 @@ WGDs:
   Clupeocephala: 'Lepisosteus.oculatus,Amia.calva'
   Salmonidae: 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes'
 
-# Size of the sliding window used in the synteny analysis
+# Whether the average number of syntenic orthologs to include genes in the Orthology Table should be optimized
+# ('y') or not ('n')
+# default value if the threshold is not optimized is 2.0.
+optimize_synteny_support_threshold: 'y'
+
+#Whether phylogenetic orthologs without synteny support should be discarded from the synteny analysis
+#('y' or 'n')
+filter_otable_nosynteny: 'y'
+
+# Size of the sliding window used in the pairwise synteny analysis
 windowSize: 15
 
-# Cut-off on synteny similarity scores (between 0 and 1)
+# Cut-off on pairwise synteny similarity scores (between 0 and 1)
 cutoff: 0
 
 # Whether branch-lengths should be recomputed after correction ('y') or not ('n').

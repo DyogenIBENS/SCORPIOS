@@ -10,7 +10,8 @@ rule get_gene_families:
     """
     input: input_trees, config["species_tree"]
     output: orthology_table = OrthoTableStrict,
-            genes_without_orthologs = UNCERTAIN
+            genes_without_orthologs = UNCERTAIN,
+            phylo_homologs = [paralogs, orthologs]
     shell: """
     python -m scripts.synteny.duplicated_families -t {input[0]} -n {wildcards.outgr}\
     -d {wildcards.wgd} {anc_arg} -s {input[1]} -g {config[genes]}\
@@ -45,18 +46,49 @@ checkpoint outgroup_chromosomes:
             for chrom in c_outgr:
                 outfile.write(chrom+'\n')
 
+if "optimize_synteny_support_threshold" in config and config["optimize_synteny_support_threshold"] == 'y':
+
+    rule get_scores_ortho:
+        input: ot = OrthoTableStrict, po = orthologs, c = Chr, f = paralogs+'_fam'
+
+        output: orthologs+'_scores.pkl'
+        shell:"""
+        python -m scripts.synteny.missed_orthologies -i {input.ot} -u {input.po} -c {input.c}\
+        --optimize -u_opt_fam {input.f}
+        """
+
+    rule get_scores_para:
+        input: ot = OrthoTableStrict, po = paralogs, c = Chr
+
+        output: s = paralogs+'_scores.pkl', f = paralogs+'_fam'
+        shell:"""
+        python -m scripts.synteny.missed_orthologies -i {input.ot} -u {input.po} -c {input.c}\
+        --optimize -opt_fam {output.f}
+        """
+
+    rule syntenic_support_threshold:
+        input: o = orthologs+'_scores.pkl', p = paralogs+'_scores.pkl'
+        output: Threshold
+        shell:"""
+        python -m scripts.synteny.f1_score_optimization -i1 {input.o} -i2 {input.p} -out {output}
+        """
+
+else:
+
+    rule pass_synt_support_optimization:
+        output: touch("threshold.txt")
 
 rule add_families_with_synteny_evidence:
     """
     Updates the orthology table with synteny-supported orthologies.
     """
-    input: a=OrthoTableStrict, b=UNCERTAIN, c=Chr
+    input: a=OrthoTableStrict, b=UNCERTAIN, c=Chr, t=Threshold
     output: OrthoTable
     params: no_graph = fam_no_graph.replace("{{outgr}}", "{{wildcards.outgr}}")\
                                    .replace("{{wgd}}","{{wildcards.wgd}}"),
     shell: """
     python -m scripts.synteny.missed_orthologies -i {input.a} -u {input.b} -c {input.c} -o {output}\
-    -wgd {wildcards.wgd},{wildcards.outgr} -w {config[windowSize]} -f {params.no_graph}
+    -wgd {wildcards.wgd},{wildcards.outgr} -w {config[windowSize]} -f {params.no_graph} `cat {input.t}`
     """
 
 if int(ITER) > 1:
@@ -103,7 +135,7 @@ if config["filter_otable_nosynteny"] == 'y':
                                   "{{wildcards.wgd}}"),
         shell:"""
         python -m scripts.synteny.filter_no_synteny_genes -i {input} -chr {params.Chr}\
-        -w {config[windowSize]} -o {output}
+        -w {config[windowSize]} -o {output} -wgd {wildcards.wgd},{wildcards.outgr}
         """
 
 else:

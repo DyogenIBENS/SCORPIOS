@@ -132,7 +132,7 @@ rule correct_input_trees:
     """
     input: acc = expand(Acc, wgd=config['WGDs'].keys())
     output: a = outTrees
-    threads: config["ncores"]
+    threads: config.get("limit_threads_for_branch_lengths", config["ncores"])
     params: wgds = ','.join(config["WGDs"].keys()),
             outgroups = '_'.join([config["WGDs"][i] for i in config["WGDs"].keys()]),
             input = lambda wildcards, input: ",".join(list(input.acc))
@@ -182,5 +182,7 @@ rule clean_up:
     rm {params.path}/OrthoTableStrict* || true;\
     rm {params.path}/OrthoTableFilter* || true;
     rm {params.path}/UNCERTAIN* || true;
+    rm {params.path}/orthologs* || true;
+    rm {params.path}/paralogs* || true;
     rm -r {Pairwise_SyntenyOrthoPred} || true
     """

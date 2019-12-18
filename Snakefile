@@ -60,6 +60,9 @@ regions = out_name("Families/tmp_iter_updated_regions", JNAME, ITER, True, True)
 NO_ANC_TREE = out_name("sptree_no_anc", JNAME, ITER)+'.nwk'
 tmp_matrix = out_name("fastdist_mat", JNAME, ITER, True)
 fam_no_graph = out_name("Families/Summary_fam_no_graph", JNAME, ITER, True, True)
+orthologs = out_name("Families/orthologs", JNAME, ITER, True, True)
+paralogs = out_name("Families/paralogs", JNAME, ITER, True, True)
+Threshold = out_name("Families/threshold", JNAME, ITER, True, True)
 
 # get correct input names and params in iterative mode
 args_autho = ''
