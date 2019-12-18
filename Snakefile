@@ -9,7 +9,7 @@ from scripts.synteny import filter_regions
  with a known WGD event. To do so, the method takes advantage of synteny conservation patterns.
 """
 
-## Set all output/output name
+## Set all output names
 def out_name(name, jobname, iteration, wcard_wgd=False, wcard_outgr=False):
     """
     Generates output names with jobname directory prefix and iteration suffix.
