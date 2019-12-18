@@ -26,8 +26,8 @@ trees: data/example/forest.nhx
 alis: data/example/ali.fa.gz
 
 
-# Genes - species mapping file : a single file with two columns: gene_name species name
 ## Uncomment the `genes_sp_mapping` entry below to build starting trees with TreeBeST ##
+# Genes - species mapping file : a single file with two columns: gene_name species name
 # Families should be separated by '//'
 # They should appear in the same order as their corresponding alignment in the alignments file
 # Gene names and species should be the same as in the alignment and species tree, respectively
@@ -46,7 +46,7 @@ genes: data/example/genes/genes.%s.bed
 # The species tree in newick format with ancestors as internal node names
 # It should contain all species in the gene tree forest (marked by the `S` attribute in gene trees)
 # Species name should not contain underscores '_'
-# For better trees reconstruction with TreeBeST, the tree should preferably not contain polytomies
+# For better trees reconstruction with TreeBeST, the tree should not contain polytomies
 species_tree: data/example/species_tree.nwk
 
 #####################
@@ -96,7 +96,7 @@ optimize_synteny_support_threshold: 'y'
 
 #Whether phylogenetic orthologs without synteny support should be discarded from the synteny analysis
 #('y' or 'n')
-filter_otable_nosynteny: 'y'
+filter_otable_nosynteny: 'n'
 
 # Size of the sliding window used in the pairwise synteny analysis
 windowSize: 15
