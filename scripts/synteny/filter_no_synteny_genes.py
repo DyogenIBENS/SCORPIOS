@@ -43,7 +43,7 @@ def print_out_stats(stats_dict, wgd=''):
 
         for species in stats_dict:
             print(" {} {} orthologs in the final table without synteny support"\
-                  .format(stats_dict[spec], species))
+                  .format(stats_dict[species], species))
         print("\n")
         print("----------------------------------------------------------------------------")
         print("\n")
