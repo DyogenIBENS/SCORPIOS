@@ -6,7 +6,7 @@ topological constraints on corresponding gene trees.
 
 rule cut_orthology_graphs:
     """
-    Loads orthology graphs and uses community detection algorithms to identify orthogroups.
+    Loads orthology graphs and uses community detection algorithms to identify the 2 orthogroups.
     """
     input: Sorted_SyntenyOrthoPred+'.gz'
     output: a=GraphsOrthogroups, b=Summary
