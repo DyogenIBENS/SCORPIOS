@@ -98,7 +98,7 @@ rule list_treeb_inputs_for_parsing:
     """
     Creates two files listing all likelihood-test result files.
 
-    Note: Simply giving al input to a script could fai with error 'Argument list too long',
+    Note: Simply giving all inputs to a script could fail with error 'Argument list too long',
            if too many inputs.
     """
      input: get_ctrees
