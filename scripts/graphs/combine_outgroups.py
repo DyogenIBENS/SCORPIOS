@@ -134,7 +134,7 @@ def choose_best_graph(m_fam, mapped_ids, all_graphs, final_graphs, summ):
 
     #less aggregated families
     max_subfam = max(graphs.items(), key=lambda x: len(x[1]))
-    all_max = [i[0] for i in graphs.items() if len(i[1]) == max_subfam[1]]
+    all_max = [i[0] for i in graphs.items() if len(i[1]) == len(max_subfam[1])]
 
     #if 1 is less aggregated than all others, choose it
     if len(all_max) == 1:
