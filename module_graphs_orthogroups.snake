@@ -39,7 +39,7 @@ def expand_orthotables_outgr(wildcards):
     """
     Gets a list of orthology tables (one for each outgroup)
     """
-    return expand(OrthoTableF.replace("{wgd}", "{{wgd}}"),\
+    return expand(OrthoTable.replace("{wgd}", "{{wgd}}"),\
                   outgr=config['WGDs'][wildcards.wgd].split(','))
 
 
