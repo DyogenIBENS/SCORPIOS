@@ -89,6 +89,7 @@ else
 
 fi
 
+j=0
 
 #run SCORPiOs iteratively
 for i in $(seq $iteration $max_iter); do
@@ -109,6 +110,7 @@ for i in $(seq $iteration $max_iter); do
       echo "----------------"
       echo "Iteration: $i" >&2
       snakemake $snake_args $snake_config_args current_iter=$i --use-conda
+      j=$i
   else
     break
   fi
@@ -117,3 +119,15 @@ done
 
 #remove temp
 rm .tmp_corrected_prev_iter
+
+#If output exists (i.e no raised errors above) write .nhx correction tags and exit
+if [ -f "SCORPiOs_${job_name}/SCORPiOs_corrected_forest_${j}.nhx" ]; then
+
+  echo "Termination after $j correction iterations " >&2
+  echo "Browsing the corrected forests of each iteration to write final .nhx correction tags " >&2
+
+  input="SCORPiOs_${job_name}/SCORPiOs_corrected_forest_%d.nhx"
+  output="SCORPiOs_${job_name}/SCORPiOs_corrected_forest_${j}_with_tags.nhx"
+
+  python -m scripts.trees.iteration_nhx_tags -o $output -i $j -c $input
+fi
