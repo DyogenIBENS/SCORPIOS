@@ -97,13 +97,13 @@ for i in $(seq $iteration $max_iter); do
   #if it is not the first iteration, print names of corrected subtrees to file tmp_corrected_prev_iter
   if (( $i!=1 ))
     then
-      cat "SCORPiOs_"${job_name}/Corrections/Accepted_Trees*$((i-1)) > .tmp_corrected_prev_iter
+      cat "SCORPiOs_"${job_name}/Corrections/Accepted_Trees*$((i-1)) > .tmp_corrected_prev_iter_${job_name}
   else
-    touch .tmp_corrected_prev_iter
+    touch .tmp_corrected_prev_iter_${job_name}
   fi
 
   #run SCORPiOs if first iteration or number of corrections in previous iter > min_correction
-  if (( $i==1 )) || [[ $(wc -l <.tmp_corrected_prev_iter) -gt $min_correction ]]
+  if (( $i==1 )) || [[ $(wc -l <.tmp_corrected_prev_iter_${job_name}) -gt $min_correction ]]
     then
       echo "----------------"
       echo " Iteration: $i"
@@ -118,7 +118,7 @@ for i in $(seq $iteration $max_iter); do
 done
 
 #remove temp
-rm .tmp_corrected_prev_iter
+rm .tmp_corrected_prev_iter_${job_name}
 
 #If output exists (i.e no raised errors above) write .nhx correction tags and exit
 if [ -f "SCORPiOs_${job_name}/SCORPiOs_corrected_forest_${j}.nhx" ]; then
