@@ -76,7 +76,7 @@ if "optimize_synteny_support_threshold" in config and config["optimize_synteny_s
 else:
 
     rule pass_synt_support_optimization:
-        output: touch("threshold.txt")
+        output: touch(Threshold)
 
 rule add_families_with_synteny_evidence:
     """
