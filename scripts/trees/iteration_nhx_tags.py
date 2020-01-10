@@ -5,7 +5,7 @@ during iterative correction (currently .nhx tags are wiped out if a same tree is
 Example:
     $ python -m scripts.trees.iteration_nhx_tags -i 5
                                                  -c SCORPiOs_example/corrected_forest_%d.nhx
-                                                 [--detailed_tags] [-o out.nhx]
+                                                 [-o out.nhx]
 """
 
 import argparse
