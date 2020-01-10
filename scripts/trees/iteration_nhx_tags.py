@@ -82,8 +82,8 @@ if __name__ == '__main__':
                                     seen.append(wgd)
 
 
-                    all_features = ["S", "D", "DD", "DCS"] + COR_TAGS_ALL
+                        all_features = ["S", "D", "DD", "DCS"] + COR_TAGS_ALL
 
-                    tree_nhx = t.write(format=1, features=all_features, format_root_node=True)
+                        tree_nhx = t.write(format=1, features=all_features, format_root_node=True)
 
-                    OUTFILE.write(tree_nhx+'\n//\n')
+                        OUTFILE.write(tree_nhx+'\n//\n')
