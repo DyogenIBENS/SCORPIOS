@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-i', '--iter', help='Total number of iterations', required=True, type=int)
 
-    PARSER.add_argument('-c', '--cor_f', help='path to corrected forests', type=str)
+    PARSER.add_argument('-c', '--cor_f', help='path to corrected forests', required=True, type=str)
 
     PARSER.add_argument('-o', '--out', type=str, required=False, default="out.nhx")
 
