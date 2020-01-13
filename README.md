@@ -157,6 +157,7 @@ Additional files can be saved if specified in the configuration file, see [confi
 
 ## Authors
 * [**Elise Parey**](mailto:parey@biologie.ens.fr)
+* **Alexandra Louis**
 * **Hugues Roest Crollius**
 * **Camille Berthelot**
 
