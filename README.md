@@ -117,7 +117,7 @@ Finally, you can run SCORPiOs as described above.
 snakemake --configfile config.yaml --use-conda
 ```
 
-or
+or, assuming the jobname is set to 'myjobname' in the new config:
 
 ```
 bash iterate_scorpios.sh --j=myjobname --snake_args="--configfile config.yaml"
