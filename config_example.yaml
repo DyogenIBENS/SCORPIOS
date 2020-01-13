@@ -60,22 +60,6 @@ species_tree: data/example/species_tree.nwk
 # leaves rearranged to regraft subtrees are marked with "MOVED_ID_`WGD`".
 jobname: 'example'
 
-#######################
-### Running options ###
-#######################
-
-# Maximum number of threads (will never use more than this number)
-# It will be restricted to the number of threads specified via --cores
-ncores: 14
-
-# Memory (--buffer_size) parameter for a bash sort. If decreased, more /tmp space will be used.
-buffer_size: 10G
-
-# Use a parallelization scheme specific to large jobs ("y" or "n")
-# If many duplicated species (~ >25), the default parallelization scheme is slow in snakemake
-# setting `parallel_scheme_large_job` to 'y' will greatly reduce computation time
-parallel_scheme_large_job: 'n'
-
 ##################
 ### Parameters ###
 ##################
@@ -104,7 +88,7 @@ windowSize: 15
 # Cut-off on pairwise synteny similarity scores (between 0 and 1)
 cutoff: 0
 
-# Whether branch-lengths should be recomputed after correction ('y') or not ('n').
+# Whether branch-lengths should be recomputed after corrections ('y') or not ('n').
 # 'y' will be forced by SCORPiOs in iterative correction mode
 brlength: 'n'
 
@@ -129,3 +113,25 @@ save_subtrees_lktest: 'n'
 # Iterative-correction related option, (automatically updated by the wrapper `iterate_scorpios.sh`)
 # 0 if SCORPiOs is run in simple mode, current iteration otherwise
 current_iter: 0
+
+#######################
+### Running options ###
+#######################
+
+# Maximum number of threads (will never use more than this number)
+# It will be restricted to the number of threads specified via --cores
+ncores: 14
+
+# Memory (--buffer_size) parameter for a bash sort. If decreased, more /tmp space will be used.
+buffer_size: 10G
+
+# Use a parallelization scheme specific to large jobs ("y" or "n")
+# If many duplicated species (~ >25), the default parallelization scheme is slow in snakemake
+# setting `parallel_scheme_large_job` to 'y' will greatly reduce computation time
+parallel_scheme_large_job: 'n'
+
+# Optional, to limit RAM usage
+# limit number of cores for the branch length recomputing rule (after all corrections)
+# Recomputing branch length can be RAM intensive for large trees (SCORPiOs uses treebest pyhml here)
+# To use less RAM one may want to reduce the number of parallel jobs
+#limit_threads_for_branch_lengths: 37
