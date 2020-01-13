@@ -8,6 +8,7 @@ Example:
                                                  [-o out.nhx]
 """
 
+import sys
 import argparse
 
 from ete3 import Tree
@@ -41,18 +42,19 @@ if __name__ == '__main__':
 
         if itera != ARGS["iter"]:
 
-            print(f"Browsing corrected forest at iteration {itera}")
+            sys.stderr.write(f"Browsing corrected forest at iteration {itera}\n")
 
         else:
-            print(f"Browsing corrected forest at final iteration ({itera}) and writing final "
-                  f"forest with tags")
+            eprint = (f"Browsing corrected forest at final iteration ({itera}) and writing final "
+                      f"forest with tags\n")
+            sys.stderr.write(eprint)
 
         with open(COR_FOREST % itera, 'r') as f, open(ARGS["out"], 'w') as OUTFILE:
 
             for tree in ut.read_multiple_objects(f):
 
                 if k%1000 == 0 and k > 0:
-                    print(f"Browsed {k} trees")
+                    sys.stderr.write(f"Browsed {k} trees")
 
                 k += 1
 
