@@ -33,7 +33,7 @@ To install Miniconda3:
 
 - Run the installation script: `bash Miniconda3-latest-Linux-x86_64.sh` or `bash Miniconda3-latest-MacOSX-x86_64.sh`, and accept the defaults
 
-- Open a new terminal, run `conda update conda` and press y to confirm updates
+- Open a new terminal, run `conda update conda` and press `y` to confirm updates
 
 ### Installing SCORPiOs
 
