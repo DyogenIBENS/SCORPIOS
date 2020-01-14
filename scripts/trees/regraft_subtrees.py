@@ -527,6 +527,15 @@ if __name__ == '__main__':
     os.remove(ARGS["out"]+'_'+str(j))
 
     sys.stderr.write('Writing SCORPiOs-corrected gene trees forest\n')
+
     #write final forest
     ut.write_forest(ARGS["treesFile"], ARGS["out"], CORRECTION_STATS,
                     save_single_treefile=ARGS["save_cor"], cor_treefiles=CORFOLDER+'/cor_')
+
+    #safely delete empty tmp_corrections folder if individual corrections are not to be saved
+    if not ARGS["save_cor"]:
+
+        #check that directory is empty
+        if not os.listdir(CORFOLDER):
+
+            os.rmdir(CORFOLDER)
