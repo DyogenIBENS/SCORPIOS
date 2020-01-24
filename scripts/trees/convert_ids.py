@@ -113,7 +113,11 @@ if __name__ == '__main__':
     for i, treef in enumerate(ARGS['treefiles']):
 
         directory, filename = os.path.split(treef)
-        outfilename = directory + '/tmp_' + filename
+        if directory:
+            outfilename = directory + '/tmp_' + filename
+
+        else:
+            outfilename = 'tmp_' + filename
 
         if i == 0:
 
@@ -126,5 +130,9 @@ if __name__ == '__main__':
     for ali in ARGS['alifiles']:
 
         directory, filename = os.path.split(ali)
-        outfilename = directory + '/tmp_' + filename
+        if directory:
+            outfilename = directory + '/tmp_' + filename
+
+        else:
+            outfilename = 'tmp_' + filename
         convert_ali(ali, outfilename, conversion)
