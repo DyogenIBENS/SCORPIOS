@@ -222,7 +222,7 @@ class FamilyOrthologies():
 
 
 
-def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, stats=None):
+def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr, oal, stats=None):
 
     """
     For a given ensembl tree, check whether synteny-derived constrained topologies are consistent
@@ -299,18 +299,18 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, stats=None
                     ori_tree.prune(leavesnames_in_fam)
 
                     #write original subtrees
-                    ori_tree.write(outfile=ARGS["outTree"]+'/'+outgr_leaf[1]+'.nh',\
+                    ori_tree.write(outfile=otr+'/'+outgr_leaf[1]+'.nh',\
                                  format=9, features=["D"])
 
                     #write constrained tree topology
-                    ctree.write(outfile=ARGS["outCons"]+'/C_'+outgr_leaf[1]+'.nh',
+                    ctree.write(outfile=octr+'/C_'+outgr_leaf[1]+'.nh',
                                 format=9, features=["D"])
 
 
                     #write corresponding sub-alignment
                     gene_species_mapping = dict((name, sp) for namesp, name, sp  in leaves_in_fam)
                     seq = ut.get_subali(ali, gene_species_mapping, gene_species_mapping)
-                    ut.write_fasta(seq, ARGS["outAli"] + '/' + outgr_leaf[1]+'.fa')
+                    ut.write_fasta(seq, oal + '/' + outgr_leaf[1]+'.fa')
                     sfile.write(outgr_leaf[1]+"\t"+"Inconsistent"+'\n')
                     stats['Inconsistent'] = stats.get('Inconsistent', 0) + 1
 
@@ -467,6 +467,7 @@ if __name__ == '__main__':
         for TREE, ALI in zip(ut.read_multiple_objects(infile_t),
                              ut.read_multiple_objects(infile_a)):
 
-            get_inconsistent_trees(TREE, ALI, OUTGROUPS, ALL_GRAPH_CUT, outfile_summary, STATS)
+            get_inconsistent_trees(TREE, ALI, OUTGROUPS, ALL_GRAPH_CUT, outfile_summary,\
+                                   ARGS["outCons"], ARGS["outTree"], ARGS["outAli"], STATS)
 
     print_out_stats(STATS, wgd=ARGS["wgd_tag"])
