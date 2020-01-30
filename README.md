@@ -43,7 +43,7 @@ git clone https://github.com/DyogenIBENS/SCORPIOS.git
 cd SCORPIOS
 ```
 
-- Create the main conda environment (this may take a few minutes)
+- Create the main conda environment (solving dependencies may take a while, ~ up to an hour)
 ```
 conda env create -f envs/scorpios.yaml
 ```
