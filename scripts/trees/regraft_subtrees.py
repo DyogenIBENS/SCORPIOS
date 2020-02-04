@@ -254,8 +254,13 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
         d_sp = {}
         whole_tree = treeid
 
+        leaves = wtree.get_leaves()
+
+        #remove artefactual single-child nodes
+        wtree.prune(leaves)
+
         #add species tag for treebest
-        for leaf in wtree.get_leaves():
+        for leaf in leaves:
             d_sp[leaf.name] = leaf.S
             leaf.name = leaf.name +'_'+leaf.S
 
