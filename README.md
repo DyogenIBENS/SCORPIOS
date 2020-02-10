@@ -5,6 +5,8 @@
 
  SCORPiOs is a synteny-guided gene tree correction [Snakemake](https://snakemake.readthedocs.io/en/stable/) pipeline. SCORPiOs builds optimized gene trees, consistent with a known WGD event, local synteny context, as well as gene sequence evolution.
 
+ For a complete description of SCORPiOs, see our preprint: https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full
+
 ## Table of content
   - [Installation](#installation)
     - [Installing conda](#installing-conda)
