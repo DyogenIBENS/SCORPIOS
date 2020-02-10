@@ -222,7 +222,8 @@ class FamilyOrthologies():
 
 
 
-def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr, oal, stats=None):
+def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr, oal, stats=None,
+                           discard_sp=None):
 
     """
     For a given ensembl tree, check whether synteny-derived constrained topologies are consistent
@@ -282,6 +283,17 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
                 to_replace_inside = leavesnames_in_fam.difference(ctree_leaves)
 
                 all_families[outgr_leaf[1]].update_constrained_tree(to_replace_inside, lca)
+
+            if discard_sp:
+                keep = [i for i in ctree_leaves if i.split('_')[-1] not in discard_sp]
+                ctree.prune(keep)
+                lca = lca.copy()
+                lca.prune(keep)
+                leavesnames_in_fam = set(keep)
+
+                if len(leavesnames_in_fam) <= 2:
+
+                    continue
 
             comparison = ctree.compare(lca)
 
@@ -410,6 +422,8 @@ if __name__ == '__main__':
                         help='File to write summary of prediction combination across outgroups',
                         required=False, default='ouy')
 
+    PARSER.add_argument('-di', '--discard_sp', nargs='+', default=None)
+
     ARGS = vars(PARSER.parse_args())
 
 
@@ -449,7 +463,9 @@ if __name__ == '__main__':
     for outfolder in [ARGS["outCons"], ARGS["outTree"], ARGS["outAli"]]:
         os.makedirs(outfolder, exist_ok=True)
 
-    os.makedirs(os.path.dirname(ARGS["summary"]), exist_ok=True)
+    if os.path.dirname(ARGS["summary"]):
+
+        os.makedirs(os.path.dirname(ARGS["summary"]), exist_ok=True)
 
     sys.stderr.write("Searching gene trees for synteny-inconsistent topologies...\n")
 
@@ -468,6 +484,7 @@ if __name__ == '__main__':
                              ut.read_multiple_objects(infile_a)):
 
             get_inconsistent_trees(TREE, ALI, OUTGROUPS, ALL_GRAPH_CUT, outfile_summary,\
-                                   ARGS["outCons"], ARGS["outTree"], ARGS["outAli"], STATS)
+                                   ARGS["outCons"], ARGS["outTree"], ARGS["outAli"], STATS,\
+                                   ARGS["discard_sp"])
 
     print_out_stats(STATS, wgd=ARGS["wgd_tag"])
