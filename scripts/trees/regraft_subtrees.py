@@ -219,7 +219,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
 
 
 def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', corrections=None,
-                      brlengths=True):
+                      brlengths=True, resume=False):
 
     """
     Reconciles a given gene tree with the species tree using treebest sdi, and optionaly computes
@@ -246,58 +246,63 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
 
     try:
 
-        if brlengths:
-            sys.stderr.write("Computing branch lengths for tree number "+str(treeid)+"\n")
-            sys.stderr.flush()
+        ete3_format = 1
+        if not brlengths:
+            ete3_format = 9
 
-        wtree = Tree(tree, format=1)
-        d_sp = {}
-        whole_tree = treeid
+        out_exist = os.path.exists(outfolder+"/"+prefix+"_"+treeid) and\
+                    os.path.getsize(outfolder+"/"+prefix+"_"+treeid) > 0
 
-        leaves = wtree.get_leaves()
+        if not resume or not out_exist:
 
-        #remove artefactual single-child nodes
-        wtree.prune(leaves)
+            if brlengths:
+                sys.stderr.write("Computing branch lengths for tree number "+treeid+"\n")
+                sys.stderr.flush()
 
-        #add species tag for treebest
-        for leaf in leaves:
-            d_sp[leaf.name] = leaf.S
-            leaf.name = leaf.name +'_'+leaf.S
+            wtree = Tree(tree, format=1)
+            d_sp = {}
 
-        # if requested, we re-compute branch lengths
-        if brlengths:
+            leaves = wtree.get_leaves()
 
-            ete3_format = 1
+            #remove artefactual single-child nodes
+            wtree.prune(leaves)
 
-            #extract ali and tree with species tag
-            seq = ut.get_subali(ali, d_sp.keys(), d_sp)
-            ut.write_fasta(seq, outfolder+"/tmp_"+whole_tree+".fa")
-            wtree.write(outfile=outfolder+"/tmp_"+whole_tree, format=1, features=["S"],
-                        format_root_node=True)
+            #add species tag for treebest
+            for leaf in leaves:
+                d_sp[leaf.name] = leaf.S
+                leaf.name = leaf.name +'_'+leaf.S
 
-            #compute branch-length
-            os.system("treebest phyml -t opt -n "+outfolder+"/tmp_"+whole_tree+".fa "+\
-                      outfolder+"/tmp_"+whole_tree+" -c 2 > "+outfolder+"/"+whole_tree)
+            # if requested, we re-compute branch lengths
+            if brlengths:
+
+                #extract ali and tree with species tag
+                seq = ut.get_subali(ali, d_sp.keys(), d_sp)
+                ut.write_fasta(seq, outfolder+"/tmp_"+treeid+".fa")
+                wtree.write(outfile=outfolder+"/tmp_"+treeid, format=1, features=["S"],
+                            format_root_node=True)
+
+                #compute branch-length
+                os.system("treebest phyml -t opt -n "+outfolder+"/tmp_"+treeid+".fa "+\
+                          outfolder+"/tmp_"+treeid+" -c 2 > "+outfolder+"/"+treeid)
+
+                #remove temp
+                os.remove(outfolder+"/tmp_"+treeid+".fa")
+                os.remove(outfolder+"/tmp_"+treeid)
+
+            #otherwise, we just write the tree to file
+            else:
+
+                wtree.write(outfile=outfolder+"/"+treeid, format=ete3_format,
+                            format_root_node=True)
+
+            #Reconcile the tree
+            os.system("treebest sdi -s "+sptree+" "+outfolder+"/"+treeid+\
+                      " > "+outfolder+"/"+prefix+"_"+treeid)
 
             #remove temp
-            os.remove(outfolder+"/tmp_"+whole_tree+".fa")
-            os.remove(outfolder+"/tmp_"+whole_tree)
+            os.remove(outfolder+"/"+treeid)
 
-        #otherwise, we just write the tree to file
-        else:
-
-            ete3_format = 9
-            wtree.write(outfile=outfolder+"/"+whole_tree, format=ete3_format,
-                        format_root_node=True)
-
-        #Reconcile the tree
-        os.system("treebest sdi -s "+sptree+" "+outfolder+"/"+whole_tree+\
-                  " > "+outfolder+"/"+prefix+"_"+whole_tree)
-
-        #remove temp
-        os.remove(outfolder+"/"+whole_tree)
-
-        wtree = Tree(outfolder+"/"+prefix+"_"+whole_tree, format=1)
+        wtree = Tree(outfolder+"/"+prefix+"_"+treeid, format=1)
         for leaf in wtree.get_leaves():
             leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
 
@@ -318,7 +323,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
 
         #write tree
         all_features = ["S", "D", "DD", "DCS"] + edit_tags
-        wtree.write(outfile=outfolder+"/"+prefix+"_"+whole_tree, format=ete3_format,
+        wtree.write(outfile=outfolder+"/"+prefix+"_"+treeid, format=ete3_format,
                     features=all_features, format_root_node=True)
 
         return True
@@ -330,7 +335,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
 
 
 def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, sptree,
-                            prefix="cor", brlengths=True):
+                            prefix="cor", brlengths=True, resume=False):
     """
     Reconciles with the species tree and optionaly compute branch-lengths for a subset of trees in
     `modified_trees` of a gene trees forest, in parallel. Each output reconciled tree is written
@@ -364,7 +369,7 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, spt
             if i in modified_trees:
                 res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
                                                                 sptree, input_ali, prefix,
-                                                                modified_trees, brlengths))
+                                                                modified_trees, brlengths, resume))
                 async_res += [res]
 
     pool.close()
@@ -421,9 +426,12 @@ if __name__ == '__main__':
     PARSER.add_argument('-br', '--branch_lengths', help='Should branch lengths be computed ?',
                         required=False, default='y')
 
+    PARSER.add_argument('-res', '--resume', help='Resume an interrupted run ?',
+                        required=False, default='n')
+
     ARGS = vars(PARSER.parse_args())
 
-    for ARG in ['save_cor', 'branch_lengths']:
+    for ARG in ['save_cor', 'branch_lengths', 'resume']:
         assert ARGS[ARG] in ['y', 'n'], '{} should be y or n'.format(ARG)
 
         if ARGS[ARG] == 'y':
@@ -464,6 +472,7 @@ if __name__ == '__main__':
     #Correct trees for each WGDs iteratively, from tips to root
     for j, wgd in enumerate(WGDS):
 
+
         TO_PRINT = (f"Re-grafting corrected subtrees for WGD {wgd}, outgroup species:"
                     f"{OUTGROUPS[WGD_ANCS.index(wgd)]}\n")
         sys.stderr.write(TO_PRINT)
@@ -492,8 +501,8 @@ if __name__ == '__main__':
             sp_other_wgd[SUBS_WGD] = spt.get_species(ARGS["Species_tree"], SUBS_WGD)
             for sp in sp_wgd:
                 SISTERS_OF_OUTGR[SUBS_WGD] = SISTERS_OF_OUTGR.get(SUBS_WGD, {})
-                SISTERS_OF_OUTGR[SUBS_WGD][sp] = spt.get_sister_species(ARGS['Species_tree'], sp,
-                                                                        SUBS_WGD)
+                SISTERS_OF_OUTGR[SUBS_WGD][sp] = spt.get_sister_species(ARGS['Species_tree'],
+                                                                        sp, SUBS_WGD)
 
         #correct the forest for the current WGD (topology only)
         with open(TREES, "r") as infile:
@@ -526,7 +535,8 @@ if __name__ == '__main__':
 
     #reconcile with the species tree and re-compute branch-lengths
     multiprocess_rec_brlgth(ARGS["out"]+'_'+str(j), ARGS["alisFile"], NCORES, CORRECTION_STATS,
-                            CORFOLDER, ARGS["Species_tree"], brlengths=ARGS["branch_lengths"])
+                            CORFOLDER, ARGS["Species_tree"], brlengths=ARGS["branch_lengths"],
+                            resume=ARGS["resume"])
 
     #clean temp
     os.remove(ARGS["out"]+'_'+str(j))
