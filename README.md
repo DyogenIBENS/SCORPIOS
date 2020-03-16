@@ -4,7 +4,7 @@
 
 
  SCORPiOs is a **synteny-guided gene tree correction pipeline** for clades that have undergone a whole-genome duplication event. SCORPiOs identifies gene trees where the whole-genome duplication is **missing** or **incorrectly placed**, based on the genomic locations of the duplicated genes across the different species. SCORPiOs then builds an **optimized gene tree** consistent with the known WGD event, the species tree, local synteny context, as well as gene sequence evolution.
- 
+
  SCORPiOs is implemented as a [Snakemake](https://snakemake.readthedocs.io/en/stable/) pipeline. SCORPiOs takes as input either gene trees or multiple alignments, and outputs the corresponding optimized gene trees.
 
  For a complete description of SCORPiOs, see our preprint: https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full
@@ -16,7 +16,7 @@
   - [Usage](#usage)
     - [Running SCORPiOs on example data](#running-scorpios-on-example-data)
       - [Example 1: Simple SCORPiOs run](#example-1-simple-scorpios-run)
-      - [Example 2: SCORPiOs in iterative mode](#example-2-scorpios-in-iterative-mode)
+      - [Example 2: Iterative SCORPiOs run](#example-2-iterative-scorpios-run)
     - [Running SCORPiOS on your data](#running-scorpios-on-your-data)
     - [Understanding SCORPiOs outputs](#understanding-scorpios-outputs)
       - [Basic](#basic)
@@ -59,7 +59,7 @@ conda env create -f envs/scorpios.yaml
 Before any SCORPiOs run, you should:
  - go to SCORPiOs root folder,
  - activate the conda environment with `conda activate scorpios`.
- 
+
 ### Running SCORPiOs on example data
 
 Before using SCORPiOs on your data, we recommend running a test with our example data to ensure that installation was successful and to get familiar with the pipeline, inputs and outputs.
@@ -67,7 +67,7 @@ Before using SCORPiOs on your data, we recommend running a test with our example
 #### Example 1: Simple SCORPiOs run
 
 Inputs and parameters to execute SCORPiOs have to be specified in a YAML configuration file.
-An example configuration file is provided: [config_example.yaml](config_example.yaml). This configuration file executes SCORPiOs on toy example data located in [data/example/](data/example/), that you can use as reference for input formats. 
+An example configuration file is provided: [config_example.yaml](config_example.yaml). This configuration file executes SCORPiOs on toy example data located in [data/example/](data/example/), that you can use as reference for input formats.
 
 The only required snakemake arguments to run SCORPiOs are `--configfile` and the `--use-conda` flag. Optionally, you can specify the number of threads via the `--cores` option. For more advanced options, you can look at the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/).
 
@@ -108,7 +108,7 @@ Optional
 ### Running SCORPiOs on your data
 
 #### Data preparation and formatting
-SCORPiOs is a flexible gene tree correction pipeline: it can either start from a set of precomputed, phylogeny-reconciled gene trees, or build one from a set of gene multiple aligments using [TreeBeST](link to Treebest paper). 
+SCORPiOs is a flexible gene tree correction pipeline: it can either start from a set of precomputed, phylogeny-reconciled gene trees, or build one from a set of gene multiple aligments using [TreeBeST](link to Treebest paper).
 
 SCORPiOs input files are:
 - A single file with a set of phylogeny-reconciled gene trees in NHX format (extended Newick format, see [example](example)) **OR** a genes-to-species mapping file, if working from gene alignments (see [example](example))
@@ -152,7 +152,7 @@ The main output is the **SCORPiOs-optimized gene trees**. Gene trees are provide
 
 The commands above generate:
 - `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run
-- `SCORPiOs_example/SCORPiOs_corrected_forest_2_with_tags.nhx` for the iterative run. 
+- `SCORPiOs_example/SCORPiOs_corrected_forest_2_with_tags.nhx` for the iterative run.
 
 Outputs are suffixed with a digit representing the iteration number. This number is set to 0 in simple mode and starts at 1 in iterative mode.
 
