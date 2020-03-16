@@ -10,6 +10,7 @@ dependencies:
   - ete3=3.1.1
   - fastphylo=1.0.3
   - networkx=2.3
+  - openmpi=4.0.1
   - phyml=3.1
   - pip=19.1.1
   - python=3.6.8
