@@ -119,9 +119,9 @@ SCORPiOs input files are:
 - A single file with a set of phylogeny-reconciled gene trees in NHX format (extended Newick format, see [example](data/example/forest.nhx)) **OR** a genes-to-species mapping file, if working from gene alignments (see [example](data/example/genes_sp_mapping.txt))
 - A single file with the corresponding gene multiple alignments in FASTA format (can be compressed with gzip)
 - Gene coordinates files for each species in BED format (see [example](data/example/genes/genes.Danio.rerio.bed))
-- A species tree in Newick format (see [example](data/example/species_tree.nwk))
+- A species tree in Newick format, with names of ancestral species indicated at internal nodes. (see [example](data/example/species_tree.nwk)).
 
-Detailed information on input files and formats can be found in [config_example.yaml](config_example.yaml).
+Detailed information on input files, formats and all parameters can be found in [config_example.yaml](config_example.yaml).
 
 #### Preparing your configuration file
 Once your data is formatted correctly, you have to create a new configuration file for your SCORPiOs run, using the provided example:
