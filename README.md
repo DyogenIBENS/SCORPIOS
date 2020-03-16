@@ -113,13 +113,13 @@ Optional
 ### Running SCORPiOs on your data
 
 #### Data preparation and formatting
-SCORPiOs is a flexible gene tree correction pipeline: it can either start from a set of precomputed, phylogeny-reconciled gene trees, or build one from a set of gene multiple aligments using [TreeBeST](link to Treebest paper).
+SCORPiOs is a flexible gene tree correction pipeline: it can either start from a set of precomputed, phylogeny-reconciled gene trees, or build one from a set of gene multiple aligments using [TreeBeST](https://github.com/Ensembl/treebest).
 
 SCORPiOs input files are:
-- A single file with a set of phylogeny-reconciled gene trees in NHX format (extended Newick format, see [example](example)) **OR** a genes-to-species mapping file, if working from gene alignments (see [example](example))
-- A single file with the corresponding gene multiple alignments in FASTA format (can be compressed with gzip or bzip2)
-- Gene coordinates files for each species in BED format (see [example](example))
-- A species tree in PhylTree format (see [example](example))
+- A single file with a set of phylogeny-reconciled gene trees in NHX format (extended Newick format, see [example](data/example/forest.nhx)) **OR** a genes-to-species mapping file, if working from gene alignments (see [example](data/example/genes_sp_mapping.txt))
+- A single file with the corresponding gene multiple alignments in FASTA format (can be compressed with gzip)
+- Gene coordinates files for each species in BED format (see [example](data/example/genes/genes.Danio.rerio.bed))
+- A species tree in Newick format (see [example](data/example/species_tree.nwk))
 
 Detailed information on input files and formats can be found in [config_example.yaml](config_example.yaml).
 
@@ -153,7 +153,7 @@ bash iterate_scorpios.sh --j=myjobname --snake_args="--configfile config.yaml"
 
 All outputs from SCORPiOs are stored in a folder named SCORPiOs_jobname (jobname as specified in the configuration file).
 
-The main output is the **SCORPiOs-optimized gene trees**. Gene trees are provided as a single file in NHX format. SCORPiOs tags corrected nodes in the gene trees to allow easy inspection using tree visualisation softwares. We recommand the [ETE Toolkit](http://etetoolkit.org/) for tree visualisation.
+The main output is the **SCORPiOs-optimized gene trees**. Gene trees are provided as a single file in NHX format. SCORPiOs tags corrected nodes in the gene trees to allow easy inspection using tree visualisation softwares. We recommand the [ETE Toolkit](http://etetoolkit.org/) or [ggtree](https://guangchuangyu.github.io/software/ggtree/) for tree visualisation.
 
 The commands above generate:
 - `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run
