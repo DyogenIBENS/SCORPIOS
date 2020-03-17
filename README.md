@@ -84,10 +84,10 @@ To run SCORPiOs on example data:
 snakemake --configfile config_example.yaml --use-conda --cores 4
 ```
 
-The following outputs should be generated:
-[insert outputs here]
+The following output should be generated:
+`SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx`.
 
-We explain how to interpret outputs below [link to understanding SCORPiOs outputs].
+We explain how to interpret outputs below ([Understanding SCORPiOs outputs](#understanding-scorpios-outputs)).
 
 #### Example 2: Iterative SCORPiOs run
 
@@ -121,7 +121,7 @@ SCORPiOs input files are:
 - A single file with a set of phylogeny-reconciled gene trees in NHX format (extended Newick format, see [example](data/example/forest.nhx)) **OR** a genes-to-species mapping file, if working from gene alignments (see [example](data/example/genes_sp_mapping.txt))
 - A single file with the corresponding gene multiple alignments in FASTA format (can be compressed with gzip)
 - Gene coordinates files for each species in BED format (see [example](data/example/genes/genes.Danio.rerio.bed))
-- A species tree in Newick format, with names of ancestral species indicated at internal nodes. (see [example](data/example/species_tree.nwk)).
+- A species tree in Newick format, with names of ancestral species indicated at internal nodes (see [example](data/example/species_tree.nwk)).
 
 Detailed information on input files, formats and all parameters can be found in [config_example.yaml](config_example.yaml).
 
@@ -191,7 +191,21 @@ Additional files can be saved if specified in the configuration file, see [confi
 
 SCORPiOs can correct gene trees that contain more than one whole-genome duplication event. In this case, each WGD is treated independently, starting from the more recent one (closer to the leaves) going up towards the more ancient one (closer to the root). If the WGDs are nested, the subtrees from the more recent events are ignored while correcting for the older WGD event(s), and reinserted after correction using their outgroup as a branching point.
 
-Several WGDs can be specified in the configuration file. //Details details//
+Several WGDs can be specified in the configuration file, using the `WGDs` keyword. The position of each WGD in the species tree is to be indicated by giving the name of the corresponding duplicated ancestor.
+
+SCORPiOs can also use more than one reference outgroup to correct gene trees. Outgroup(s), separated by commas if more than one, are to be indicated for each WGDs.
+
+For instance, in the example [config_example.yaml](config_example.yaml), WGDs to correct are specified by:
+
+```
+WGDs:
+  Clupeocephala: 'Lepisosteus.oculatus,Amia.calva'
+  Salmonidae: 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes'
+```
+
+This specifies that gene trees have to be corrected for the teleost WGD (species below the Clupeocephala ancestor in the species tree) and for the salmonids WGD (species below the Salmonidae ancestor in the species tree). Lepisosteus.oculatus and Amia.calva should be used as outgroups to the teleost WGD and Esox.lucius, Gasterosteus.aculeatus and Oryzias.latipes as outgroups to the salmonids WGD.
+
+Again, we refer to [config_example.yaml](config_example.yaml) for details.
 
 ## Authors
 * [**Elise Parey**](mailto:elise.parey@bio.ens.psl.eu)

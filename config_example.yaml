@@ -57,7 +57,8 @@ species_tree: data/example/species_tree.nwk
 # The corrected gene tree forest will be SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx
 # .nhx tags are added to corrected trees in the corrected forest:
 # leaves of corrected subtrees are marked with a tag "CORR_ID_`WGD`"
-# leaves rearranged to regraft subtrees are marked with "MOVED_ID_`WGD`".
+# leaves rearranged to reinsert subtrees are marked with "MOVED_ID_`WGD`".
+# NOTE that "MOVED_ID_`WGD`" is currently NOT supported in iterative mode
 jobname: 'example'
 
 ##################
@@ -89,7 +90,6 @@ windowSize: 15
 cutoff: 0
 
 # Whether branch-lengths should be recomputed after corrections ('y') or not ('n').
-# 'y' will be forced by SCORPiOs in iterative correction mode
 brlength: 'n'
 
 # Species with a poorer assembly quality that should not be used in the synteny analysis
