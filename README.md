@@ -9,6 +9,8 @@
 
  For a complete description of SCORPiOs, see our preprint: https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full
 
+ ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/scorpios_illustrated.jpg)
+
 ## Table of content
   - [Installation](#installation)
     - [Installing conda](#installing-conda)
