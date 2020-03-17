@@ -77,9 +77,9 @@ if int(ITER) > 1:
     incombin = out_name("Graphs/outcombin", JNAME, int(ITER)-1, True)
 
 #if in iterative mode we force re-computation of branch-lengths
-arg_brlength = '-br '+str(config['brlength'])
-if int(ITER) > 0:
-    arg_brlength = '-br y'
+# arg_brlength = '-br '+str(config['brlength'])
+# if int(ITER) > 0:
+#     arg_brlength = '-br y'
 
 ## Set parameters from config
 if "genes_sp_mapping" not in config:
