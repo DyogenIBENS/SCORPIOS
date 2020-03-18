@@ -17,7 +17,7 @@ cordir=${cortree%/*}
 if [ -s "$cortree" ] ; then
 
 	#generate shorter gene ids for phylip conversion
-	python -m scripts.trees.convert_ids -a $alifile -t $cortree $enstree 
+	python -m scripts.trees.convert_ids -a $alifile -t $cortree $enstree
 
 	#convert to phylip
 	seqret "fasta::${alidir}/tmp_$name.fa" "phylip::${alidir}/tmp_$name.phy"
@@ -38,19 +38,21 @@ if [ -s "$cortree" ] ; then
 	#concatenate sites likelihood into a single file
 	cat "${alidir}/tmp_${name}.phy_phyml_lk.txt" "${alidir}/tmp_${name}_c.phy_phyml_lk.txt" > "${alidir}/$name.lk"
 
+	#workaround since consel decides to trim filenames containing '.'
+	namenew="${name%.*}"
+
 	#test if difference in likelihood is signifiant with the AU-Test using consel
 	makermt --phyml "${alidir}/$name.lk" >&2
 	consel "${alidir}/$name" >&2
-	catpv "${alidir}/$name" > "$output"
+	catpv "${alidir}/$namenew.pv" > "$output"
 
 	## CLEAN ALL TEMP ##
-
 	#clean all consel temp
 	rm "${alidir}/${name}.lk"
-	rm "${alidir}/${name}.vt"
 	rm "${alidir}/${name}.rmt"
-	rm "${alidir}/${name}.pv"
-	rm "${alidir}/${name}.ci"
+	rm "${alidir}/${name}"
+	rm "${alidir}/${namenew}.pv"
+	rm "${alidir}/${namenew}.ci"
 
 	#clean pyhml temp
 	rm "${alidir}/tmp_${name}.phy_phyml_lk.txt"

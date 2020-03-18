@@ -111,7 +111,7 @@ Optional
 --min_corr=MINCORR, minimum number of corrected sub-trees to continue to the next iteration, default=1.
 --starting_iter=ITER, starting iteration, to resume a run at a given iteration, default=1.
 ```
-The following output should be generated: `outputs`.
+The following output should be generated: `SCORPiOs_example/SCORPiOs_corrected_forest_2_with_tags.nhx`.
 
 ### Running SCORPiOs on your data
 
@@ -120,9 +120,11 @@ SCORPiOs is a flexible gene tree correction pipeline: it can either start from a
 
 SCORPiOs input files are:
 - A single file with a set of phylogeny-reconciled gene trees in NHX format (extended Newick format, see [example](data/example/forest.nhx)) **OR** a genes-to-species mapping file, if working from gene alignments (see [example](data/example/genes_sp_mapping.txt))
-- A single file with the corresponding gene multiple alignments in FASTA format (can be compressed with gzip) (see [example](link to example))
+- A single file with the corresponding gene multiple alignments in FASTA format (can be compressed with gzip) (see [example](data/example/ali.fa.gz))
 - Gene coordinates files for each species in BED format (see [example](data/example/genes/genes.Danio.rerio.bed))
 - A species tree in Newick format, with names of ancestral species indicated at internal nodes (see [example](data/example/species_tree.nwk)).
+
+If starting from gene trees, SCORPiOS uses the NHX 'S' (species name) tag to build the gene-species mapping. Otherwise, it uses the gene-to-species mapping file.
 
 Detailed information on input files, formats and all parameters can be found in [config_example.yaml](config_example.yaml).
 

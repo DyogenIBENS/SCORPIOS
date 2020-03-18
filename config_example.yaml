@@ -7,6 +7,9 @@
 ### Input data ###
 ##################
 
+# NOTE: in this example data, species names are appended to the gene names, for clarity only.
+# but this is *NOT REQUIRED* and *NOT* used by SCORPiOs to infer the genes-species mapping.
+
 # The gene tree forest to correct: a single file with trees in the .nhx format
 ## Remove or comment the `trees` entry below to build starting trees with TreeBeST instead ##
 # Trees should be separated by '//'
