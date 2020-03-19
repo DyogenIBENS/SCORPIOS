@@ -116,7 +116,7 @@ The following output should be generated: `SCORPiOs_example/SCORPiOs_corrected_f
 ### Running SCORPiOs on your data
 
 #### Data preparation and formatting
-SCORPiOs is a flexible gene tree correction pipeline: it can either start from a set of precomputed, phylogeny-reconciled gene trees, or build one from a set of gene multiple aligments using [TreeBeST](https://github.com/Ensembl/treebest).
+SCORPiOs is a flexible gene tree correction pipeline: it can either start from a set of precomputed, phylogeny-reconciled gene trees, or build one from a set of gene multiple aligments using [TreeBeST](https://github.com/Ensembl/treebest). Because SCORPiOs leverages local synteny similarity, i.e evolution of neighboring genes, it requires genome-wide data.
 
 SCORPiOs input files are:
 - A single file with a set of phylogeny-reconciled gene trees in NHX format (extended Newick format, see [example](data/example/forest.nhx)) **OR** a genes-to-species mapping file, if working from gene alignments (see [example](data/example/genes_sp_mapping.txt))
@@ -128,7 +128,7 @@ If starting from gene trees, SCORPiOS uses the NHX 'S' (species name) tag to bui
 
 Detailed information on input files, formats and all parameters can be found in [config_example.yaml](config_example.yaml).
 
-If you do not have gene alignments available for your study species, we recommend [this tutorial](link to tutorial).
+If you do not have gene alignments available for your study species, we recommend [this paper](https://academic.oup.com/gigascience/article/7/3/giy005/4841850). The authors explain how Ensembl Compara groups genes in families and subsequently build multiple alignments (and gene trees). In addition, they developped a Galaxy workflow, [GeneSeqToFamily](https://github.com/TGAC/earlham-galaxytools/tree/master/workflows/GeneSeqToFamily), to interactively run each step of the pipeline.
 
 #### Preparing your configuration file
 Once your data is formatted correctly, you have to create a new configuration file for your SCORPiOs run, using the provided example:
@@ -196,7 +196,7 @@ Additional files can be saved if specified in the configuration file, see [confi
 
 SCORPiOs can correct gene trees that contain more than one whole-genome duplication event. In this case, each WGD is treated independently, starting from the more recent one (closer to the leaves) going up towards the more ancient one (closer to the root). If the WGDs are nested, the subtrees from the more recent events are ignored while correcting for the older WGD event(s), and reinserted after correction using their outgroup as a branching point.
 
-Several WGDs can be specified in the configuration file, using the `WGDs` keyword. The position of each WGD in the species tree is to be indicated by giving the name of the corresponding duplicated ancestor.
+WGD(s) have to be specified in the configuration file, using the `WGDs` keyword. The position of each WGD in the species tree is to be indicated by giving the name of the corresponding duplicated ancestor.
 
 SCORPiOs can also use more than one reference outgroup to correct gene trees. Outgroup(s), separated by commas if more than one, are to be indicated for each WGDs.
 
@@ -234,3 +234,7 @@ SCORPiOs uses the following tools to build and test gene trees:
 - [TreeBeST](https://github.com/Ensembl/treebest): Vilella et al. (2009) EnsemblCompara GeneTrees: Complete, duplication-aware phylogenetic trees in vertebrates. Genome Res., 19, 327–335.
 
 - [CONSEL](https://github.com/shimo-lab/consel): Shimodaira and Hasegawa (2001) CONSEL: for assessing the confidence of phylogenetic tree selection. Bioinformatics, 17, 1246–1247.
+
+For a tutorial on how to assemble an input dataset for SCORPiOs:
+
+- [GeneSeqToFamily](https://github.com/TGAC/earlham-galaxytools/tree/master/workflows/GeneSeqToFamily): Thanki et al. (2018) GeneSeqToFamily: a Galaxy workflow to find gene families based on the Ensembl Compara GeneTrees pipeline. GigaScience 7.
