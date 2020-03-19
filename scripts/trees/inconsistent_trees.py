@@ -21,9 +21,7 @@ import argparse
 import sys
 from collections import Counter, OrderedDict
 import gzip
-import itertools
 
-import pickle
 from ete3 import Tree
 
 from scripts.synteny import utilities as sy
@@ -222,50 +220,10 @@ class FamilyOrthologies():
 
         return is_multigenic
 
-def comp_with_pruned_species(ctree, ctree_leaves, lca, species_set):
-    resp = False
-    keep = [i for i in ctree_leaves if i.split('_')[-1] not in species_set]
-    if len(keep) > 2:
-        ctree = ctree.copy()
-        ctree.prune(keep)
-
-        # print(ctree, lca)
-        if len(ctree.children) == 2:
-            comparison = ctree.compare(lca)
-            if comparison['source_edges_in_ref'] == 1:
-                resp = True
-
-        elif len(ctree.children) > 2:
-
-            resp = True
-
-    return resp, ctree
-
-def species_resp_for_inconsistencies(ctree, cached_ctree, lca, species_sample=None):
-
-    if species_sample:
-        res = comp_with_pruned_species(ctree, cached_ctree, lca, species_sample)
-
-    else:
-        found = False
-        ctree_leaves = set(sum(cached_ctree[ctree], ()))
-        all_sp = {i.split('_')[-1] for i in ctree_leaves}
-        for sample_size in range(1, min(10, int(len(all_sp)/2))):
-            for species_sample in itertools.combinations(all_sp, sample_size):
-                res, last_ctree = comp_with_pruned_species(ctree, ctree_leaves, lca, species_sample)
-                if res:
-                    found = True
-                    break
-            if found:
-                break
-    print(last_ctree)
-    # if not res:
-    #     print(last_ctree.compare(lca), lca)
-    return res, species_sample
 
 
 def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr, oal, stats=None,
-                           species_inc=False, species_sample=None, write_trees=True, sp_inc={}):
+                           discard_sp=None):
 
     """
     For a given ensembl tree, check whether synteny-derived constrained topologies are consistent
@@ -278,7 +236,8 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
         outgroups (list): list of outgroup species used in the synteny-analysis
         all_families (dict of OrthologyFamily instances): for each outgroup genes (key) an
         OrthologyFamily instance (synteny-derived orthogroups and constrained tree topology)
-        sfile (str): file to write name of synteny consistent subtrees
+        cfile (str): file to write name of synteny consistent subtrees
+        mfile (str): file to write name of multigenic subtrees
         stats (dict, optional): dict to count the number of consistent and inconsistent trees
 
     """
@@ -325,50 +284,47 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
 
                 all_families[outgr_leaf[1]].update_constrained_tree(to_replace_inside, lca)
 
+            if discard_sp:
+                keep = [i for i in ctree_leaves if i.split('_')[-1] not in discard_sp]
+                ctree.prune(keep)
+                lca = lca.copy()
+                lca.prune(keep)
+                leavesnames_in_fam = set(keep)
+
+                if len(leavesnames_in_fam) <= 2:
+
+                    continue
+
             comparison = ctree.compare(lca)
 
             #check if the constraint is present in the tree
             if comparison['source_edges_in_ref'] != 1:
 
-                lca = lca.copy()
-
-                lca.prune(leavesnames_in_fam)
 
                 #check if family is not too multigenic, in whih case correction is difficult
                 if not all_families[outgr_leaf[1]].is_multigenic():
 
-                    if species_inc:
-                        res, sample = species_resp_for_inconsistencies(ctree, cached_ctree, lca,
-                                                                       species_sample)
-                        print(res, sample)
-                        if res:
-                            sp_inc[outgr_leaf[1]] = sample
+                    #we make a copy in case more than 1 subtree is inconsistent
+                    #"newick-extended" copy is iterative (based on ete3 load/write)
+                    #This way we do not risk to hit recusrion limit
+                    ori_tree = lca.copy("newick-extended")
+                    ori_tree.prune(leavesnames_in_fam)
 
+                    #write original subtrees
+                    ori_tree.write(outfile=otr+'/'+outgr_leaf[1]+'.nh',\
+                                 format=9, features=["D"])
+
+                    #write constrained tree topology
+                    ctree.write(outfile=octr+'/C_'+outgr_leaf[1]+'.nh',
+                                format=9, features=["D"])
+
+
+                    #write corresponding sub-alignment
+                    gene_species_mapping = dict((name, sp) for namesp, name, sp  in leaves_in_fam)
+                    seq = ut.get_subali(ali, gene_species_mapping, gene_species_mapping)
+                    ut.write_fasta(seq, oal + '/' + outgr_leaf[1]+'.fa')
                     sfile.write(outgr_leaf[1]+"\t"+"Inconsistent"+'\n')
                     stats['Inconsistent'] = stats.get('Inconsistent', 0) + 1
-
-                    if write_trees:
-
-                        #we make a copy in case more than 1 subtree is inconsistent
-                        #"newick-extended" copy is iterative (based on ete3 load/write)
-                        #This way we do not risk to hit recusrion limit
-                        ori_tree = lca.copy("newick-extended")
-                        ori_tree.prune(leavesnames_in_fam)
-
-                        #write original subtrees
-                        ori_tree.write(outfile=otr+'/'+outgr_leaf[1]+'.nh',\
-                                     format=9, features=["D"])
-
-                        #write constrained tree topology
-                        ctree.write(outfile=octr+'/C_'+outgr_leaf[1]+'.nh',
-                                    format=9, features=["D"])
-
-
-                        #write corresponding sub-alignment
-                        gene_species_mapping = dict((name, sp) for namesp, name, sp  in leaves_in_fam)
-                        seq = ut.get_subali(ali, gene_species_mapping, gene_species_mapping)
-                        ut.write_fasta(seq, oal + '/' + outgr_leaf[1]+'.fa')
-
 
                 else:
                     sfile.write(outgr_leaf[1]+"\t"+"Inconsistent_multigenic"+'\n')
@@ -377,7 +333,6 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
             else:
                 sfile.write(outgr_leaf[1]+"\t"+"Consistent"+'\n')
                 stats['Consistent'] = stats.get('Consistent', 0) + 1
-
 
 
 def print_out_stats(stats_dict, wgd=''):
@@ -444,13 +399,13 @@ if __name__ == '__main__':
     #### Optional
 
     PARSER.add_argument('-oc', '--outCons', type=str, help='out folder for constrained trees',
-                        required=False, default=None)
+                        required=False, default="out_ctrees")
 
     PARSER.add_argument('-oa', '--outAli', type=str, help='out folder for sub-alignments',
-                        required=False, default=None)
+                        required=False, default="out_subalis")
 
     PARSER.add_argument('-ot', '--outTree', type=str, help='out folder for subtrees',
-                        required=False, default=None)
+                        required=False, default="out_subtrees")
 
     PARSER.add_argument('-gs', '--graphs_summary', help='summary of graph cuts, used to select\
                         best prediction when using multiple outgroups', required=False,
@@ -469,8 +424,6 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-di', '--discard_sp', nargs='+', default=None)
 
-    PARSER.add_argument('-sp', '--sp_inc', action='store_true')
-
     ARGS = vars(PARSER.parse_args())
 
 
@@ -487,8 +440,6 @@ if __name__ == '__main__':
     assert len(OUTGROUPS) == len(ARGS['input'].split(',')),\
     "inconsistent ARGS for multiple outgroups"
 
-    if not ARGS["outAli"]:
-        WRITE = False
 
     sys.stderr.write("Loading synteny graphs orthogroups...\n")
 
@@ -509,9 +460,8 @@ if __name__ == '__main__':
                                                ARGS["file_outgroups"])
 
 
-    if WRITE:
-        for outfolder in [ARGS["outCons"], ARGS["outTree"], ARGS["outAli"]]:
-            os.makedirs(outfolder, exist_ok=True)
+    for outfolder in [ARGS["outCons"], ARGS["outTree"], ARGS["outAli"]]:
+        os.makedirs(outfolder, exist_ok=True)
 
     if os.path.dirname(ARGS["summary"]):
 
@@ -526,7 +476,6 @@ if __name__ == '__main__':
     if ARGS["alisFile"].split('.')[-1] == 'gz':
         OPEN = gzip.open
 
-    DICT_INC = {}
     with open(ARGS["treesFile"], "r") as infile_t,\
          OPEN(ARGS["alisFile"], "rt") as infile_a,\
          open(ARGS["summary"], 'w') as outfile_summary:
@@ -536,10 +485,6 @@ if __name__ == '__main__':
 
             get_inconsistent_trees(TREE, ALI, OUTGROUPS, ALL_GRAPH_CUT, outfile_summary,\
                                    ARGS["outCons"], ARGS["outTree"], ARGS["outAli"], STATS,\
-                                   ARGS["sp_inc"], ARGS["discard_sp"], WRITE, DICT_INC)
+                                   ARGS["discard_sp"])
 
     print_out_stats(STATS, wgd=ARGS["wgd_tag"])
-
-    if DICT_INC:
-        with open(ARGS["summary"]+".pkl", 'wb') as OUT:
-            pickle.dump(DICT_INC, OUT)
