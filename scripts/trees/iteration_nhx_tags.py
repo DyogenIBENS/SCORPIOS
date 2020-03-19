@@ -54,7 +54,7 @@ if __name__ == '__main__':
             for tree in ut.read_multiple_objects(f):
 
                 if k%1000 == 0 and k > 0:
-                    sys.stderr.write(f"Browsed {k} trees")
+                    sys.stderr.write(f"Browsed {k} trees\n")
 
                 k += 1
 
