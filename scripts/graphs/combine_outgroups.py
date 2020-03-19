@@ -75,27 +75,28 @@ def map_families_across_outgr(graphs):
                     genes2 = set(graphs[outgr2][family_id2].orthogroup_a +\
                                  graphs[outgr2][family_id2].orthogroup_b)
 
-                    if genes.intersection(genes2):
+                    if genes.isdisjoint(genes2):
+                        continue
 
-                        #is family_id2 already in a family ?
-                        #if yes add current family_id to that family
-                        if family_id2 in mapped_ids:
-                            combin[mapped_ids[family_id2][0]].append(family_id)
-                            mapped_ids[family_id] = (mapped_ids[family_id2][0], outgr1)
-
-
-                        #same for family_id
-                        if family_id in mapped_ids:
-                            combin[mapped_ids[family_id][0]].append(family_id2)
-                            mapped_ids[family_id2] = (mapped_ids[family_id][0], outgr2)
+                    #is family_id2 already in a family ?
+                    #if yes add current family_id to that family
+                    if family_id2 in mapped_ids:
+                        combin[mapped_ids[family_id2][0]].append(family_id)
+                        mapped_ids[family_id] = (mapped_ids[family_id2][0], outgr1)
 
 
-                        #else add the group
-                        else:
-                            combin.append([family_id, family_id2])
-                            mapped_ids[family_id2] = (j, outgr2)
-                            mapped_ids[family_id] = (j, outgr1)
-                            j += 1
+                    #same for family_id
+                    if family_id in mapped_ids:
+                        combin[mapped_ids[family_id][0]].append(family_id2)
+                        mapped_ids[family_id2] = (mapped_ids[family_id][0], outgr2)
+
+
+                    #else add the group
+                    else:
+                        combin.append([family_id, family_id2])
+                        mapped_ids[family_id2] = (j, outgr2)
+                        mapped_ids[family_id] = (j, outgr1)
+                        j += 1
 
     return combin, mapped_ids
 

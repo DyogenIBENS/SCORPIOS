@@ -3,6 +3,8 @@
 SCORPiOs snakemake module to build test and regraft synteny aware subtrees for inconsistent subtrees.
 """
 
+RESUME = config.get("resume", "n")
+
 rule remove_anc_in_sptree:
     """
     Removes ancestor names from the species tree, to input it to profileNJ.
@@ -140,7 +142,7 @@ rule correct_input_trees:
     python -m scripts.trees.regraft_subtrees -t {input_trees} -a {config[alis]} \
     -acc {params.input} -o {output.a} -s {config[species_tree]} \
     -n {threads} -anc {params.wgds} -ogr {params.outgroups} \
-    -tmp {outTmpTrees} -sa {config[save_tmp_trees]} {arg_brlength}
+    -tmp {outTmpTrees} -sa {config[save_tmp_trees]} {arg_brlength} -r {RESUME}
     """
 
 if config['save_subtrees_lktest'] == 'n':

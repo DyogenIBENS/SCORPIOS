@@ -130,7 +130,7 @@ def is_below(node1, node2):
     return below
 
 
-def get_anc_order(tree_file, ancestors, tips_to_root=False):
+def get_anc_order(tree_file, ancestors=None, tips_to_root=False):
 
     """
     Orders input ancestors with respect to their position in the species tree. Can be ordered from
@@ -138,7 +138,8 @@ def get_anc_order(tree_file, ancestors, tips_to_root=False):
 
     Args:
         tree_file (str): Path to the input newick formatted tree.
-        ancestors (list of str): list of ancestor names
+        ancestors (optional, list of str): List of ancestor names. If unspecified, all the ancestors
+        in the trees will be returned.
 
     Returns:
         OrderedDict: ancestor names in the requested order (keys) and list of ancestors in the
@@ -146,6 +147,8 @@ def get_anc_order(tree_file, ancestors, tips_to_root=False):
     """
 
     tree = Tree(tree_file, format=1)
+    if not ancestors:
+        ancestors = [i.name for i in tree.traverse() if not i.is_leaf()]
     tree.prune([i for i in tree.get_leaves()])
     dist_to_root = {i:tree.get_distance(i) for i in ancestors}
     anc_order = sorted(dist_to_root, key=dist_to_root.get)
