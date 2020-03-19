@@ -127,7 +127,7 @@ def count(filenames, name_sol="", alpha=0.05, item='1', parse_name=True, wgd='')
         #naming parsing is specific to SCORPiOs inputs and outputs
         #parsing below allows to retrieve the outgroup gene used as name for gene families.
         if parse_name:
-            name = os.path.basename(filename).split('_')[1].split('.')[0]
+            name = os.path.splitext(os.path.basename(filename).split('Res_')[1])[0]
         else:
             name = filename
 
