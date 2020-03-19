@@ -24,7 +24,7 @@ from ete3 import Tree
 from . import utilities as ut
 
 
-def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
+def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder='', X=10):
 
     """
     Build a gene tree from the multiple alignment string in `ali`, while accounting for the
@@ -64,14 +64,14 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder=''):
         seq = ut.get_subali(ali, mapping, mapping)
 
         ut.write_fasta(seq, tmp_ali)
-        cmd = "treebest best "+tmp_ali+" -f "+sptree+" -X 10 -Z 1e-3 -q > "+out_tree
+        cmd = "treebest best "+tmp_ali+" -f "+sptree+" -X "+str(X)+" -Z 1e-3 -q > "+out_tree
         return_value = os.system(cmd)
 
         #if treebest failed, we try without filtering the alignment
         #TODO it would be better to catch treebest errors using subprocess rather than os.system
         if return_value != 0:
 
-            cmd = "treebest best "+tmp_ali+" -F 0 -f "+sptree+" -X 10 -Z 1e-3 -q > "+out_tree
+            cmd = "treebest best "+tmp_ali+" -F 0 -f "+sptree+" -X "+str(X)+" -Z 1e-3 -q > "+out_tree
             return_value = os.system(cmd)
 
             if return_value != 0:
@@ -109,6 +109,8 @@ if __name__ == '__main__':
     PARSER.add_argument('-tmp', '--tmp_folder', type=str, help='Path for tmp invidual trees',
                         required=False, default='')
 
+    PARSER.add_argument('-X', '--X', type=int, help='treebest -X argument', required=False, default=10)
+
     ARGS = vars(PARSER.parse_args())
 
     if ARGS["tmp_folder"]:
@@ -132,7 +134,7 @@ if __name__ == '__main__':
                                            ut.read_multiple_objects(INFILE_GSP))):
 
             RES = POOL.apply_async(worker_build_tree, args=(ALI, MAP, ARGS["species_tree"], i,
-                                                            ARGS["tmp_folder"]))
+                                                            ARGS["tmp_folder"], ARGS["X"]))
             ASYNC_RES += [RES]
 
     POOL.close()
