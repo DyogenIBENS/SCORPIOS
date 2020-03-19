@@ -71,7 +71,8 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder='', X=10):
         #TODO it would be better to catch treebest errors using subprocess rather than os.system
         if return_value != 0:
 
-            cmd = "treebest best "+tmp_ali+" -F 0 -f "+sptree+" -X "+str(X)+" -Z 1e-3 -q > "+out_tree
+            cmd = "treebest best "+tmp_ali+" -F 0 -f "+sptree+" -X "+str(X)+" -Z 1e-3 -q > "+\
+                   out_tree
             return_value = os.system(cmd)
 
             if return_value != 0:
@@ -109,7 +110,8 @@ if __name__ == '__main__':
     PARSER.add_argument('-tmp', '--tmp_folder', type=str, help='Path for tmp invidual trees',
                         required=False, default='')
 
-    PARSER.add_argument('-X', '--X', type=int, help='treebest -X argument', required=False, default=10)
+    PARSER.add_argument('-X', '--X', type=int, help='treebest -X argument', required=False,
+                        default=10)
 
     ARGS = vars(PARSER.parse_args())
 
