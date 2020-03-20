@@ -1,11 +1,11 @@
 """
 This scripts allows to recover correction tags for trees that have been corrected multiple times
 during iterative correction (currently .nhx tags are wiped out if a same tree is corrected again)
-
+Optionally also adds tag to internal corrected nodes that are corrected subtrees.
 Example:
     $ python -m scripts.trees.iteration_nhx_tags -i 5
                                                  -c SCORPiOs_example/corrected_forest_%d.nhx
-                                                 [-o out.nhx]
+                                                 [-o out.nhx] [--internal]
 """
 
 import sys
@@ -13,7 +13,32 @@ import argparse
 
 from ete3 import Tree
 
-from . import utilities as ut
+from scripts.trees import speciestree as spt, utilities as ut
+from scripts.synteny.duplicated_families import tag_duplicated_species
+
+
+def corr_tag_below_node(node, tags_corr):
+
+    """
+    Search for the presence of .nhx tags for leaves below the node `node`.
+
+    Args:
+        node (ete3 TreeNode): the input node
+        tags_corr (list of str): list of tags to search for
+
+    Returns:
+        (bool): True if at least of the input `tags_corr` is in leaves below `node`
+    """
+
+    has_tag = False
+
+    for leaf in node.get_leaves():
+        for tag_corr in tags_corr:
+            if hasattr(leaf, tag_corr):
+                has_tag = True
+                break
+
+    return has_tag
 
 
 if __name__ == '__main__':
@@ -25,9 +50,16 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-c', '--cor_f', help='path to corrected forests', required=True, type=str)
 
+    PARSER.add_argument('--internal', help='tag only corrected wgd nodes', action='store_true')
+
+    PARSER.add_argument('-sp', '--sptree', type=str, required=False, default='')
+
     PARSER.add_argument('-o', '--out', type=str, required=False, default="out.nhx")
 
     ARGS = vars(PARSER.parse_args())
+
+    assert (ARGS["internal"] and ARGS["sptree"]) or not ARGS["internal"],\
+           "A species tree should be provided to tag corrected wgd internal nodes"
 
     CORRECTIONS = {}
 
@@ -35,7 +67,11 @@ if __name__ == '__main__':
 
     COR_TAGS_ALL = []
 
+    COR_TAGS_INT = []
+
     COR_TAGS = []
+
+
 
     for itera in range(1, ARGS["iter"] + 1):
         k = 0
@@ -59,8 +95,9 @@ if __name__ == '__main__':
                 k += 1
 
                 t = Tree(tree)
+                leaves = t.get_leaves()
 
-                for i in t.get_leaves():
+                for i in leaves:
 
                     corr = [att for att in vars(i) if "CORR_ID_" in att]
 
@@ -73,6 +110,9 @@ if __name__ == '__main__':
                         if tag+'_'+str(itera) not in COR_TAGS_ALL:
 
                             COR_TAGS_ALL.append(tag+'_'+str(itera))
+
+                        if tag not in COR_TAGS_INT:
+                            COR_TAGS_INT.append(tag)
 
                     if itera == ARGS["iter"]:
                         if i.name in CORRECTIONS:
@@ -87,6 +127,56 @@ if __name__ == '__main__':
 
                     all_features = ["S", "D", "DD", "DCS"] + COR_TAGS_ALL
 
-                    tree_nhx = t.write(format=1, features=all_features, format_root_node=True)
+                    if not ARGS["internal"]:
 
-                    OUTFILE.write(tree_nhx+'\n//\n')
+                        tree_nhx = t.write(format=1, features=all_features, format_root_node=True)
+
+                        OUTFILE.write(tree_nhx+'\n//\n')
+
+
+                    else:
+
+                        wgds = {i.split('_')[-2] for i in COR_TAGS_ALL}
+                        wgds_dict = {}
+                        for wgd in wgds:
+                            DUP_SPECIES = spt.get_species(ARGS["sptree"], wgd)
+                            wgds_dict[wgd] = DUP_SPECIES
+
+                        t = Tree(t.write(format=1, features=all_features, format_root_node=True))
+                        for wgd in wgds_dict:
+
+                            leaves = t.get_leaves()
+
+                            #find all monphyletic teleost groups
+                            tag_duplicated_species(leaves, wgds_dict[wgd])
+
+                            #all clades of teleost genes,
+                            #by definition corrected subtrees will only contain dup. sp
+                            subtrees = t.get_monophyletic(values=["Y"], target_attr="duplicated")
+
+                            for subtree in subtrees:
+
+                                if subtree.is_leaf():
+                                    continue
+
+                                #if corrected leaves at each side of the node: corrected node
+                                child1, child2 = subtree.get_children()
+
+                                tags_wgd = [i for i in COR_TAGS_ALL if wgd in i]
+
+                                ok_child1 = corr_tag_below_node(child1, tags_wgd)
+
+                                if ok_child1:
+                                    ok_child2 = corr_tag_below_node(child2, tags_wgd)
+
+                                if ok_child1 and ok_child2:
+
+                                    setattr(subtree, 'CORR_ID_'+wgd, 'Y')
+
+                            t = Tree(t.write(format=1, features=all_features+COR_TAGS_INT,
+                                             format_root_node=True))
+
+                        tree_nhx = t.write(format=1, features=all_features+COR_TAGS_INT,
+                                           format_root_node=True)
+
+                        OUTFILE.write(tree_nhx+'\n//\n')
