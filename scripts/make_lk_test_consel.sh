@@ -50,6 +50,7 @@ if [ -s "$cortree" ] ; then
 	#clean all consel temp
 	rm "${alidir}/${name}.lk"
 	rm "${alidir}/${name}.rmt"
+	rm "${alidir}/${name}.vt"
 	rm "${alidir}/${name}"
 	rm "${alidir}/${namenew}.pv"
 	rm "${alidir}/${namenew}.ci"
