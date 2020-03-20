@@ -364,7 +364,7 @@ def print_out_stats(stats_dict, wgd=''):
 
         print(" {} out of {} ({} %) synteny-consistent subtrees".format(cons, tot, consp))
 
-        print(" {} out of {} ({} %) synteny-inconsistent subtrees"\
+        print(" {} out of {} ({} %) synteny-inconsistent subtrees to correct"\
               .format(incons, tot, inconsp))
 
         print("----------------------------------------------------------------------------")
