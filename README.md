@@ -9,7 +9,7 @@
 
  For a complete description of SCORPiOs, see our preprint: https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full
 
- ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/scorpios_illustrated.jpg)
+ ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/scorpios_illustrated.png)
 
 ## Table of content
   - [Installation](#installation)
