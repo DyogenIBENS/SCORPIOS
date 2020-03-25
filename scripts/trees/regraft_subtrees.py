@@ -372,8 +372,8 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, spt
                                                                 modified_trees, brlengths, resume))
                 async_res += [res]
 
-    pool.close()
-    pool.join()
+        pool.close()
+        pool.join()
 
     for res in async_res:
         if not res.get():
