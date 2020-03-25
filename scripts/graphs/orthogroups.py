@@ -536,8 +536,8 @@ if __name__ == '__main__':
             JOB = POOL.apply_async(worker_cut_graph, args=(FAM, FAM_ID, RES))
             ASYNC_RESULTS += [JOB]
 
-    POOL.close()
-    POOL.join()
+        POOL.close()
+        POOL.join()
 
     for RESULT in ASYNC_RESULTS:
         if not RESULT.get():
