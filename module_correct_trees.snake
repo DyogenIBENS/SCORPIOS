@@ -15,18 +15,6 @@ rule remove_anc_in_sptree:
         spt.remove_anc(config["species_tree"], NO_ANC_TREE)
 
 
-# rule distance_matrix:
-#     input: SUBALIS+"/{wgd}/{ctrees}.fa"
-#     output: temp(tmp_matrix+"_{ctrees}.phy")
-#     """
-#     For each subtree to correct, builds a distance matrix using fastdist, to input it to profileNJ.
-#     Note: fastdist fails and produces empty outputs if not enough subsitutions. We ignore here
-#     fastdist-related errors generating empty distance matrixes.
-#     """
-#     shell:"""
-#     fastdist -I fasta {input} -O phylip -o {output} || true
-#     """
-
 rule distance_matrix:
     input: SUBALIS+"/{wgd}/{ctrees}.fa"
     output: temp(tmp_matrix+"_{ctrees}.phy")
