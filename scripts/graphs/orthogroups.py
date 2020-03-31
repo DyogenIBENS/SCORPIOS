@@ -73,28 +73,28 @@ def load_line(line, use_weights=False):
     return edges, weights, fam_id
 
 
-def update_networkx(graph, edges, weights=None):
+# def update_networkx(graph, edges, weights=None):
 
-    """
-    Updates the networkx graph by adding edges between orthologous genes.
+#     """
+#     Updates the networkx graph by adding edges between orthologous genes.
 
-    Args:
-        graph (networkx graph): Orthology graph
-        edges (list of tuples): Orthologous gene pair
-        weights (list, optional): Confidence score for the orthology
-    """
+#     Args:
+#         graph (networkx graph): Orthology graph
+#         edges (list of tuples): Orthologous gene pair
+#         weights (list, optional): Confidence score for the orthology
+#     """
 
-    for i, (source, target) in enumerate(edges):
+#     for i, (source, target) in enumerate(edges):
 
-        if not graph.has_edge(source, target):
+#         if not graph.has_edge(source, target):
 
-            if weights:
-                weight = weights[i]
-            else:
-                weight = 1
+#             if weights:
+#                 weight = weights[i]
+#             else:
+#                 weight = 1
 
-            if weight > 0:
-                graph.add_edge(source, target, weight=weight)
+#             if weight > 0:
+#                 graph.add_edge(source, target, weight=weight) #this is very slow
 
 
 
@@ -116,6 +116,7 @@ def lazy_load_pairwise_file(file_object, use_weights=False):
 
     prev_id = ''
     fam = nx.Graph()
+    all_edges = []
     while True:
         line = file_object.readline()
 
@@ -128,20 +129,32 @@ def lazy_load_pairwise_file(file_object, use_weights=False):
 
         #if new family yield the previous and store the new one
         if prev_id and fam_id != prev_id:
+            fam.add_edges_from(all_edges)
+            all_edges = []
             yield fam, prev_id
-            edges, weights, fam_id = load_line(line, use_weights)
 
+            edges, weights, fam_id = load_line(line, use_weights)
+            if use_weights:
+                edges = edges[0] + (weights,)
+            else:
+                all_edges += edges
+            # print(all_edges)
             fam = nx.Graph()
 
-            update_networkx(fam, edges, weights)
+            # update_networkx(fam, edges, weights)
             prev_id = fam_id
 
 
         #if same family keep storing orthologies
         else:
             edges, weights, fam_id = load_line(line, use_weights)
-
-            update_networkx(fam, edges, weights)
+            if use_weights:
+                edges = edges[0] + (weights,)
+                all_edges.append((edges, weights))
+            else:
+                all_edges += edges
+            # print(all_edges)
+            # update_networkx(fam, edges, weights)
             prev_id = fam_id
 
 
@@ -198,7 +211,7 @@ def contracted_nodes(graph, u, v):
 
         else:
             #weight of common edges is set to max weight
-            max_weight = max(edge_weight, graph[u][w]['weight'])
+            max_weight = max(edge_weight, graph[u][w].get('weight', 1))
             graph[u][w]['weight'] = max_weight
 
     #remove all edges connected to v
@@ -531,10 +544,13 @@ if __name__ == '__main__':
     POOL = multiprocessing.Pool(ARGS["ncores"])
     ASYNC_RESULTS = []
     with gzip.open(ARGS["input"], 'rt') as infile:
-
+        k = 0
         for FAM, FAM_ID in lazy_load_pairwise_file(infile, use_weights=ARGS['weight']):
             JOB = POOL.apply_async(worker_cut_graph, args=(FAM, FAM_ID, RES))
             ASYNC_RESULTS += [JOB]
+            k += 1
+            if k == 100:
+                break
 
     POOL.close()
     POOL.join()
