@@ -393,7 +393,7 @@ def worker_cut_graph(family, fam, res):
 
 
         #Filter multigenic families
-        if n_genes < n_species*4:
+        if n_genes < n_species*3:
 
             #collapse tandem duplicates
             collapse_nodes(family)
@@ -549,8 +549,6 @@ if __name__ == '__main__':
             JOB = POOL.apply_async(worker_cut_graph, args=(FAM, FAM_ID, RES))
             ASYNC_RESULTS += [JOB]
             k += 1
-            if k == 100:
-                break
 
     POOL.close()
     POOL.join()

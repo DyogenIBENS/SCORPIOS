@@ -14,7 +14,6 @@
 max_iter=5
 min_corr=5
 iteration=1
-# snake_args="--configfile config_v89.yaml --cores 35"
 
 ### Command-line argument parsing ###
 while [ $# -gt 0 ]; do
