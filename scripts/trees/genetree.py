@@ -168,17 +168,15 @@ def branch_length_closest(tree, gene, group_of_genes):
         dist = tree.get_distance(gene, target)
 
         if dist <= dist_min:
-            min_gene = target
             dist_min = dist
-
             min_gene_d[target.name] = dist_min
             names[target.name] = target
 
-    #arbitrary choice to ensure deterinistic answer
+    #arbitrary choice to ensure deterministic answer
     all_max_genes = []
-    for gene in min_gene_d:
-        if min_gene_d[gene] == dist_min:
-            all_max_genes.append(gene)
+    for hit_gene in min_gene_d:
+        if min_gene_d[hit_gene] == dist_min:
+            all_max_genes.append(hit_gene)
     best_gene = sorted(all_max_genes)[0]
     return names[best_gene]
 
@@ -294,6 +292,7 @@ def find_sister_of_outgroup(leaf_outgr, authorized_sp, sister_outgroup_genes):
                 if gene.S in authorized_sp:
                     sister_outgroup_genes.append(gene.name)
 
+
 def keep_sis_genes_together(duplicated_sp_subtree, outgr, sister_outgroup_genes, outgroup_subtree,
                             node_max='node_max'):
     """
@@ -386,7 +385,6 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
         if outgr_gene.name in sleaves:
             closest_gene[clade] = outgr_gene
 
-    # print(closest_gene)
     #if the closest WGD1 gene is in the WGD1 stree
     #we'll keep 4R genes in the family, at a similar position
     for outgr_gene in set(closest_gene.values()):
@@ -401,6 +399,7 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
 
         sister_outgroup_genes = [outgr_gene.name]
         find_sister_of_outgroup(outgr, authorized_sp[outgr_gene.S], sister_outgroup_genes)
+
         #We keep all sister outgroup genes together in the corrected tree
         if len(sister_outgroup_genes) > 1:
 
@@ -410,31 +409,24 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
                                                  node_max='')
             lca = stree.get_common_ancestor(sister_outgroup_genes)
             # cop = stree.copy()
-            stree.prune([lca] + [i for i in stree.get_leaves() if i.name not in sister_outgroup_genes])
+            stree.prune([lca] + [i for i in stree.get_leaves()\
+                                 if i.name not in sister_outgroup_genes])
         else:
             lca = outgr
 
-        #place a new version of outgr+otherwgds_species
-        sub_leaves = [i.name for i in subtree_4r.get_leaves()]
-        # if "ENSPKIG00000005730_Paramormyrops.kingsleyae" in sub_leaves:
+        #in case we do not paste the subtree at a terminal node (cleared above)
         if len(lca.children) == 2:
-            # print('LLLLLL',lca.up)
-            # print('LLLLLL',subtree_4r)
-        #     lca.name = ''
-        #     print(lca)
             lca_cop = lca.copy()
-            trash = Tree()
+            tmp = Tree()
             lca_cop.prune([i for i in lca_cop.get_leaves()])
-            trash.add_child(lca_cop.copy())
-            trash.add_child(subtree_4r.copy())
-            # print('LLLLLL2222',trash)
-            # lca = trash.copy()
-            lca.up.add_child(name='A')
+            tmp.add_child(lca_cop.copy())
+            tmp.add_child(subtree_4r.copy())
+            lca.up.add_child(name='here')
             lca.detach()
-            tttt = stree.search_nodes(name="A")[0]
-            tttt.add_child(trash.copy())
-            tttt.name = ''
-            # print('LLLLLL2222',tttt.up)
+            lca_new = stree.search_nodes(name="here")[0]
+            lca_new.add_child(tmp.copy())
+            lca_new.name = ''
+
         else:
             lca.name = ''
             lca.add_child(subtree_4r)

@@ -18,10 +18,8 @@ import os
 import sys
 import argparse
 import gzip
-import itertools
 
 from ete3 import Tree
-
 
 from . import utilities as ut
 from . import genetree as gt
@@ -198,13 +196,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
             else:
                 wtree = corrected_tree.copy("newick-extended")
 
-        # #save edition tags in a dict, we will put them as NHX attributes in the end
-        # #otherwise they would be wiped out by treebest during reconciliation or br-length computing
-        # #This should be checked again, I am not sure treebest removes .nhx attributes anymore
-        # #Perhaps storing attributes and putting them back at the end is not nescessary
-        # d_edit = gt.save_nhx_tags(['CORR_ID_'+tag, 'MOVED_ID_'+tag],
-        #                           [all_subtrees_leaves, all_missing_leaves])
-
+        #TODO: write a funtion for this ...s
         tags = set()
         for leaf in wtree.get_leaves():
             for j, (subsetc, subsetm) in enumerate(zip(all_subtrees_leaves, all_missing_leaves)):
@@ -224,6 +216,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
         final_wtree_file = outfiles+whole_tree
         wtree.write(outfile=final_wtree_file, format=1,
                     features=["S"]+list(tags), format_root_node=True)
+
         size_of_recalc_trees = [len(i) for i in all_missing_leaves]
         if tree_id not in res:
             res[tree_id] = []
@@ -267,7 +260,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
             ete3_format = 9
         out_exist = os.path.exists(outfolder+"/"+prefix+"_"+treeid) and\
                     os.path.getsize(outfolder+"/"+prefix+"_"+treeid) > 0
-        
+
         if not resume or not out_exist:
 
             if brlengths:
@@ -286,7 +279,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
             for leaf in leaves:
                 d_sp[leaf.name] = leaf.S
                 leaf.name = leaf.name +'_'+leaf.S
-                edit_tags.update(set([i for i in vars(leaf) if 'ID' in i]))
+                edit_tags.update({i for i in vars(leaf) if 'ID' in i})
 
             edit_tags = list(edit_tags)
             # if requested, we re-compute branch lengths
@@ -309,8 +302,8 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
             #otherwise, we just write the tree to file
             else:
 
-                wtree.write(outfile=outfolder+"/"+treeid, features=["S"]+edit_tags, format=ete3_format,
-                        format_root_node=True)
+                wtree.write(outfile=outfolder+"/"+treeid, features=["S"]+edit_tags,
+                            format=ete3_format, format_root_node=True)
 
             #Reconcile the tree
             os.system("treebest sdi -s "+sptree+" "+outfolder+"/"+treeid+\
@@ -383,7 +376,7 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, spt
     if brlengths:
         with open(trees, "r") as infile_t, open_f(alis, "rt") as infile_a:
             for i, (input_tree, input_ali) in enumerate(zip(ut.read_multiple_objects(infile_t),
-                                                        ut.read_multiple_objects(infile_a))):
+                                                            ut.read_multiple_objects(infile_a))):
 
                 if i in modified_trees:
                     pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
@@ -493,8 +486,8 @@ if __name__ == '__main__':
     CORRECTED_SUBTREES = gt.load_corrections(ARGS['Accepted'])
 
 
-    manager = multiprocessing.Manager()
-    CORRECTION_STATS = manager.dict()
+    MANAGER = multiprocessing.Manager()
+    CORRECTION_STATS = MANAGER.dict()
     WGDS = spt.get_anc_order(ARGS["Species_tree"], WGD_ANCS, tips_to_root=True)
 
     #Correct trees for each WGDs iteratively, from tips to root
@@ -537,9 +530,10 @@ if __name__ == '__main__':
 
             for TREE_IND, TREE in enumerate(ut.read_multiple_objects(infile)):
 
-                pool.apply_async(correct_wtrees, args=(TREE, CORRECTED_SUBTREES_CURRENT, CORRECTION_STATS,
-                                 TREE_IND, CORFOLDER+'/cor_', SISTERS_OF_OUTGR,
-                                 sp_other_wgd, sp_wgd, wgd))
+                pool.apply_async(correct_wtrees, args=(TREE, CORRECTED_SUBTREES_CURRENT,
+                                                       CORRECTION_STATS, TREE_IND,
+                                                       CORFOLDER+'/cor_', SISTERS_OF_OUTGR,
+                                                       sp_other_wgd, sp_wgd, wgd))
                 # print(CORRECTION_STATS)
 
             pool.close()
