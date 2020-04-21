@@ -8,9 +8,9 @@
     Example:
         $ python -m scripts.graphs.orthogroups -i orthology_file.gz [-o out] [-w n] [-n 1]
                                                                     [-s Summary] [-ignSg y]
-                                                                    [-wgd '']
+                                                                    [-wgd '']  [--spectral]
+                                                                    [--verbose]
 """
-
 
 import sys
 import argparse
@@ -22,7 +22,7 @@ from collections import Counter
 import gzip
 
 import networkx as nx
-
+from sklearn.cluster import SpectralClustering
 
 def species_name(gene):
 
@@ -71,31 +71,6 @@ def load_line(line, use_weights=False):
             weights.append(float(weight))
 
     return edges, weights, fam_id
-
-
-# def update_networkx(graph, edges, weights=None):
-
-#     """
-#     Updates the networkx graph by adding edges between orthologous genes.
-
-#     Args:
-#         graph (networkx graph): Orthology graph
-#         edges (list of tuples): Orthologous gene pair
-#         weights (list, optional): Confidence score for the orthology
-#     """
-
-#     for i, (source, target) in enumerate(edges):
-
-#         if not graph.has_edge(source, target):
-
-#             if weights:
-#                 weight = weights[i]
-#             else:
-#                 weight = 1
-
-#             if weight > 0:
-#                 graph.add_edge(source, target, weight=weight) #this is very slow
-
 
 
 def lazy_load_pairwise_file(file_object, use_weights=False):
@@ -296,13 +271,15 @@ def are_species_sep(partitions):
     return non_sep
 
 
-def min_cut(graph):
+def min_cut(graph, spectral=False):
 
     """
     Detects two orthologous communities in the graph.
 
     Args:
         graph (networkx.Graph): Orthology graph
+        spectral (bool, optional): Use spectral clustering instead of default Girvan-Newman
+                                   (faster)
     """
 
     scores_cut = []
@@ -329,48 +306,62 @@ def min_cut(graph):
         cut_edges_best = {}
         algo = 'No'
 
-    # else find communities with girvan_newman
+    # else find communities 
     else:
-        comp = nx.algorithms.community.girvan_newman(graph, most_valuable_edge=most_central_edge)
 
-        components = tuple(set(c) for c in next(comp))
+        #use spectral clustering only, if spectral clustering is preferred
+        if spectral:
+            algo = "spectral"
+            adj_mat = nx.to_numpy_matrix(graph)
+            sc = SpectralClustering(2, affinity='precomputed', n_init=100)
+            sc.fit(adj_mat)
+            components = ({n for i, n in enumerate(graph.nodes()) if sc.labels_[i]==0},\
+                          {n for i, n in enumerate(graph.nodes()) if sc.labels_[i]==1})
+            cut_edges_best = {(u, v) for u in components[0]\
+                              for v in components[1].intersection(graph.adj[u])}
 
-        #edges between two sets of nodes
-        cut_edges_best = {(u, v) for u in components[0]\
-                          for v in components[1].intersection(graph.adj[u])}
+        #Default with girvan_newman and kerningan-lin
+        else:
+            comp = nx.algorithms.community.girvan_newman(graph, most_valuable_edge=most_central_edge)
 
-        non_sep_sp = are_species_sep(components)
-        algo = 'GN'
+            components = tuple(set(c) for c in next(comp))
+
+            #edges between two sets of nodes
+            cut_edges_best = {(u, v) for u in components[0]\
+                              for v in components[1].intersection(graph.adj[u])}
+
+            non_sep_sp = are_species_sep(components)
+            algo = 'GN'
 
 
-        #If not all the species are separated try kerningan_lin
-        if non_sep_sp >= 1:
+            #If not all the species are separated try kerningan_lin
+            if non_sep_sp >= 1:
 
-            for _ in range(5): #5 random starts
+                for _ in range(5): #5 random starts
 
-                #FIXME we could try to get a deterministic result with the KL algo:
-                #from tests it seems specifying a random seed to this function does not guarantee
-                #determinism
-                bisect = nx.algorithms.community.kernighan_lin_bisection(graph, partition=None,
-                                                                         max_iter=10,
-                                                                         weight='weight')
+                    #FIXME we could try to get a deterministic result with the KL algo:
+                    #from tests it seems specifying a random seed to this function does not guarantee
+                    #determinism
+                    bisect = nx.algorithms.community.kernighan_lin_bisection(graph, partition=None,
+                                                                             max_iter=10,
+                                                                             weight='weight')
 
-                cut_edges = {(u, v) for u in bisect[0]\
-                             for v in bisect[1].intersection(graph.adj[u])}
+                    cut_edges = {(u, v) for u in bisect[0]\
+                                 for v in bisect[1].intersection(graph.adj[u])}
 
-                non_sep = are_species_sep(bisect)
+                    non_sep = are_species_sep(bisect)
 
-                #if better separation keep KL
-                if non_sep < non_sep_sp:
-                    cut_edges_best = cut_edges
-                    components = bisect
-                    non_sep_sp = non_sep
-                    algo = 'KL'
+                    #if better separation keep KL
+                    if non_sep < non_sep_sp:
+                        cut_edges_best = cut_edges
+                        components = bisect
+                        non_sep_sp = non_sep
+                        algo = 'KL'
 
     return components, cut_edges_best, algo, (scores_cut, scores_uncut)
 
 
-def worker_cut_graph(family, fam, res):
+def worker_cut_graph(family, fam, res, spectral=False, k=0, verbose=False):
     """
     Worker for parallel graph cutting. Collapses tandem duplicates, detects the two communities in
     the graph and store results and statistics about the cuts in the `res` dictionary.
@@ -379,6 +370,10 @@ def worker_cut_graph(family, fam, res):
         family (networkx.Graph): Orthology graph of the gene family
         fam (str): Unique id of the gene family
         res (dict): Dictionary storing the results, shared between processes
+        spectral (bool, optional): Use spectral clustering instead of default Girvan-Newman
+                                   (faster)
+        k (int, optional): unique id for the cut graph
+        verbose (bool, optional): print progress
 
     Returns:
         bool: True if no Exception was raised.
@@ -399,7 +394,7 @@ def worker_cut_graph(family, fam, res):
             collapse_nodes(family)
 
             #cut graphs
-            orthogroups, cuts, algo, scores = min_cut(family)
+            orthogroups, cuts, algo, scores = min_cut(family, spectral)
 
             #ignore graphs with two genes
             if algo == 'Too few genes':
@@ -430,6 +425,10 @@ def worker_cut_graph(family, fam, res):
 
         else:
             res[fam] = (None, 'Filtered_Multigenic', 'NAN', 'None')
+
+        if verbose:
+            sys.stderr.write(f"Cut graph {k} \n")
+            sys.stderr.flush()
 
         return True
 
@@ -524,6 +523,11 @@ if __name__ == '__main__':
                         help='Informations on the WGD to print it out along with statistics',
                         required=False, default='')
 
+    PARSER.add_argument('--spectral', action='store_true', help="Force community detection"
+                        "with spectral clustering, for computational efficiency")
+
+    PARSER.add_argument('--verbose', action='store_true')
+
     ARGS = vars(PARSER.parse_args())
 
     for ARG in ['ignoreSingleGeneC', 'weight']:
@@ -546,7 +550,8 @@ if __name__ == '__main__':
     with gzip.open(ARGS["input"], 'rt') as infile:
         k = 0
         for FAM, FAM_ID in lazy_load_pairwise_file(infile, use_weights=ARGS['weight']):
-            JOB = POOL.apply_async(worker_cut_graph, args=(FAM, FAM_ID, RES))
+            JOB = POOL.apply_async(worker_cut_graph, args=(FAM, FAM_ID, RES, ARGS["spectral"], k,
+                                                           ARGS["verbose"]))
             ASYNC_RESULTS += [JOB]
             k += 1
 
@@ -586,7 +591,6 @@ if __name__ == '__main__':
                     OUTFILE.write(ORTHO_A+'\n')
                     # ALL_SCORES.append(SCORES)
 
-
                 #write second community (if more than two in total, write the second largest)
                 if len(ORTHOGROUPS) > 1 and len(ORTHOGROUPS[1]) >= 2 and ARGS["ignoreSingleGeneC"]:
                     ORTHO_B = ('\t').join([FAM+'b'] + list(ORTHOGROUPS[1])) #arbitrary b
@@ -596,7 +600,6 @@ if __name__ == '__main__':
                                           and not ARGS["ignoreSingleGeneC"]:
                     ORTHO_B = ('\t').join([FAM+'b'] + list(ORTHOGROUPS[1])) #arbitrary b
                     OUTFILE.write(ORTHO_B+'\n')
-
 
     if ARGS["wgd_tag"]:
         WGD, OUTGR = ARGS["wgd_tag"].split(',')
