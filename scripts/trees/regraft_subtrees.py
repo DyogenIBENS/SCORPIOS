@@ -100,6 +100,48 @@ def topo_changes(lca, stree, leaves_to_move, outgr, authorized_sp):
     return final_tree, sister_outgroup_genes
 
 
+def add_nhx_tags_and_rm_sp(tree, cor_leaves, moved_leaves, tag, rm_species=True):
+
+    """
+    Adds nhx tags to corrected leaves and remove species name from gene names.
+
+    Args:
+        tree (ete3.Tree) : the whole gene tree
+        cor_leaves (list): list of list of leaves belonging to the same corrected subtree
+        moved_leaves (list): list of list of leaves rearranged to correct a subtree
+        tag (str):  name of the wgd, to include in the tag name
+        rm_species (bool, optional): Whether species names should be removed
+
+    Returns:
+        set: names of all added .nhx tags
+    """
+
+    tags = set()
+
+    for leaf in tree.get_leaves():
+
+        for j, (subsetc, subsetm) in enumerate(zip(cor_leaves, moved_leaves)):
+
+            if leaf.name in subsetc:
+                tagc = 'CORR_ID_'+tag
+                setattr(leaf, tagc, j+1)
+                tagc = set(['CORR_ID_'+tag])
+                tags.update(tagc)
+
+            prev_tags = {i for i in vars(leaf) if "CORR" in i or "MOVED" in i}
+
+            tags.update(prev_tags)
+            if leaf.name in subsetm:
+                tagm = 'MOVED_ID_'+tag
+                setattr(leaf, tagm, j+1)
+                tagm = set(['MOVED_ID_'+tag])
+                tags.update(tagm)
+
+        if rm_species:
+            leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
+
+    return tags
+
 def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_wgd=None,
                    sp_current_wgd=None, tag=''):
 
@@ -196,23 +238,8 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
             else:
                 wtree = corrected_tree.copy("newick-extended")
 
-        #TODO: write a funtion for this ...s
-        tags = set()
-        for leaf in wtree.get_leaves():
-            for j, (subsetc, subsetm) in enumerate(zip(all_subtrees_leaves, all_missing_leaves)):
-                if leaf.name in subsetc:
-                    tagc = 'CORR_ID_'+tag
-                    setattr(leaf, tagc, j+1)
-                    tagc = set(['CORR_ID_'+tag])
-                    tags.update(tagc)
-                prev_tags = {i for i in vars(leaf) if "CORR" in i or "MOVED" in i}
-                tags.update(prev_tags)
-                if leaf.name in subsetm:
-                    tagm = 'MOVED_ID_'+tag
-                    setattr(leaf, tagm, j+1)
-                    tagm = set(['MOVED_ID_'+tag])
-                    tags.update(tagm)
-            leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
+        tags = add_nhx_tags_and_rm_sp(wtree, all_subtrees_leaves, all_missing_leaves, tag)
+
         final_wtree_file = outfiles+whole_tree
         wtree.write(outfile=final_wtree_file, format=1,
                     features=["S"]+list(tags), format_root_node=True)
@@ -315,21 +342,6 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
             wtree = Tree(outfolder+"/"+prefix+"_"+treeid, format=1)
             for leaf in wtree.get_leaves():
                 leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
-
-        # edit_tags = []
-
-        # if corrections:
-
-        #     #extract dictionary storing a summary of modification for each leaf
-        #     all_corrections_features = [d_feat for _, _, _, _, d_feat in corrections[int(treeid)]]
-
-        #     #sorry about this ugly one-liner:
-        #     #store for each leaf, WGD(s) for which it was corrected or had to be moved in the tree
-        #     all_corrections_features = {key:list(itertools.chain(*[d_feat[key]\
-        #                                 for d_feat in all_corrections_features\
-        #                                 if key in d_feat])) for key in {key for d_feat in\
-        #                                 all_corrections_features for key in d_feat}}
-        #     edit_tags = gt.add_nhx_tags(wtree, all_corrections_features)
 
         #write tree
             all_features = ["S", "D", "DD", "DCS"] + edit_tags
@@ -524,20 +536,20 @@ if __name__ == '__main__':
                 SISTERS_OF_OUTGR[SUBS_WGD][sp] = spt.get_sister_species(ARGS['Species_tree'],
                                                                         sp, SUBS_WGD)
 
-        pool = multiprocessing.Pool(NCORES, maxtasksperchild=200)
+        POOL = multiprocessing.Pool(NCORES, maxtasksperchild=200)
         #correct the forest for the current WGD (topology only)
         with open(TREES, "r") as infile:
 
             for TREE_IND, TREE in enumerate(ut.read_multiple_objects(infile)):
 
-                pool.apply_async(correct_wtrees, args=(TREE, CORRECTED_SUBTREES_CURRENT,
+                POOL.apply_async(correct_wtrees, args=(TREE, CORRECTED_SUBTREES_CURRENT,
                                                        CORRECTION_STATS, TREE_IND,
                                                        CORFOLDER+'/cor_', SISTERS_OF_OUTGR,
                                                        sp_other_wgd, sp_wgd, wgd))
                 # print(CORRECTION_STATS)
 
-            pool.close()
-            pool.join()
+            POOL.close()
+            POOL.join()
 
         #Write the new forest and print some statistics
         ut.write_forest(TREES, ARGS["out"]+'_'+str(j), CORRECTION_STATS, wgd)

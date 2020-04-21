@@ -89,7 +89,7 @@ def one_file_consel(filename, alpha, item_test='1'):
 
             elif tmp:
 
-                sys.stderr.write("Warning: no results in {}, CONSEL failed to compute log-lk".format(filename))
+                sys.stderr.write(f"Warning: for {filename}, CONSEL failed to compute log-lk")
 
     return au_result
 
