@@ -160,7 +160,7 @@ bash iterate_scorpios.sh --j=myjobname --snake_args="--configfile config.yaml"
 
 All outputs from SCORPiOs are stored in a folder named SCORPiOs_jobname (jobname as specified in the configuration file).
 
-The main output is the **SCORPiOs-optimized gene trees**. Gene trees are provided as a single file in NHX format. SCORPiOs tags corrected nodes in the gene trees to allow easy inspection using tree visualisation softwares. We recommand the [ETE Toolkit](http://etetoolkit.org/) or [ggtree](https://guangchuangyu.github.io/software/ggtree/) for tree visualisation.
+The main output is the **SCORPiOs-optimized gene trees**. Gene trees are provided as a single file in NHX format. SCORPiOs tags corrected nodes in the gene trees to allow easy inspection using tree visualisation softwares. We recommend the [ETE Toolkit](http://etetoolkit.org/) or [ggtree](https://guangchuangyu.github.io/software/ggtree/) for tree visualisation.
 
 The commands above generate:
 - `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run

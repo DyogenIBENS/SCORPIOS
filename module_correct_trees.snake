@@ -19,12 +19,10 @@ rule distance_matrix:
     input: SUBALIS+"/{wgd}/{ctrees}.fa"
     output: temp(tmp_matrix+"_{ctrees}.phy")
     """
-    For each subtree to correct, builds a distance matrix using fastdist, to input it to profileNJ.
-    Note: fastdist fails and produces empty outputs if not enough subsitutions. We ignore here
-    fastdist-related errors generating empty distance matrixes.
+    For each subtree to correct, builds a distance matrix using treebest distmat.
     """
     shell:"""
-    fastdist -I fasta {input} -O phylip -o {output} || true
+    treebest distmat kimura {input} > {output}
     """
 
 

@@ -134,11 +134,11 @@ if __name__ == '__main__':
                             else:
                                 DGENES[spec]["nosynteny"].update(set(dup_seg_sp.genes_dict[pos]\
                                                                                    [curr_chrom]))
-    NO_SYNT = []
+    NO_SYNT = set()
     STATS = {}
     for spec in DGENES:
         DGENES[spec]["nosynteny"] = DGENES[spec]["nosynteny"].difference(DGENES[spec]["synteny"])
-        NO_SYNT += list(DGENES[spec]["nosynteny"])
+        NO_SYNT.update(DGENES[spec]["nosynteny"])
         STATS[spec] = STATS.get(spec, 0) + len(DGENES[spec]["nosynteny"])
 
 

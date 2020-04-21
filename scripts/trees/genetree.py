@@ -159,17 +159,26 @@ def branch_length_closest(tree, gene, group_of_genes):
     """
 
     dist_min = np.inf
+    min_gene_d = {}
+    names = {}
 
     #iterate over genes in `group_of_genes` and compute branch-length distance
     for target in group_of_genes:
 
         dist = tree.get_distance(gene, target)
 
-        if dist < dist_min:
-            min_gene = target
+        if dist <= dist_min:
             dist_min = dist
+            min_gene_d[target.name] = dist_min
+            names[target.name] = target
 
-    return min_gene
+    #arbitrary choice to ensure deterministic answer
+    all_max_genes = []
+    for hit_gene in min_gene_d:
+        if min_gene_d[hit_gene] == dist_min:
+            all_max_genes.append(hit_gene)
+    best_gene = sorted(all_max_genes)[0]
+    return names[best_gene]
 
 
 def closest_gene_in_tree(tree, node, group_of_genes, attr='name'):
@@ -283,6 +292,7 @@ def find_sister_of_outgroup(leaf_outgr, authorized_sp, sister_outgroup_genes):
                 if gene.S in authorized_sp:
                     sister_outgroup_genes.append(gene.name)
 
+
 def keep_sis_genes_together(duplicated_sp_subtree, outgr, sister_outgroup_genes, outgroup_subtree,
                             node_max='node_max'):
     """
@@ -350,6 +360,7 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
 
     #genes in the WGD1 corrected tree
     sleaves = [i.name for i in stree.get_leaves()]
+    stree.prune([i for i in stree.get_leaves()])
 
     #genes in subsequent WGDs
     missing = [i.name for i in missing_leaves_keep]
@@ -374,11 +385,9 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
         if outgr_gene.name in sleaves:
             closest_gene[clade] = outgr_gene
 
-
     #if the closest WGD1 gene is in the WGD1 stree
     #we'll keep 4R genes in the family, at a similar position
     for outgr_gene in set(closest_gene.values()):
-
         clades = [i for i in closest_gene if closest_gene[i] == outgr_gene]
         clades = list(chain.from_iterable(clades))
 
@@ -398,17 +407,29 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
             subtree_4r = keep_sis_genes_together(subtree_4r, outgr_gene.name,
                                                  sister_outgroup_genes, outgroup_subtree,
                                                  node_max='')
-
             lca = stree.get_common_ancestor(sister_outgroup_genes)
-            stree.prune([i for i in stree.get_leaves() if i.name not in sister_outgroup_genes] +\
-                        [lca])
-
+            # cop = stree.copy()
+            stree.prune([lca] + [i for i in stree.get_leaves()\
+                                 if i.name not in sister_outgroup_genes])
         else:
             lca = outgr
 
-        #place a new version of outgr+otherwgds_species
-        lca.name = ''
-        lca.add_child(subtree_4r)
+        #in case we do not paste the subtree at a terminal node (cleared above)
+        if len(lca.children) == 2:
+            lca_cop = lca.copy()
+            tmp = Tree()
+            lca_cop.prune([i for i in lca_cop.get_leaves()])
+            tmp.add_child(lca_cop.copy())
+            tmp.add_child(subtree_4r.copy())
+            lca.up.add_child(name='here')
+            lca.detach()
+            lca_new = stree.search_nodes(name="here")[0]
+            lca_new.add_child(tmp.copy())
+            lca_new.name = ''
+
+        else:
+            lca.name = ''
+            lca.add_child(subtree_4r)
 
     #remove potential signle child internal nodes artefact
     stree.prune([i for i in stree.get_leaves()])

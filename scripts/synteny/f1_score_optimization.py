@@ -88,6 +88,7 @@ def get_discriminant_threshold(input1, input2, test_range=[j for j in range(30)]
     max_f1 = 0
     for i in test_range:
         f1_score = compute_f1(scores1, scores2, i)
+        f1_score = round(f1_score, 2) #take the most conservative threshold for improvement < 0.01
         if f1_score >= max_f1:
             best_threshold = i
             max_f1 = f1_score

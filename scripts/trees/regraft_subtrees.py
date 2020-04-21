@@ -18,10 +18,8 @@ import os
 import sys
 import argparse
 import gzip
-import itertools
 
 from ete3 import Tree
-
 
 from . import utilities as ut
 from . import genetree as gt
@@ -198,27 +196,38 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
             else:
                 wtree = corrected_tree.copy("newick-extended")
 
-        #save edition tags in a dict, we will put them as NHX attributes in the end
-        #otherwise they would be wiped out by treebest during reconciliation or br-length computing
-        #This should be checked again, I am not sure treebest removes .nhx attributes anymore
-        #Perhaps storing attributes and putting them back at the end is not nescessary
-        d_edit = gt.save_nhx_tags(['CORR_ID_'+tag, 'MOVED_ID_'+tag],
-                                  [all_subtrees_leaves, all_missing_leaves])
-
+        #TODO: write a funtion for this ...s
+        tags = set()
         for leaf in wtree.get_leaves():
+            for j, (subsetc, subsetm) in enumerate(zip(all_subtrees_leaves, all_missing_leaves)):
+                if leaf.name in subsetc:
+                    tagc = 'CORR_ID_'+tag
+                    setattr(leaf, tagc, j+1)
+                    tagc = set(['CORR_ID_'+tag])
+                    tags.update(tagc)
+                prev_tags = {i for i in vars(leaf) if "CORR" in i or "MOVED" in i}
+                tags.update(prev_tags)
+                if leaf.name in subsetm:
+                    tagm = 'MOVED_ID_'+tag
+                    setattr(leaf, tagm, j+1)
+                    tagm = set(['MOVED_ID_'+tag])
+                    tags.update(tagm)
             leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
-
         final_wtree_file = outfiles+whole_tree
         wtree.write(outfile=final_wtree_file, format=1,
-                    features=["S"], format_root_node=True)
+                    features=["S"]+list(tags), format_root_node=True)
+
         size_of_recalc_trees = [len(i) for i in all_missing_leaves]
-        res[tree_id] = res.get(tree_id, [])
-        res[tree_id].append((tag, final_wtree_file, cor_subtrees, size_of_recalc_trees, d_edit))
+        if tree_id not in res:
+            res[tree_id] = []
+        val = res[tree_id]
+        val.append((tag, final_wtree_file, cor_subtrees, size_of_recalc_trees, {}))
+        res[tree_id] = val
 
 
 
 
-def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', corrections=None,
+def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
                       brlengths=True, resume=False):
 
     """
@@ -249,7 +258,6 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
         ete3_format = 1
         if not brlengths:
             ete3_format = 9
-
         out_exist = os.path.exists(outfolder+"/"+prefix+"_"+treeid) and\
                     os.path.getsize(outfolder+"/"+prefix+"_"+treeid) > 0
 
@@ -261,24 +269,26 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
 
             wtree = Tree(tree, format=1)
             d_sp = {}
-
             leaves = wtree.get_leaves()
 
             #remove artefactual single-child nodes
             wtree.prune(leaves)
 
+            edit_tags = set()
             #add species tag for treebest
             for leaf in leaves:
                 d_sp[leaf.name] = leaf.S
                 leaf.name = leaf.name +'_'+leaf.S
+                edit_tags.update({i for i in vars(leaf) if 'ID' in i})
 
+            edit_tags = list(edit_tags)
             # if requested, we re-compute branch lengths
             if brlengths:
 
                 #extract ali and tree with species tag
                 seq = ut.get_subali(ali, d_sp.keys(), d_sp)
                 ut.write_fasta(seq, outfolder+"/tmp_"+treeid+".fa")
-                wtree.write(outfile=outfolder+"/tmp_"+treeid, format=1, features=["S"],
+                wtree.write(outfile=outfolder+"/tmp_"+treeid, format=1, features=["S"]+edit_tags,
                             format_root_node=True)
 
                 #compute branch-length
@@ -292,8 +302,8 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
             #otherwise, we just write the tree to file
             else:
 
-                wtree.write(outfile=outfolder+"/"+treeid, format=ete3_format,
-                            format_root_node=True)
+                wtree.write(outfile=outfolder+"/"+treeid, features=["S"]+edit_tags,
+                            format=ete3_format, format_root_node=True)
 
             #Reconcile the tree
             os.system("treebest sdi -s "+sptree+" "+outfolder+"/"+treeid+\
@@ -302,35 +312,36 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
             #remove temp
             os.remove(outfolder+"/"+treeid)
 
-        wtree = Tree(outfolder+"/"+prefix+"_"+treeid, format=1)
-        for leaf in wtree.get_leaves():
-            leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
+            wtree = Tree(outfolder+"/"+prefix+"_"+treeid, format=1)
+            for leaf in wtree.get_leaves():
+                leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
 
-        edit_tags = []
+        # edit_tags = []
 
-        if corrections:
+        # if corrections:
 
-            #extract dictionary storing a summary of modification for each leaf
-            all_corrections_features = [d_feat for _, _, _, _, d_feat in corrections[int(treeid)]]
+        #     #extract dictionary storing a summary of modification for each leaf
+        #     all_corrections_features = [d_feat for _, _, _, _, d_feat in corrections[int(treeid)]]
 
-            #sorry about this ugly one-liner:
-            #store for each leaf, WGD(s) for which it was corrected or had to be moved in the tree
-            all_corrections_features = {key:list(itertools.chain(*[d_feat[key]\
-                                        for d_feat in all_corrections_features\
-                                        if key in d_feat])) for key in {key for d_feat in\
-                                        all_corrections_features for key in d_feat}}
-            edit_tags = gt.add_nhx_tags(wtree, all_corrections_features)
+        #     #sorry about this ugly one-liner:
+        #     #store for each leaf, WGD(s) for which it was corrected or had to be moved in the tree
+        #     all_corrections_features = {key:list(itertools.chain(*[d_feat[key]\
+        #                                 for d_feat in all_corrections_features\
+        #                                 if key in d_feat])) for key in {key for d_feat in\
+        #                                 all_corrections_features for key in d_feat}}
+        #     edit_tags = gt.add_nhx_tags(wtree, all_corrections_features)
 
         #write tree
-        all_features = ["S", "D", "DD", "DCS"] + edit_tags
-        wtree.write(outfile=outfolder+"/"+prefix+"_"+treeid, format=ete3_format,
-                    features=all_features, format_root_node=True)
+            all_features = ["S", "D", "DD", "DCS"] + edit_tags
+            wtree.write(outfile=outfolder+"/"+prefix+"_"+treeid, format=ete3_format,
+                        features=all_features, format_root_node=True)
 
         return True
 
     except Exception:
 
         traceback.print_exc()
+        sys.exit(1)
         raise
 
 
@@ -353,32 +364,44 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, spt
 
     """
 
-    pool = multiprocessing.Pool(ncores)
+
 
     open_f = open
     if alis.split('.')[-1] == 'gz':
         open_f = gzip.open
 
-    with open(trees, "r") as infile_t, open_f(alis, "rt") as infile_a:
 
-        async_res = []
+    pool = multiprocessing.Pool(ncores, maxtasksperchild=20)
 
-        for i, (input_tree, input_ali) in enumerate(zip(ut.read_multiple_objects(infile_t),
-                                                        ut.read_multiple_objects(infile_a))):
+    if brlengths:
+        with open(trees, "r") as infile_t, open_f(alis, "rt") as infile_a:
+            for i, (input_tree, input_ali) in enumerate(zip(ut.read_multiple_objects(infile_t),
+                                                            ut.read_multiple_objects(infile_a))):
 
-            if i in modified_trees:
-                res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
-                                                                sptree, input_ali, prefix,
-                                                                modified_trees, brlengths, resume))
-                async_res += [res]
+                if i in modified_trees:
+                    pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
+                                                              sptree, input_ali, prefix,
+                                                              brlengths, resume))
+            pool.close()
+            pool.join()
+    else:
 
-    pool.close()
-    pool.join()
+        with open(trees, "r") as infile_t:
 
-    for res in async_res:
-        if not res.get():
-            sys.stderr.write("An error occured in a child process\n")
-            sys.exit(1)
+            for i, input_tree in enumerate(ut.read_multiple_objects(infile_t)):
+
+                if i in modified_trees:
+                    pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
+                                                              sptree, '', prefix,
+                                                              brlengths, resume))
+
+            pool.close()
+            pool.join()
+
+    # for res in async_res:
+    #     if not res.get():
+    #         sys.stderr.write("An error occured in a child process\n")
+    #         sys.exit(1)
 
 
 
@@ -445,11 +468,7 @@ if __name__ == '__main__':
 
     if CORFOLDER:
 
-        try:
-            os.mkdir(CORFOLDER)
-
-        except OSError:
-            pass
+        os.makedirs(CORFOLDER, exist_ok=True)
 
 
     #Number of cores to use
@@ -466,12 +485,13 @@ if __name__ == '__main__':
     #Load the list of corrected subtrees
     CORRECTED_SUBTREES = gt.load_corrections(ARGS['Accepted'])
 
-    CORRECTION_STATS = {}
+
+    MANAGER = multiprocessing.Manager()
+    CORRECTION_STATS = MANAGER.dict()
     WGDS = spt.get_anc_order(ARGS["Species_tree"], WGD_ANCS, tips_to_root=True)
 
     #Correct trees for each WGDs iteratively, from tips to root
     for j, wgd in enumerate(WGDS):
-
 
         TO_PRINT = (f"Re-grafting corrected subtrees for WGD {wgd}, outgroup species:"
                     f"{OUTGROUPS[WGD_ANCS.index(wgd)]}\n")
@@ -504,14 +524,20 @@ if __name__ == '__main__':
                 SISTERS_OF_OUTGR[SUBS_WGD][sp] = spt.get_sister_species(ARGS['Species_tree'],
                                                                         sp, SUBS_WGD)
 
+        pool = multiprocessing.Pool(NCORES, maxtasksperchild=200)
         #correct the forest for the current WGD (topology only)
         with open(TREES, "r") as infile:
 
             for TREE_IND, TREE in enumerate(ut.read_multiple_objects(infile)):
 
-                correct_wtrees(TREE, CORRECTED_SUBTREES_CURRENT, CORRECTION_STATS,
-                               TREE_IND, CORFOLDER+'/cor_', SISTERS_OF_OUTGR,
-                               sp_other_wgd, sp_wgd, tag=wgd)
+                pool.apply_async(correct_wtrees, args=(TREE, CORRECTED_SUBTREES_CURRENT,
+                                                       CORRECTION_STATS, TREE_IND,
+                                                       CORFOLDER+'/cor_', SISTERS_OF_OUTGR,
+                                                       sp_other_wgd, sp_wgd, wgd))
+                # print(CORRECTION_STATS)
+
+            pool.close()
+            pool.join()
 
         #Write the new forest and print some statistics
         ut.write_forest(TREES, ARGS["out"]+'_'+str(j), CORRECTION_STATS, wgd)
