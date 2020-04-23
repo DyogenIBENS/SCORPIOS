@@ -289,7 +289,6 @@ def min_cut(graph, spectral=False):
     all_sp = [species_name(i) for i in graph.nodes()]
     count = Counter(all_sp)
 
-
     #if only two genes, tree topology will be the same regardless of cuts
     if len([i for i in graph.nodes() if i != 'None_'+species_name(i)]) == 2:
         algo = 'Too few genes'
@@ -300,29 +299,29 @@ def min_cut(graph, spectral=False):
         cut_edges_best = {}
         algo = 'No'
 
-
     #if only one gene per species and only one component only one group
     elif max(count.items(), key=operator.itemgetter(1))[0] == 1:
         cut_edges_best = {}
         algo = 'No'
 
-    # else find communities 
+    # else find communities
     else:
 
         #use spectral clustering only, if spectral clustering is preferred
         if spectral:
             algo = "spectral"
             adj_mat = nx.to_numpy_matrix(graph)
-            sc = SpectralClustering(2, affinity='precomputed', n_init=100)
-            sc.fit(adj_mat)
-            components = ({n for i, n in enumerate(graph.nodes()) if sc.labels_[i]==0},\
-                          {n for i, n in enumerate(graph.nodes()) if sc.labels_[i]==1})
+            sclust = SpectralClustering(2, affinity='precomputed', n_init=100)
+            sclust.fit(adj_mat)
+            components = ({n for i, n in enumerate(graph.nodes()) if sclust.labels_[i] == 0},\
+                          {n for i, n in enumerate(graph.nodes()) if sclust.labels_[i] == 1})
             cut_edges_best = {(u, v) for u in components[0]\
                               for v in components[1].intersection(graph.adj[u])}
 
         #Default with girvan_newman and kerningan-lin
         else:
-            comp = nx.algorithms.community.girvan_newman(graph, most_valuable_edge=most_central_edge)
+            comp = nx.algorithms.community.girvan_newman(graph,
+                                                         most_valuable_edge=most_central_edge)
 
             components = tuple(set(c) for c in next(comp))
 
@@ -340,7 +339,7 @@ def min_cut(graph, spectral=False):
                 for _ in range(5): #5 random starts
 
                     #FIXME we could try to get a deterministic result with the KL algo:
-                    #from tests it seems specifying a random seed to this function does not guarantee
+                    #from tests it seems specifying a random seed to the function does not guarantee
                     #determinism
                     bisect = nx.algorithms.community.kernighan_lin_bisection(graph, partition=None,
                                                                              max_iter=10,
@@ -361,7 +360,7 @@ def min_cut(graph, spectral=False):
     return components, cut_edges_best, algo, (scores_cut, scores_uncut)
 
 
-def worker_cut_graph(family, fam, res, spectral=False, k=0, verbose=False):
+def worker_cut_graph(family, fam, res, spectral=False, g_id=0, verbose=False):
     """
     Worker for parallel graph cutting. Collapses tandem duplicates, detects the two communities in
     the graph and store results and statistics about the cuts in the `res` dictionary.
@@ -372,7 +371,7 @@ def worker_cut_graph(family, fam, res, spectral=False, k=0, verbose=False):
         res (dict): Dictionary storing the results, shared between processes
         spectral (bool, optional): Use spectral clustering instead of default Girvan-Newman
                                    (faster)
-        k (int, optional): unique id for the cut graph
+        g_id (int, optional): unique id for the cut graph
         verbose (bool, optional): print progress
 
     Returns:
@@ -427,7 +426,7 @@ def worker_cut_graph(family, fam, res, spectral=False, k=0, verbose=False):
             res[fam] = (None, 'Filtered_Multigenic', 'NAN', 'None')
 
         if verbose:
-            sys.stderr.write(f"Cut graph {k} \n")
+            sys.stderr.write(f"Cut graph {g_id} \n")
             sys.stderr.flush()
 
         return True
@@ -454,7 +453,8 @@ def print_out_stats(stats_dict, wgd=''):
         gn = stats_dict.get("GN", 0)
         kl = stats_dict.get("KL", 0)
         cl = stats_dict.get("No", 0)
-        tot = gn + kl + cl
+        sp = stats_dict.get("spectral", 0)
+        tot = gn + kl + cl +sp
 
         if tot:
 
@@ -472,11 +472,14 @@ def print_out_stats(stats_dict, wgd=''):
             clp = round((cl/tot)*100, 2)
             gnp = round((gn/tot)*100, 2)
             klp = round((kl/tot)*100, 2)
+            spp = round((sp/tot)*100, 2)
 
             print(" {} ({} %) graphs were two separated cliques".format(cl, clp))
-
-            print(" {} ({} %) graphs cut with the Girvan-Newman algo.".format(gn, gnp))
-            print(" {} ({} %) graphs cut with the Kerningan-Lin algo.".format(kl, klp))
+            if sp:
+                print(" {} ({} %) orthogroups defined with spectral clustering.".format(sp, spp))
+            else:
+                print(" {} ({} %) graphs cut with the Girvan-Newman algo.".format(gn, gnp))
+                print(" {} ({} %) graphs cut with the Kerningan-Lin algo.".format(kl, klp))
             print("----------------------------------------------------------------------------")
             print("\n")
 
