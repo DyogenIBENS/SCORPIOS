@@ -35,7 +35,7 @@ def remove_outgroup(tree, outgr):
     return tree, outgr_gene
 
 
-def merge_trees_and_write(trees, outgr, outfile):
+def merge_trees_and_write(trees, outgr, outfile, keep_br=False):
 
     """
     Merges two subtrees independently resolved into a single tree and adds the outgroup gene.
@@ -57,7 +57,12 @@ def merge_trees_and_write(trees, outgr, outfile):
     merged_final.add_child(merged_tree)
     merged_final.add_child(name=outgr)
     merged_final.prune([i for i in merged_final.get_leaves()])
-    merged_final.write(outfile=outfile)
+
+    if keep_br:
+        merged_final.write(outfile=outfile)
+
+    else:
+        merged_final.write(outfile=outfile, format=9)
 
 
 if __name__ == '__main__':
@@ -69,7 +74,7 @@ if __name__ == '__main__':
     PARSER.add_argument('-t', '--trees', help='Resolved binary subtrees.', required=True,
                         nargs='+')
     PARSER.add_argument('-o', '--outfile', required=False, default='out')
-
+    PARSER.add_argument('-br', '--brlength', action='store_true')
     ARGS = vars(PARSER.parse_args())
 
     OUTGR = ARGS["outgroup"]

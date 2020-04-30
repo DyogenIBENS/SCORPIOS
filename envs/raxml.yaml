@@ -1,0 +1,12 @@
+name: raxml_treebest_consel
+channels:
+  - eparey
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - consel=0.20
+  - raxml=8.2.12
+  - ete3=3.1.1
+  - python=3.6.8
+  - treebest=1.9.2.post1
