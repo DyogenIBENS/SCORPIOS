@@ -120,11 +120,11 @@ def add_nhx_tags_and_rm_sp(tree, cor_leaves, moved_leaves, tag, rm_species=True)
 
     for leaf in tree.get_leaves():
 
-        for j, (subsetc, subsetm) in enumerate(zip(cor_leaves, moved_leaves)):
+        for k, (subsetc, subsetm) in enumerate(zip(cor_leaves, moved_leaves)):
 
             if leaf.name in subsetc:
                 tagc = 'CORR_ID_'+tag
-                setattr(leaf, tagc, j+1)
+                setattr(leaf, tagc, k+1)
                 tagc = set(['CORR_ID_'+tag])
                 tags.update(tagc)
 
@@ -133,7 +133,7 @@ def add_nhx_tags_and_rm_sp(tree, cor_leaves, moved_leaves, tag, rm_species=True)
             tags.update(prev_tags)
             if leaf.name in subsetm:
                 tagm = 'MOVED_ID_'+tag
-                setattr(leaf, tagm, j+1)
+                setattr(leaf, tagm, k+1)
                 tagm = set(['MOVED_ID_'+tag])
                 tags.update(tagm)
 

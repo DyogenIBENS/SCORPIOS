@@ -453,8 +453,8 @@ def print_out_stats(stats_dict, wgd=''):
         gn = stats_dict.get("GN", 0)
         kl = stats_dict.get("KL", 0)
         cl = stats_dict.get("No", 0)
-        sp = stats_dict.get("spectral", 0)
-        tot = gn + kl + cl +sp
+        spec = stats_dict.get("spectral", 0)
+        tot = gn + kl + cl + spec
 
         if tot:
 
@@ -472,11 +472,11 @@ def print_out_stats(stats_dict, wgd=''):
             clp = round((cl/tot)*100, 2)
             gnp = round((gn/tot)*100, 2)
             klp = round((kl/tot)*100, 2)
-            spp = round((sp/tot)*100, 2)
+            spp = round((spec/tot)*100, 2)
 
             print(" {} ({} %) graphs were two separated cliques".format(cl, clp))
-            if sp:
-                print(" {} ({} %) orthogroups defined with spectral clustering.".format(sp, spp))
+            if spec:
+                print(" {} ({} %) orthogroups defined with spectral clustering.".format(spec, spp))
             else:
                 print(" {} ({} %) graphs cut with the Girvan-Newman algo.".format(gn, gnp))
                 print(" {} ({} %) graphs cut with the Kerningan-Lin algo.".format(kl, klp))
