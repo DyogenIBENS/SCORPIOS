@@ -284,16 +284,18 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
 
                 all_families[outgr_leaf[1]].update_constrained_tree(to_replace_inside, lca)
 
+                ctree_leaves.update(to_replace_inside)
+
             if discard_sp:
                 keep = [i for i in ctree_leaves if i.split('_')[-1] not in discard_sp]
                 ctree.prune(keep)
                 lca = lca.copy()
                 lca.prune(keep)
-                leavesnames_in_fam = set(keep)
+                ctree_leaves = set(keep)
 
-                if len(leavesnames_in_fam) <= 2:
+            if len(ctree_leaves) <= 2:
 
-                    continue
+                continue
 
             comparison = ctree.compare(lca)
 
