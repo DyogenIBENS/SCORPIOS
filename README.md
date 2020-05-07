@@ -191,7 +191,9 @@ The commands above generate:
 
 Outputs are suffixed with a digit representing the iteration number. This number is set to 0 in simple mode and starts at 1 in iterative mode.
 
-Some intermediary outputs are also stored in different sub-folders (see the advanced section for a detailed description). In addition, SCORPiOs writes statistics on key steps of the workflow to the standard output. Thus, to separate output statistics from snakemake logs, you can run:
+Some intermediary outputs are also stored in different sub-folders (see the [advanced section](#advanced) for a detailed description).
+
+In addition, SCORPiOs writes statistics on key steps of the workflow to the standard output. Thus, to separate output statistics from snakemake logs, you can run:
 
 ```
 snakemake --configfile config_example.yaml --use-conda >out 2>err
@@ -220,7 +222,7 @@ Here are example figures for a corrected tree (left) and its before-correction c
 
 <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="drawing" width="420"/>                        <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="drawing" width="420"/>
 
-Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue. The corrected WGD node is highlighted with a bigger circle and a grey background. Leaves of the SCORPiOs-corrected subttree, including the wgd subtree and the gene used as outgroup, are shown in the same color in the corrected and uncorrected versions.
+Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue. The corrected WGD node is highlighted with a bigger circle and a grey background. Leaves of the SCORPiOs-corrected subtree, including the wgd subtree and the gene used as outgroup, are shown in the same color in the corrected and uncorrected versions.
 
 For a more exhaustive description of the visualization tool please run:
 ```
