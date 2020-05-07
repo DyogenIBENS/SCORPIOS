@@ -208,7 +208,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
         for leaf in wtree.get_leaves():
             leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
 
-        final_wtree_file = outfiles+whole_tree
+        final_wtree_file = outfiles+whole_tree+'.nhx'
         wtree.write(outfile=final_wtree_file, format=1,
                     features=["S"], format_root_node=True)
         size_of_recalc_trees = [len(i) for i in all_missing_leaves]
@@ -250,8 +250,8 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
         if not brlengths:
             ete3_format = 9
 
-        out_exist = os.path.exists(outfolder+"/"+prefix+"_"+treeid) and\
-                    os.path.getsize(outfolder+"/"+prefix+"_"+treeid) > 0
+        out_exist = os.path.exists(outfolder+"/"+prefix+"_"+treeid+'.nhx') and\
+                    os.path.getsize(outfolder+"/"+prefix+"_"+treeid+'.nhx') > 0
 
         if not resume or not out_exist:
 
@@ -297,12 +297,12 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
 
             #Reconcile the tree
             os.system("treebest sdi -s "+sptree+" "+outfolder+"/"+treeid+\
-                      " > "+outfolder+"/"+prefix+"_"+treeid)
+                      " > "+outfolder+"/"+prefix+"_"+treeid+".nhx")
 
             #remove temp
             os.remove(outfolder+"/"+treeid)
 
-        wtree = Tree(outfolder+"/"+prefix+"_"+treeid, format=1)
+        wtree = Tree(outfolder+"/"+prefix+"_"+treeid+".nhx", format=1)
         for leaf in wtree.get_leaves():
             leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
 

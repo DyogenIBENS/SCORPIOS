@@ -224,7 +224,7 @@ def write_forest(inforest, outforest, corrections, current_wgd='', cor_treefiles
                 #if we correct for all use the cor_treefiles arg to locate the corrected tree file
                 else:
                     corrected = True
-                    cor_treefile = cor_treefiles+str(i)
+                    cor_treefile = cor_treefiles+str(i)+'.nhx'
 
                 #write corrected tree
                 if corrected:
@@ -236,8 +236,8 @@ def write_forest(inforest, outforest, corrections, current_wgd='', cor_treefiles
                     if save_single_treefile:
                         wtree = Tree(tree, format=1)
                         cor_folder = '/'.join(cor_treefiles.split('/')[:-1])
-                        wtree.write(outfile=cor_folder+'/ori_'+str(i), format=1,
-                                    features=[], format_root_node=True)
+                        wtree.write(outfile=cor_folder+'/ori_'+str(i)+'.nhx', format=1,
+                                    features=["S", "D", "DD", "DCS"], format_root_node=True)
 
                     #if not requested remove also corrected version
                     else:

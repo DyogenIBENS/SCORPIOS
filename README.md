@@ -1,8 +1,6 @@
 # SCORPiOs - Synteny-guided CORrection of Paralogies and Orthologies
 
- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3727519.svg)](https://doi.org/10.5281/zenodo.3727519) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Snakemake](https://img.shields.io/badge/snakemake-≥5.5.4-brightgreen.svg)](https://snakemake.bitbucket.io)
-
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3727519.svg)](https://doi.org/10.5281/zenodo.3727519) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Snakemake](https://img.shields.io/badge/snakemake-≥5.5.4-brightgreen.svg)](https://snakemake.bitbucket.io)
 
 
  SCORPiOs is a **synteny-guided gene tree correction pipeline** for clades that have undergone a whole-genome duplication event. SCORPiOs identifies gene trees where the whole-genome duplication is **missing** or **incorrectly placed**, based on the genomic locations of the duplicated genes across the different species. SCORPiOs then builds an **optimized gene tree** consistent with the known WGD event, the species tree, local synteny context, as well as gene sequence evolution.
@@ -11,7 +9,7 @@
 
  For a complete description of SCORPiOs, see our preprint: https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full
 
- ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/scorpios_illustrated.png)
+ ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/scorpios_illustrated.png)
 
 ## Table of content
   - [Installation](#installation)
@@ -28,6 +26,7 @@
       - [Running SCORPiOs](#running-scorpios)
     - [Understanding SCORPiOs outputs](#understanding-scorpios-outputs)
       - [Basic](#basic)
+      - [Tree visualization](#tree-visualization)
       - [Advanced](#advanced)
     - [Complex configurations](#complex-configurations)
   - [Authors](#authors)
@@ -120,6 +119,7 @@ The following output should be generated: `SCORPiOs_example/SCORPiOs_corrected_f
 #### Data preparation and formatting
 SCORPiOs is a flexible gene tree correction pipeline: it can either start from a set of precomputed, phylogeny-reconciled gene trees, or build one from a set of gene multiple aligments using [TreeBeST](https://github.com/Ensembl/treebest). Because SCORPiOs leverages local synteny similarity, i.e evolution of neighboring genes, it requires genome-wide data.
 
+##### Input files
 SCORPiOs input files are:
 - A single file with a set of phylogeny-reconciled gene trees in NHX format (extended Newick format, see [example](data/example/forest.nhx)) **OR** a genes-to-species mapping file, if working from gene alignments (see [example](data/example/genes_sp_mapping.txt))
 - A single file with the corresponding gene multiple alignments in FASTA format (can be compressed with gzip) (see [example](data/example/ali.fa.gz))
@@ -128,8 +128,29 @@ SCORPiOs input files are:
 
 If starting from gene trees, SCORPiOS uses the NHX 'S' (species name) tag to build the gene-species mapping. Otherwise, it uses the gene-to-species mapping file.
 
-Detailed information on input files, formats and all parameters can be found in [config_example.yaml](config_example.yaml).
+More details can be found in [config_example.yaml](config_example.yaml).
 
+##### Parameters
+All parameters for a SCORPiOs run have to be indicated in a configuration file, as shown in [config_example.yaml](config_example.yaml).
+
+One critical parameter is the positions of WGD(s) in the species tree and the species to use as outgroup. They both have to be specified together using the `WGDs` keyword. The WGD localization has to be indicated with the name of the last common ancestor of all duplicated species.
+
+For instance, given a simple species tree:
+
+*(spotted_gar, (zebrafish, (medaka, (tetraodon, fugu)Tetraodontidae)Euteleosteomorpha)Clupeocephala)Neopterygii;*
+
+![basic tree](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/basic_sptree.png)
+
+As the fish WGD is located at the ancestor "Clupeocephala" and we wish to use the spotted_gar as outgroup, the following line shoud be in the configuration file:
+
+```
+WGDs:
+  Clupeocephala: spotted_gar
+```
+
+See the [Complex configurations section](#complex-configurations) for a more sophisticated example.
+
+##### Building an input dataset
 If you do not have gene alignments available for your study species, we recommend [this paper](https://academic.oup.com/gigascience/article/7/3/giy005/4841850). The authors explain how Ensembl Compara groups genes in families and subsequently build multiple alignments (and gene trees). In addition, they developped a Galaxy workflow, [GeneSeqToFamily](https://github.com/TGAC/earlham-galaxytools/tree/master/workflows/GeneSeqToFamily), to interactively run each step of the pipeline.
 
 #### Preparing your configuration file
@@ -162,7 +183,7 @@ bash iterate_scorpios.sh --j=myjobname --snake_args="--configfile config.yaml"
 
 All outputs from SCORPiOs are stored in a folder named SCORPiOs_jobname (jobname as specified in the configuration file).
 
-The main output is the **SCORPiOs-optimized gene trees**. Gene trees are provided as a single file in NHX format. SCORPiOs tags corrected nodes in the gene trees to allow easy inspection using tree visualisation softwares. We recommand the [ETE Toolkit](http://etetoolkit.org/) or [ggtree](https://guangchuangyu.github.io/software/ggtree/) for tree visualisation.
+The main output is the **SCORPiOs-optimized gene trees**. Gene trees are provided as a single file in NHX format. See the [next section](#tree-visualization) for explanations on how to visualize individual SCORPiOs-corrected trees.
 
 The commands above generate:
 - `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run
@@ -170,7 +191,7 @@ The commands above generate:
 
 Outputs are suffixed with a digit representing the iteration number. This number is set to 0 in simple mode and starts at 1 in iterative mode.
 
-Some intermediary outputs are also stored in different sub-folders (see below for a detailed description). In addition, SCORPiOs writes statistics on key steps of the workflow to the standard output. Thus, to separate output statistics from snakemake logs, you can run:
+Some intermediary outputs are also stored in different sub-folders (see the advanced section for a detailed description). In addition, SCORPiOs writes statistics on key steps of the workflow to the standard output. Thus, to separate output statistics from snakemake logs, you can run:
 
 ```
 snakemake --configfile config_example.yaml --use-conda >out 2>err
@@ -182,6 +203,31 @@ or
 bash iterate_scorpios.sh --j=example --snake_args="--configfile config_example.yaml" >out 2>err
 ```
 
+#### Tree visualization
+
+SCORPiOs tags corrected nodes in the gene trees to allow easy inspection using tree visualisation softwares (i.e [ETE Toolkit](http://etetoolkit.org/) or [ggtree](https://guangchuangyu.github.io/software/ggtree/)). To facilitate correction vizualizations, we provide a custom script that generates images for corrected trees.
+
+With the default configuration, SCORPiOs saves individual corrected trees in `SCORPiOs_jobname/Corrections/tmp_whole_trees_0` (or `SCORPiOs_jobname/Corrections/tmp_whole_trees_i` for each iteration i in iterative mode). Our script `scripts/trees/make_tree_images.py` generates images based on the trees saved in this folder.
+
+For instance, after a simple SCORPiOs run on example data, the following command creates images allowing to view all corrections for the salmonids WGD :
+
+```
+python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0 -wgd Salmonidae -outgr 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes' -o SCORPiOs_example/Corrections/trees_img
+```
+
+Here are example figures for a corrected tree (left) and its non-corrected counterpart (right):
+
+<img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="drawing" width="420"/>                        <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="drawing" width="420"/>
+
+Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue. The Salmonidae corrected WGD node is highlighted with a bigger circle and a grey background. Leaves of the SCORPiOs-corrected subttree (wgd subtree + gene used as outgroup) are shown in the same color in the corrected and uncorrected versions.
+
+For a more exhaustive description of the visualization tool please run:
+```
+python scripts/trees/make_tree_images.py --help
+```
+
+Finally, users can inspect original and corrected trees using the [phylo.io](https://phylo.io/) web interface. Through the compare function, original and corrected trees can be inspected side by side, with all differences highlighted.
+
 #### Advanced
 
 Beyond description statistics printed to the standard output, you may want to investigate the detailed results of SCORPiOs for one or several given gene families. This section introduces a few key concepts of SCORPiOs, in order to better understand intermediary outputs.
@@ -190,15 +236,13 @@ A gene family in SCORPiOs consists of a non-duplicated outgroup gene and all pot
 
 The orthology relationships between genes are stored in a single file in the `Families/` sub-folder. Raw synteny-predicted orthologies are stored in a single file in `Synteny/`. Predicted orthology groups based on community detection in synteny graphs are stored in a single file in `Graphs/`, along with a summary of the community detection step. Finally, `Corrections/` stores two files, one detailing trees vs synteny consistency and another with the list of successfully corrected trees.
 
-Several tags such as the name of the corrected WGD, the outgroup species and SCORPiOs iteration number are added to each output file, in order to precisely identify outputs in case of complex configurations (see below).
+Several tags such as the name of the corrected WGD, the outgroup species and SCORPiOs iteration number are added to each output file, in order to precisely identify outputs in case of complex configurations.
 
 Additional files can be saved if specified in the configuration file, see [config_example.yaml](config_example.yaml) for details.
 
 ### Complex configurations
 
 SCORPiOs can correct gene trees that contain more than one whole-genome duplication event. In this case, each WGD is treated independently, starting from the more recent one (closer to the leaves) going up towards the more ancient one (closer to the root). If the WGDs are nested, the subtrees from the more recent events are ignored while correcting for the older WGD event(s), and reinserted after correction using their outgroup as a branching point.
-
-WGD(s) have to be specified in the configuration file, using the `WGDs` keyword. The position of each WGD in the species tree is to be indicated by giving the name of the corresponding duplicated ancestor.
 
 SCORPiOs can also use more than one reference outgroup to correct gene trees. Outgroup(s), separated by commas if more than one, are to be indicated for each WGDs.
 
