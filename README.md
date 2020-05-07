@@ -220,7 +220,7 @@ python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_who
 
 Here are example figures for a corrected tree (right) and its before-correction counterpart (left):
 
-<figure> <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="drawing" width="420"/> <figcaption>Corrections/trees_img/img_ori_27.png</figcaption> </figure> <figure> <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="drawing" width="420"/> <figcaption>Corrections/trees_img/img_cor_27.png</figcaption> </figure>
+<figure> <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="drawing" width="420"/> <figcaption>Corrections/trees_img/img_ori_27.png</figcaption> </figure>   <figure> <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="drawing" width="420"/> <figcaption>Corrections/trees_img/img_cor_27.png</figcaption> </figure>
 
 Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue.  Leaves of the SCORPiOs-corrected subtree, including the wgd subtree and the gene used as outgroup, are shown in the same color in the corrected and uncorrected versions. The corrected WGD node is highlighted with a bigger circle and a grey background.
 
