@@ -133,7 +133,7 @@ More details can be found in [config_example.yaml](config_example.yaml).
 ##### Parameters
 All parameters for a SCORPiOs run have to be indicated in a configuration file, as shown in [config_example.yaml](config_example.yaml).
 
-One critical parameter is the positions of WGD(s) in the species tree and the species to use as outgroup. They both have to be specified together using the `WGDs` keyword. The WGD localization has to be indicated with the name of the last common ancestor of all duplicated species.
+One critical parameter is the positions of WGD(s) in the species tree and the species to use as outgroup(s). They both have to be specified together using the `WGDs` keyword. WGD position has to be indicated with the name of the last common ancestor of all duplicated species.
 
 For instance, consider the simple species tree below:
 
