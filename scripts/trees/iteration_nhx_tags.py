@@ -27,7 +27,7 @@ def corr_tag_below_node(node, tags_corr):
         tags_corr (list of str): list of tags to search for
 
     Returns:
-        (bool): True if at least of the input `tags_corr` is in leaves below `node`
+        (bool): True if at least one of the input `tags_corr` is in leaves below `node`
     """
 
     has_tag = False
@@ -50,7 +50,8 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-c', '--cor_f', help='path to corrected forests', required=True, type=str)
 
-    PARSER.add_argument('--internal', help='tag only corrected wgd nodes', action='store_true')
+    PARSER.add_argument('--internal', help='tag also internal corrected wgd nodes',
+                        action='store_true')
 
     PARSER.add_argument('-sp', '--sptree', type=str, required=False, default='')
 
