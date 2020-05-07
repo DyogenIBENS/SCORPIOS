@@ -205,9 +205,10 @@ bash iterate_scorpios.sh --j=example --snake_args="--configfile config_example.y
 
 #### Tree visualization
 
-SCORPiOs tags corrected nodes in the gene trees to allow easy inspection using tree visualisation softwares (i.e [ETE Toolkit](http://etetoolkit.org/) or [ggtree](https://guangchuangyu.github.io/software/ggtree/)). To facilitate correction vizualizations, we provide a custom script that generates images for corrected trees.
+SCORPiOs tags corrected nodes in the gene trees to allow easy inspection using tree visualisation softwares (i.e [ETE Toolkit](http://etetoolkit.org/) or [ggtree](https://guangchuangyu.github.io/software/ggtree/)). To facilitate correction inspection, we provide a custom script that generates images for corrected trees.
 
-With the default configuration, SCORPiOs saves individual corrected trees in `SCORPiOs_jobname/Corrections/tmp_whole_trees_0` (or `SCORPiOs_jobname/Corrections/tmp_whole_trees_i` for each iteration i in iterative mode). Our script `scripts/trees/make_tree_images.py` generates images based on the trees saved in this folder.
+With the default configuration, SCORPiOs saves individual corrected trees in `SCORPiOs_jobname/Corrections/tmp_whole_trees_0` (or `SCORPiOs_jobname/Corrections/tmp_whole_trees_i` for each iteration i in iterative mode).
+Our script `scripts/trees/make_tree_images.py` generates images based on the trees saved in this folder.
 
 For instance, after a simple SCORPiOs run on example data, the following command creates images allowing to view all corrections for the salmonids WGD :
 
@@ -215,11 +216,11 @@ For instance, after a simple SCORPiOs run on example data, the following command
 python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0 -wgd Salmonidae -outgr 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes' -o SCORPiOs_example/Corrections/trees_img
 ```
 
-Here are example figures for a corrected tree (left) and its non-corrected counterpart (right):
+Here are example figures for a corrected tree (left) and its before-correction counterpart (right):
 
 <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="drawing" width="420"/>                        <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="drawing" width="420"/>
 
-Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue. The Salmonidae corrected WGD node is highlighted with a bigger circle and a grey background. Leaves of the SCORPiOs-corrected subttree (wgd subtree + gene used as outgroup) are shown in the same color in the corrected and uncorrected versions.
+Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue. The corrected WGD node is highlighted with a bigger circle and a grey background. Leaves of the SCORPiOs-corrected subttree, including the wgd subtree and the gene used as outgroup, are shown in the same color in the corrected and uncorrected versions.
 
 For a more exhaustive description of the visualization tool please run:
 ```
