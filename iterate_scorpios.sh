@@ -30,7 +30,7 @@ while [ $# -gt 0 ]; do
       min_correction="${1#*=}"
       ;;
 
-      #starting iteration, if we want to resume a SCORPiOs run for a certain iter
+    #starting iteration, if we want to resume a SCORPiOs run for a certain iter
     --starting_iter=*)
       iteration="${1#*=}"
       ;;
@@ -76,7 +76,7 @@ if [ -z "$snake_args" ]; then
 fi
 
 #extract config related args from snakemake args, to invoke the --config option correctly below
-snake_config_args=${snake_args#*--config }
+snake_config_args=${snake_args#*--configfile }
 if [ "$snake_config_args" == "$snake_args" ]; then
 
   snake_config_args="--config "
@@ -127,6 +127,11 @@ if [ -f "SCORPiOs_${job_name}/SCORPiOs_corrected_forest_${j}.nhx" ]; then
 
   input="SCORPiOs_${job_name}/SCORPiOs_corrected_forest_%d.nhx"
   output="SCORPiOs_${job_name}/SCORPiOs_corrected_forest_${j}_with_tags.nhx"
-
+  # configfile=${snake_args#*--configfile }
+  # configfile=${configfile/=}
+  # configfile=${configfile%% *}
+  # configfile=${configfile%% --configfile}
+  # sptree=$(cat $configfile | shyaml get-value species_tree)
+  # python -m scripts.trees.iteration_nhx_tags -o $output -i $j -c $input --internal -sp $sptree
   python -m scripts.trees.iteration_nhx_tags -o $output -i $j -c $input
 fi

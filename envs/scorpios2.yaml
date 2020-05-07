@@ -11,3 +11,5 @@ dependencies:
   - six=1.12.0
   - snakemake=5.5.4
   - snakemake-minimal=5.5.4
+  pip:
+    - shyaml
