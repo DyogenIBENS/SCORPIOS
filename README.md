@@ -135,7 +135,7 @@ All parameters for a SCORPiOs run have to be indicated in a configuration file, 
 
 One critical parameter is the positions of WGD(s) in the species tree and the species to use as outgroup. They both have to be specified together using the `WGDs` keyword. The WGD localization has to be indicated with the name of the last common ancestor of all duplicated species.
 
-For instance, given a simple species tree:
+For instance, consider the simple species tree below:
 
 *(spotted_gar, (zebrafish, (medaka, (tetraodon, fugu)Tetraodontidae)Euteleosteomorpha)Clupeocephala)Neopterygii;*
 
