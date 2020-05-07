@@ -1,6 +1,6 @@
 
 """
-This script generates figures of SCORPiOs corrected trees and their uncorrected contrepart. It is
+This script generates figures of SCORPiOs corrected trees and their uncorrected counterpart. It is
 specifically designed to visualize SCORPiOs subtree corrections. Therefore, it assumes that inputs
 are SCORPiOs-generated files, with SCORPiOs file naming and format conventions.
 
@@ -9,17 +9,18 @@ corrected tree. Optionally, `--show_moved` also assigns a matching lighter color
 non-wgd species that have been rearranged to reinsert the wgd subtree.
 
 Input can either be a list of files, in any order, containing any number of corrected/uncorrected
-tree pairs, or a directory. The name of the corrected wgd should also be provided.
+tree pairs, or a directory. The name of the corrected wgd and of the outgroups used should also be
+provided.
 
 Examples:
 
     $ python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0/ \
--wgd Clupeocephala -o trees_img_tgd -f pdf -outgr Lepisosteus.oculatus,Amia.calva
+-wgd Clupeocephala  -outgr Lepisosteus.oculatus,Amia.calva
 
     $ python scripts/trees/make_tree_images.py \
 -i SCORPiOs_example/Corrections/tmp_whole_trees_0/cor_27 \
-SCORPiOs_example/Corrections/tmp_whole_trees_0/ori_27 -wgd Salmonidae \
--outgr 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes'
+SCORPiOs_example/Corrections/tmp_whole_trees_0/ori_27 -wgd Salmonidae -outgr Gasterosteus.aculeatus
+
 """
 
 import sys
@@ -83,7 +84,7 @@ def identify_outgroup_vs_wgd_subtree(subtrees, outgroups, tree):
         tree (ete3.Tree): whole tree
 
     Returns:
-        ete3.TreeNode: the node corresponding to wgd corrected subtree 
+        ete3.TreeNode: the node corresponding to wgd corrected subtree
     """
     for subtree in subtrees:
         leaves = subtree.get_leaves()
@@ -120,7 +121,7 @@ def get_corrected_wgd_nodes(tree, wgd, outgroups):
 
     for attr in all_attr:
         corrected_subtrees = list(tree.get_monophyletic(values=[attr], target_attr="CORR_ID_"+wgd))
-        assert len(corrected_subtrees)
+        assert corrected_subtrees
         if len(corrected_subtrees) == 1:
             corrected_subtrees = corrected_subtrees[0].get_children()
 
@@ -202,7 +203,7 @@ def make_tree_figure(tree, palette, outfile, edit_d, wgd, outgroups, usedict=Fal
         return edit_d
 
     leaves = {i.name for i in tree.get_leaves()}
-    if usedict and not leaves.intersection(set(edit_d.keys())) :
+    if usedict and not leaves.intersection(set(edit_d.keys())):
         sys.stderr.write(f"No corrected subtree for wgd {wgd}, no image created.\n")
         return edit_d
 
@@ -273,24 +274,27 @@ if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
 
+    REQUIRED = PARSER.add_argument_group('required named arguments')
 
-    PARSER.add_argument('-i', '--input', nargs='+', help="Folder with corrected and original trees "
-                                                         "or a list of tree files.", required=True)
+    REQUIRED.add_argument('-i', '--input', nargs='+', help="Folder with corrected and original "
+                          "trees, or a list of tree files.", required=True)
 
-    PARSER.add_argument('-wgd', '--wgd', help='Corrected wgd to highlight. For instance, '
-                        '-wgd Clupeocephala will show only subtrees corrected for the wgd that '
-                        'occured in the Clupeocephala ancestor.', required=True)
+    REQUIRED.add_argument('-wgd', '--wgd', help='Corrected wgd to highlight. For instance, '
+                          '-wgd Clupeocephala will show only subtrees corrected for the wgd that '
+                          'occured in the Clupeocephala ancestor.', required=True)
 
-    PARSER.add_argument('-outgr', '--outgroup', help='Outgroup(s) used in SCORPiOs tree correction,' 
-                        'comma-separated.', required=True)
+    REQUIRED.add_argument('-outgr', '--outgroup', help='Outgroup(s) used in SCORPiOs tree '
+                          'correction, comma-separated.', required=True)
 
-    PARSER.add_argument('-o', '--output', help='Output folder.', required=False, default='trees_img')
+
+    PARSER.add_argument('-o', '--output', help='Output folder, default is trees_img/',
+                        required=False, default='trees_img')
 
 
     PARSER.add_argument('-f', '--format', help='Output format (pdf, svg or png).', required=False,
                         default='png')
 
-    PARSER.add_argument('--show_moved', help='Color also non-wgd rearranged leaves.',
+    PARSER.add_argument('--show_moved', help='Color non-wgd rearranged leaves, default is False',
                         action='store_true')
 
     ARGS = vars(PARSER.parse_args())
@@ -306,7 +310,8 @@ if __name__ == '__main__':
     #Check input if it is a directory
     if len(ARGS["input"]) == 1 and not os.path.isdir(ARGS["input"][0]):
         INPUT = ARGS["input"][0]
-        sys.stderr.write(f"The provided input {INPUT} is not an existing directory, please check.\n")
+        ERR = f"The provided input {INPUT} is not an existing directory, please check.\n"
+        sys.stderr.write(ERR)
         PARSER.print_help(sys.stderr)
         sys.exit(1)
 
@@ -320,7 +325,8 @@ if __name__ == '__main__':
 
     #Check input argument if it is list of files
     if len(ARGS["input"]) > 1 and len(ARGS["input"])%2 != 0:
-        sys.stderr.write("You provided an odd number of input, please check.\n")
+        ERR = "You provided an odd number of input, please check.\n"
+        sys.stderr.write(ERR)
         PARSER.print_help(sys.stderr)
         sys.exit(1)
 
@@ -346,10 +352,10 @@ if __name__ == '__main__':
                     sys.exit(1)
 
 
-    #define color palette (blue, green, red, brown, purple, orange, pink, lightgreen, yellow)
-    PALETTE = [ "crimson", "lightcoral", "steelblue", "lightblue", "darkgreen", "mediumseagreen", 
+    #define color palette
+    PALETTE = ["crimson", "lightcoral", "steelblue", "lightblue", "darkgreen", "mediumseagreen",
                "brown", "peru", "mediumorchid", "plum", "deeppink", "hotpink", "lime",
-               "greenyellow",  "orangered", "darkorange", "goldenrod", "yellow"]
+               "greenyellow", "orangered", "darkorange", "goldenrod", "yellow"]
 
 
     #create output directory
