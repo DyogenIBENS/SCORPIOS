@@ -86,7 +86,7 @@ snakemake --configfile config_example.yaml --use-conda --cores 4
 ```
 
 The following output should be generated:
-`SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx`.
+`SCORPiOs_example/SCORPiOs_output_0.nhx`.
 
 We explain how to interpret outputs below ([Understanding SCORPiOs outputs](#understanding-scorpios-outputs)).
 
@@ -112,7 +112,7 @@ Optional
 --min_corr=MINCORR, minimum number of corrected sub-trees to continue to the next iteration, default=1.
 --starting_iter=ITER, starting iteration, to resume a run at a given iteration, default=1.
 ```
-The following output should be generated: `SCORPiOs_example/SCORPiOs_corrected_forest_2_with_tags.nhx`.
+The following output should be generated: `SCORPiOs_example/SCORPiOs_output_2_with_tags.nhx`.
 
 ### Running SCORPiOs on your data
 
@@ -186,8 +186,8 @@ All outputs from SCORPiOs are stored in a folder named SCORPiOs_jobname (jobname
 The main output is the **SCORPiOs-optimized gene trees**. Gene trees are provided as a single file in NHX format. See the [next section](#tree-visualization) for explanations on how to visualize individual SCORPiOs-corrected trees.
 
 The commands above generate:
-- `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run
-- `SCORPiOs_example/SCORPiOs_corrected_forest_2_with_tags.nhx` for the iterative run.
+- `SCORPiOs_example/SCORPiOs_output_0.nhx` for the simple run
+- `SCORPiOs_example/SCORPiOs_output_2_with_tags.nhx` for the iterative run.
 
 Outputs are suffixed with a digit representing the iteration number. This number is set to 0 in simple mode and starts at 1 in iterative mode.
 
@@ -218,11 +218,11 @@ For instance, after a simple SCORPiOs run on example data, the following command
 python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0 -wgd Salmonidae -outgr 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes' -o SCORPiOs_example/Corrections/trees_img
 ```
 
-Here are example figures for a corrected tree (left) and its before-correction counterpart (right):
+Here are example figures for a corrected tree (right) and its before-correction counterpart (left):
 
-<img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="drawing" width="420"/>                        <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="drawing" width="420"/>
+<figure> <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="drawing" width="420"/> <figcaption>`SCORPiOs_example/Corrections/trees_img/img_ori_27.png`</figcaption> </figure> <figure> <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="drawing" width="420"/> <figcaption>`SCORPiOs_example/Corrections/trees_img/img_cor_27.png`</figcaption> </figure>
 
-Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue. The corrected WGD node is highlighted with a bigger circle and a grey background. Leaves of the SCORPiOs-corrected subtree, including the wgd subtree and the gene used as outgroup, are shown in the same color in the corrected and uncorrected versions.
+Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue.  Leaves of the SCORPiOs-corrected subtree, including the wgd subtree and the gene used as outgroup, are shown in the same color in the corrected and uncorrected versions. The corrected WGD node is highlighted with a bigger circle and a grey background.
 
 For a more exhaustive description of the visualization tool please run:
 ```

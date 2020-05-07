@@ -51,7 +51,7 @@ CTREES = out_name("Trees/ctrees", JNAME, ITER)
 Pairwise_SyntenyOrthoPred = out_name("Pairwise_SyntenyOrthoPred", JNAME, ITER)
 PolyS = out_name("Corrections/PolyS", JNAME, ITER)
 OutPolylk = out_name("Corrections/Res_polylk", JNAME, ITER)
-outTrees = out_name("SCORPiOs_corrected_forest", JNAME, ITER)+'.nhx'
+outTrees = out_name("SCORPiOs_output", JNAME, ITER)+'.nhx'
 treeB= out_name("Corrections/TreeB", JNAME, ITER)
 OuttreeBlk=out_name("Corrections/Res_treeBlk", JNAME, ITER)
 outTmpTrees=out_name("Corrections/tmp_whole_trees", JNAME, ITER)
@@ -72,7 +72,7 @@ incombin = ''
 if int(ITER) > 1:
     Acc_prev = out_name("Corrections/Accepted_Trees", JNAME, int(ITER)-1, True, False)
     OrthoTable_prev = out_name("Families/OrthoTable", JNAME, int(ITER)-1, True, True)
-    input_trees = out_name("SCORPiOs_corrected_forest", JNAME, int(ITER)-1)+'.nhx'
+    input_trees = out_name("SCORPiOs_output", JNAME, int(ITER)-1)+'.nhx'
     args_autho = '-filter '+regions
     incombin = out_name("Graphs/outcombin", JNAME, int(ITER)-1, True)
 
