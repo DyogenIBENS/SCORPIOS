@@ -343,7 +343,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
             for leaf in wtree.get_leaves():
                 leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
 
-        #write tree
+            #write tree
             all_features = ["S", "D", "DD", "DCS"] + edit_tags
             wtree.write(outfile=outfolder+"/"+prefix+"_"+treeid, format=ete3_format,
                         features=all_features, format_root_node=True)
