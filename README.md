@@ -218,9 +218,9 @@ For instance, after a simple SCORPiOs run on example data, the following command
 python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0 -wgd Salmonidae -outgr 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes' -o SCORPiOs_example/Corrections/trees_img
 ```
 
-Here are example figures for a corrected tree (right) and its before-correction counterpart (left):
+Here are example figures for a corrected tree (`SCORPiOs_example/Corrections/trees_img/img_cor_27.png`, right) and its before-correction counterpart (`SCORPiOs_example/Corrections/trees_img/img_ori_27.png`, left):
 
-<figure> <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="drawing" width="420"/> <figcaption>Corrections/trees_img/img_ori_27.png</figcaption> </figure>   <figure> <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="drawing" width="420"/> <figcaption>Corrections/trees_img/img_cor_27.png</figcaption> </figure>
+<img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="tree1" width="420"/>  <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="tree2" width="420"/>
 
 Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue.  Leaves of the SCORPiOs-corrected subtree, including the wgd subtree and the gene used as outgroup, are shown in the same color in the corrected and uncorrected versions. The corrected WGD node is highlighted with a bigger circle and a grey background.
 
