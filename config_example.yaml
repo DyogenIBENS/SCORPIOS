@@ -99,7 +99,7 @@ windowSize: 15
 cutoff: 0
 
 # Whether branch-lengths should be recomputed after corrections: yes ('y') or no ('n')
-brlength: 'n'
+brlength: 'y'
 
 # Any species with a poorer assembly quality that should be discarded for synteny analysis.
 # You should still provide their genes coordinate file.
@@ -114,7 +114,7 @@ ignoreSingleGeneCom: 'y'
 # Whether each individual corrected tree and its non-corrected counterpart should be saved, each in a .nhx files:
 # yes ('y') or no ('n')
 # This facilitates direct inspection of corrections.
-save_tmp_trees: 'n'
+save_tmp_trees: 'y'
 
 # Whether more detailed intermediary outputs should be saved: yes ('y') or no ('n').
 # Setting `save_subtrees_lktest` to 'y' saves, in addition to default outputs:
