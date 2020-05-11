@@ -439,5 +439,33 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
         if hasattr(leaf, 'missing'):
             delattr(leaf, 'missing')
 
+
+def copy_nhx_tags(tree_ref_tags, tree_target):
+
+    """
+    Copies nhx tags stored in leaves of tree1 to leaves of tree2. tree2 is modified in-place
+
+    Args:
+        tree_ref_tags (ete3.Tree) : tree with nhx tags to copy
+        tree_target (ete3.Tree) : tree to copy tags to
+
+    """
+
+    d_tags = {}
+    for leaf in tree_ref_tags.get_leaves():
+        attr = {i:d[i] for i in vars(leaf) if i not in ["dist", "name", "support", "features"]\
+                                              and i[0] != '_'}
+        d_tags[leaf.name] = attr
+
+    for leaf in tree_target.get_leaves():
+        if leaf.name in d_tags:
+            for tag in d_tags[leaf.name]:
+                value = d_tags[leaf.name][tag]
+                setattr(leaf, tag, value)
+
+    return
+
+
+
 if __name__ == '__main__':
     sys.exit()

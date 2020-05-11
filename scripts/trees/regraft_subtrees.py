@@ -322,6 +322,12 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
                 os.system("treebest phyml -t opt -n "+outfolder+"/tmp_"+treeid+".fa "+\
                           outfolder+"/tmp_"+treeid+" -c 2 > "+outfolder+"/"+treeid)
 
+                #copy correction nhx tags (wiped out by phyml above)
+                tmp = Tree(outfolder+"/"+treeid, format=9)
+                copy_nhx_tags(wtree, tmp)
+                tmp.write(outfile=outfolder+"/"+treeid, format=9, features=["S"]+edit_tags,
+                          format_root_node=True)
+
                 #remove temp
                 os.remove(outfolder+"/tmp_"+treeid+".fa")
                 os.remove(outfolder+"/tmp_"+treeid)
@@ -343,7 +349,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
             for leaf in wtree.get_leaves():
                 leaf.name = leaf.name.replace('_'+leaf.S, '', 1)
 
-        #write tree
+            #write tree
             all_features = ["S", "D", "DD", "DCS"] + edit_tags
             wtree.write(outfile=outfolder+"/"+prefix+"_"+treeid, format=ete3_format,
                         features=all_features, format_root_node=True)
