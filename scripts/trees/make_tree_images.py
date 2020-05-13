@@ -14,12 +14,12 @@ provided.
 
 Examples:
 
-    $ python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0/ \
--wgd Clupeocephala -outgr Lepisosteus.oculatus,Amia.calva
-
     $ python scripts/trees/make_tree_images.py \
 -i SCORPiOs_example/Corrections/tmp_whole_trees_0/cor_27 \
-SCORPiOs_example/Corrections/tmp_whole_trees_0/ori_27 -wgd Salmonidae -outgr Gasterosteus.aculeatus
+SCORPiOs_example/Corrections/tmp_whole_trees_0/ori_27 --wgd Salmonidae --outgr Gasterosteus.aculeatus
+
+    $ python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0/ \
+--wgd Clupeocephala --outgr Lepisosteus.oculatus,Amia.calva -f pdf -o img_clup/ --color_outgr
 
 """
 
@@ -283,12 +283,12 @@ if __name__ == '__main__':
     REQUIRED.add_argument('-i', '--input', nargs='+', help="Folder with corrected and original "
                           "trees, or a list of tree files.", required=True)
 
-    REQUIRED.add_argument('-wgd', '--wgd', help='Corrected wgd to highlight. For instance, '
+    REQUIRED.add_argument('-w', '--wgd', help='Corrected wgd to highlight. For instance, '
                           '-wgd Clupeocephala will show only subtrees corrected for the wgd that '
                           'occured in the Clupeocephala ancestor.', required=True)
 
-    REQUIRED.add_argument('-outgr', '--outgroup', help='Outgroup(s) used in SCORPiOs tree '
-                          'correction, comma-separated.', required=True)
+    REQUIRED.add_argument('--outgr', help='Outgroup(s) used in SCORPiOs tree correction, '
+                          'comma-separated.', required=True)
 
 
     PARSER.add_argument('-o', '--output', help='Output folder, default is trees_img/',
@@ -370,7 +370,7 @@ if __name__ == '__main__':
     os.makedirs(OUTFOLDER, exist_ok=True)
 
     #outgroups
-    OUTGR = ARGS["outgroup"].split(',')
+    OUTGR = ARGS["outgr"].split(',')
 
     ## Create images
 
