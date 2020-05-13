@@ -15,7 +15,7 @@ provided.
 Examples:
 
     $ python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0/ \
--wgd Clupeocephala  -outgr Lepisosteus.oculatus,Amia.calva
+-wgd Clupeocephala -outgr Lepisosteus.oculatus,Amia.calva
 
     $ python scripts/trees/make_tree_images.py \
 -i SCORPiOs_example/Corrections/tmp_whole_trees_0/cor_27 \
@@ -131,7 +131,7 @@ def get_corrected_wgd_nodes(tree, wgd, outgroups):
     return nodes
 
 
-def color_leaves(node, palette, edit_d, wgd, usedict=False, moved=False):
+def color_leaves(node, palette, edit_d, wgd, usedict=False, moved=False, ignore=False):
 
     """
     Colors names of leaves of corrected subtrees.
@@ -152,15 +152,16 @@ def color_leaves(node, palette, edit_d, wgd, usedict=False, moved=False):
     #use nhx correction tags
     if not usedict:
 
-        if hasattr(node, "CORR_ID_"+wgd):
-            corr_id = (int(getattr(node, "CORR_ID_"+wgd)) - 1) % (len(palette)/2)
-            color = palette[int(corr_id)*2]
-            edit_d[node.name] = color
+        if not ignore:
+            if hasattr(node, "CORR_ID_"+wgd):
+                corr_id = (int(getattr(node, "CORR_ID_"+wgd)) - 1) % (len(palette)/2)
+                color = palette[int(corr_id)*2]
+                edit_d[node.name] = color
 
-        elif moved and hasattr(node, "MOVED_ID_"+wgd):
-            moved_id = (int(getattr(node, "MOVED_ID_"+wgd)) - 1) % (len(palette)/2)
-            color = palette[int(moved_id)*2+1]
-            edit_d[node.name] = color
+            elif moved and hasattr(node, "MOVED_ID_"+wgd):
+                moved_id = (int(getattr(node, "MOVED_ID_"+wgd)) - 1) % (len(palette)/2)
+                color = palette[int(moved_id)*2+1]
+                edit_d[node.name] = color
 
     #use stored colors
     else:
@@ -173,7 +174,7 @@ def color_leaves(node, palette, edit_d, wgd, usedict=False, moved=False):
 
 
 def make_tree_figure(tree, palette, outfile, edit_d, wgd, outgroups, usedict=False, outformat="png",
-                     moved=False):
+                     moved=False, coutgr=False):
 
     """
     Creates and saves an image for a tree object.
@@ -218,7 +219,10 @@ def make_tree_figure(tree, palette, outfile, edit_d, wgd, outgroups, usedict=Fal
 
         #color edited leaves
         else:
-            color_leaves(node, palette, edit_d, wgd, usedict=usedict, moved=moved)
+            ignore = False
+            if not coutgr and node.S in outgroups:
+                ignore = True
+            color_leaves(node, palette, edit_d, wgd, usedict=usedict, moved=moved, ignore=ignore)
 
     #color root node
     color_internal_node(tree)
@@ -227,7 +231,7 @@ def make_tree_figure(tree, palette, outfile, edit_d, wgd, outgroups, usedict=Fal
     tstyle.show_leaf_name = False
 
     #set width
-    tstyle.tree_width = 500
+    tstyle.tree_width = 200
 
     #save image
     out = outfile+"."+outformat
@@ -238,7 +242,7 @@ def make_tree_figure(tree, palette, outfile, edit_d, wgd, outgroups, usedict=Fal
 
 
 def make_all_figures(files, palette, edit_d, outfolder, wgd, outgrs, usedict=False, outformat="png",
-                     moved=False):
+                     moved=False,  coutgr=False):
 
     """
     Generates images for a list of input files.
@@ -263,7 +267,7 @@ def make_all_figures(files, palette, edit_d, outfolder, wgd, outgrs, usedict=Fal
         outfile = outfolder + '/img_'+ os.path.splitext(os.path.basename(treef))[0]
         tree = Tree(treef)
         edit_d = make_tree_figure(tree, palette, outfile, edit_d, wgd, outgrs, usedict=usedict,
-                                  outformat=outformat, moved=moved)
+                                  outformat=outformat, moved=moved, coutgr=coutgr)
         sys.stderr.write("\n")
 
     return edit_d
@@ -296,6 +300,9 @@ if __name__ == '__main__':
 
     PARSER.add_argument('--show_moved', help='Color non-wgd rearranged leaves, default is False',
                         action='store_true')
+
+    PARSER.add_argument('--color_outgr', help='Color the outgroup gene used by SCORPiOs,'
+                        'default is False', action='store_true')
 
     ARGS = vars(PARSER.parse_args())
 
@@ -372,7 +379,7 @@ if __name__ == '__main__':
     #create images for corrected tree and store used colors in a dictionary
     COLORS_DICT = make_all_figures(COR, PALETTE, COLORS_DICT, OUTFOLDER, ARGS["wgd"], OUTGR,
                                    usedict=False, outformat=ARGS["format"],
-                                   moved=ARGS["show_moved"])
+                                   moved=ARGS["show_moved"], coutgr=ARGS["color_outgr"])
 
     #create images for original tree using stored colors
     _ = make_all_figures(ORI, PALETTE, COLORS_DICT, OUTFOLDER, ARGS["wgd"], OUTGR, usedict=True,
