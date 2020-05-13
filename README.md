@@ -222,7 +222,7 @@ Here are example figures for a corrected tree (`SCORPiOs_example/Corrections/tre
 
 <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="tree1" width="420"/>  <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="tree2" width="420"/>
 
-Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue.  Leaves of the SCORPiOs-corrected subtree, including the wgd subtree and the gene used as outgroup, are shown in the same color in the corrected and uncorrected versions. The corrected WGD node is highlighted with a bigger circle and a grey background.
+Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue. Leaves of the SCORPiOs-corrected wgd subtree are shown in the same color in the corrected and uncorrected versions. The corrected WGD node is highlighted with a bigger circle and a grey background.
 
 For a more exhaustive description of the visualization tool please run:
 ```
