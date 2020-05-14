@@ -215,7 +215,7 @@ Our script `scripts/trees/make_tree_images.py` generates images based on the tre
 For instance, after a simple SCORPiOs run on example data, the following command creates images allowing to view all corrections for the salmonids WGD :
 
 ```
-python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0 -wgd Salmonidae -outgr 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes' -o SCORPiOs_example/Corrections/trees_img
+python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0 --wgd Salmonidae --outgr 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes' -o SCORPiOs_example/Corrections/trees_img
 ```
 
 Here are example figures for a corrected tree (`SCORPiOs_example/Corrections/trees_img/img_cor_27.png`, right) and its before-correction counterpart (`SCORPiOs_example/Corrections/trees_img/img_ori_27.png`, left):
