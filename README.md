@@ -9,7 +9,7 @@
 
  For a complete description of SCORPiOs, see our preprint: https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full
 
- ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/scorpios_illustrated.png)
+ ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/scorpios_illustrated.png)
 
 ## Table of content
   - [Installation](#installation)
@@ -139,7 +139,7 @@ For instance, consider the simple species tree below:
 
 *(spotted_gar, (zebrafish, (medaka, (tetraodon, fugu)Tetraodontidae)Euteleosteomorpha)Clupeocephala)Neopterygii;*
 
-![basic tree](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/basic_sptree.png)
+![basic tree](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/basic_sptree.png)
 
 As the fish WGD is located at the ancestor "Clupeocephala" and we wish to use the spotted_gar as outgroup, the following line shoud be in the configuration file:
 
@@ -220,7 +220,7 @@ python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_who
 
 Here are example figures for a corrected tree (`SCORPiOs_example/Corrections/trees_img/img_cor_27.png`, right) and its before-correction counterpart (`SCORPiOs_example/Corrections/trees_img/img_ori_27.png`, left):
 
-<img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_ori_27.png" alt="tree1" width="420"/>  <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/example_cor_27.png" alt="tree2" width="420"/>
+<img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/example_ori_27.png" alt="tree1" width="420"/>  <img src="https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/example_cor_27.png" alt="tree2" width="420"/>
 
 Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue. Leaves of the SCORPiOs-corrected wgd subtree are shown in the same color in the corrected and uncorrected versions. The corrected WGD node is highlighted with a bigger circle and a grey background.
 
