@@ -1,19 +1,19 @@
 Tree visualization
 ===================
 
-SCORPiOs tags corrected nodes in the gene trees to allow inspection using tree visualisation softwares (i.e `ETE Toolkit <http://etetoolkit.org/>`_ or `ggtree <https://guangchuangyu.github.io/software/ggtree/>`_). To facilitate correction visualization, we provide a custom script that generates images for corrected trees. Alternatively, output NHX files from SCORPiOs can also directly be loaded into online tree comparison tools such as `Phylo.io <https://phylo.io/>`_. 
+SCORPiOs tags corrected nodes in the gene trees to allow inspection using tree visualisation softwares (i.e `ETE Toolkit <http://etetoolkit.org/>`_ or `ggtree <https://guangchuangyu.github.io/software/ggtree/>`_). To facilitate correction visualization, we provide a custom script that generates before-and-after images for corrected trees. Alternatively, output NHX files from SCORPiOs can also directly be loaded into online tree comparison tools such as `Phylo.io <https://phylo.io/>`_. 
 
 ..  note::
 
-	SCORPiOs dedicated tool makes it easier to visualize specific corrections by SCORPiOs, especially for large gene families with more than one duplicated subtree.
+	The dedicated tool makes it easier to visualize specific corrections by SCORPiOs, especially for large gene families with more than one duplicated subtree.
 
-Using SCORPiOs NHX tags
------------------------
+Visualizing tree corrections
+----------------------------
 
-With the default configuration, SCORPiOs saves individual corrected trees in the folder :code:`SCORPiOs_jobname/Corrections/tmp_whole_trees_0` (or :code:`SCORPiOs_jobname/Corrections/tmp_whole_trees_i` for each iteration i in iterative mode). Our custom script :code:`scripts/trees/make_tree_images.py` generates images based on the trees saved in this folder.
+With the default configuration, SCORPiOs saves individual corrected trees in the folder :code:`SCORPiOs_jobname/Corrections/tmp_whole_trees_0` (or :code:`SCORPiOs_jobname/Corrections/tmp_whole_trees_i` for iteration i, in iterative mode). Our custom script :code:`scripts/trees/make_tree_images.py` generates images based on the trees saved in this folder.
 
 .. important::
-	You should ensure that scorpios conda environnment is activated before running :code:`scripts/trees/make_tree_images.py`. You can activate it with :code:`conda activate scorpios`.
+	You should ensure that the SCORPiOs conda environnment is activated before running :code:`scripts/trees/make_tree_images.py`. You can activate it with :code:`conda activate scorpios`.
 
 Example
 ^^^^^^^
@@ -36,7 +36,7 @@ Here are generated figures for a corrected tree (:code:`SCORPiOs_example/Correct
    :width: 48%
    :alt: corrected tree
 
-Internal nodes are colored according to convention: duplications in red, dubious duplications in cyan and speciation in blue. Leaves of the SCORPiOs-corrected subtree are shown in the same color in the corrected and uncorrected versions. The corrected WGD node is highlighted with a bigger circle and a grey background.
+Internal nodes follow color conventions: duplications in red, dubious duplications in cyan and speciation in blue. Leaves of the SCORPiOs-corrected subtree are shown in the same color in the corrected and uncorrected versions. The corrected WGD node is highlighted with a bigger circle and a grey background.
 
 Command-line arguments for :code:`scripts/trees/make_tree_images.py`:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -18,16 +18,9 @@ Obtaining phylogeny-reconciled trees
 Phylogenetic reconciliation compares gene trees to the species history, to annotate whether internal nodes in the gene tree correspond to speciation or duplication events.
 For many taxa, precomputed phylogeny-reconciled gene trees can be downloaded from public comparative genomics databases, such as Ensembl.
 
-If phylogeny-reconciled gene trees are not available for your study species, we suggest you run SCORPiOs from gene alignments. SCORPiOs will then build an initial set of gene trees from the alignments using TreeBeST, and will optimize them using synteny information.
+If phylogeny-reconciled gene trees are not available for your study species, we suggest running SCORPiOs from gene alignments. SCORPiOs will then build an initial set of gene trees from the alignments using TreeBeST, and will optimize them using synteny information.
 
-
-Converting to NHX format
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-If your phylogeny-reconciled gene trees are not in NHX format, you will need to convert them.
-We recommend the Phylo module in Biopython, which will handle a variety of tree formats.
-
-Alternatively, you can use TreeBeST to reconcile newick trees.
+Alternatively, you can use TreeBeST to reconcile NEWICK gene trees computed with another program to the species phylogeny.
 
 .. tip ::
 
@@ -46,6 +39,12 @@ Given a species tree in the newick format and a gene tree in newick format that 
 ..  note::
 
 	Unreconciled tree formats (such as Newick) will raise an error when running SCORPiOs. If you do not have reconciled trees available, we recommend using gene alignments as your primary SCORPiOs input.
+	
+Converting to NHX format
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you already have phylogeny-reconciled gene trees, but they are not in NHX format, you will need to convert them.
+We recommend the Phylo module in Biopython, which will handle a variety of tree formats.
 
 
 Gene multiple alignment file

@@ -3,7 +3,7 @@ Configuration file
 
 As alluded to in the previous sections, the configuration for a SCORPiOs run has to be set in a **YAML configuration file**. YAML (standing for YAML Ain't Markup Language) is a data-serialization language with a simple syntax, commonly used for configuration files. 
 
-Using a configuration file is the preferred way to run a snakemake workflow such as SCORPiOs, as it allows to precisely store input paths and parameters in a static file, thus ensuring **reproducibility**.
+Using a configuration file is the preferred way to run a Snakemake workflow such as SCORPiOs, as it allows to precisely store input paths and parameters in a static file, thus ensuring **reproducibility**.
 
 As an example, we provide `config_example.yaml <https://github.com/DyogenIBENS/SCORPIOS/blob/master/config_example.yaml>`_, which allows to run SCORPiOs on toy example `data <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/>`_. You will only need to slightly modify this example file in order to run SCORPiOs on your data.
 
@@ -113,9 +113,9 @@ Supported settings
 Input data
 ^^^^^^^^^^
 
-The gene trees to correct (input_1)
+The gene trees to correct (INPUT1)
 """""""""""""""""""""""""""""""""""
-**Optional, can be replaced by alternative_input_1.** Trees should be provided as a single file in New Hampshire Extended (.nhx) format. Please refer to the :ref:`Data file formats` section for file format details.
+**Optional, can be replaced by alternative_INPUT1.** Trees should be provided as a single file in New Hampshire Extended (.nhx) format. Please refer to the :ref:`Data file formats` section for file format details.
 
 Example:
 
@@ -127,7 +127,7 @@ Example:
 	If you want to build the trees from gene sequence alignments using `TreeBeST <https://github.com/Ensembl/treebest>`_, you should remove or comment out the :code:`tree` entry.
 
 
-The multiple sequence alignments (input_2)
+The multiple sequence alignments (INPUT2)
 """"""""""""""""""""""""""""""""""""""""""
 **Required.** Multiple sequence alignments used to build the trees, as a single file in fasta (.fa) format. The file can be gzipped (.gz) or not. Please refer to the :ref:`Data file formats` section for file format details.
 Example:
@@ -136,7 +136,7 @@ Example:
 
 	alis: data/example/ali.fa.gz
 
-The genes coordinates (input_3)
+The genes coordinates (INPUT3)
 """""""""""""""""""""""""""""""
 **Required.** The genes coordinates for all duplicated species and outgroup(s), one file per species, in BED (.bed) format. Files can be bzipped2 (.bz2). Please refer to the :ref:`Data file formats` section for file format details.
 
@@ -146,7 +146,7 @@ Example:
 
 	genes: data/example/genes/genes.%s.bed
 
-The species tree (input_4)
+The species tree (INPUT4)
 """"""""""""""""""""""""""
 **Required.** The species tree in Newick format (.nwk) with labelled internal nodes (ancestor names). Please refer to the :ref:`Data file formats` section for file format details.
 
@@ -156,9 +156,9 @@ Example:
 
 	species_tree: data/example/species_tree.nwk
 
-The gene-to-species mapping (alternative_input_1)
+The gene-to-species mapping (alternative_INPUT1)
 """""""""""""""""""""""""""""""""""""""""""""""""
-**Optional, can be replaced by input_1.** Gene-to-species mapping file : a single text file with two columns: gene_name; species_name. Gene families should be separated by '//'. They should appear in the same order as their corresponding alignment in the alignments file (input_2). Gene names and species names should be the same as in the alignment (input_2) and species tree (input_4), respectively.
+**Optional, can be replaced by INPUT1.** Gene-to-species mapping file : a single text file with two columns: gene_name; species_name. Please refer to the :ref:`Data file formats` section for file format details.
 
 Example:
 
@@ -175,7 +175,7 @@ Outputs
 ^^^^^^^
 Unique jobname
 """"""""""""""
-**Required.** A (descriptive) job name, which will be appended to the output folder name. All results will be stored in the output folder :code:`SCORPiOs_jobname/`. This allows to invoke different SCORPiOs snakemake runs (e.g with different input data or parameters).
+**Required.** A (descriptive) job name, which will be appended to the output folder name. All results will be stored in the output folder :code:`SCORPiOs_jobname/`. This allows to invoke different SCORPiOs runs (e.g with different input data or parameters).
 
 Example:
 
@@ -206,7 +206,7 @@ Example:
 
 Synteny threshold optimization
 """"""""""""""""""""""""""""""
-**Optional (default='n').** Whether the average number of syntenic orthologs to include genes as potential orthologs should be optimized: yes ('y') or no ('n'). Default value if the threshold is not optimized is 2.0.
+**Optional (default='n').** Whether the minimum required number of syntenic orthologs to include genes as potential orthologs should be optimized: yes ('y') or no ('n'). Default value if the threshold is not optimized is 2.0.
 
 
 Example:
@@ -259,7 +259,7 @@ Example:
 
 Lower-quality genome assemblies
 """""""""""""""""""""""""""""""
-**Optional.** A file listing species with a poorer assembly quality that should be discarded for synteny analysis. You should still provide their genes coordinate file. 
+**Optional.** A file listing species with a poorer assembly quality that should be discarded for synteny analysis. You should still provide their genes coordinate files. 
 
 Example:
 
