@@ -8,5 +8,7 @@ sphinx:
   configuration: doc/conf.py
 
 # Optionally set the conda env required to build your docs
-conda:
-  environment: envs/docs.yaml
+python:
+  version: 3.6
+  install:
+    - requirements: docs/requirements.txt
