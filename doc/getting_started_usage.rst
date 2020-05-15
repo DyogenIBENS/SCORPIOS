@@ -18,7 +18,7 @@ Example 1: Simple SCORPiOs run
  
 The only required Snakemake arguments to run SCORPiOs are :code:`--configfile` and the :code:`--use-conda` flag. Optionally, you can specify the number of threads via the :code:`--cores` option. For more advanced options, you can look at the `Snakemake documentation <https://snakemake.readthedocs.io/en/stable/>`_.
 
-To run SCORPiOs on example data:
+To run SCORPiOs on example data, go to the SCORPiOs root folder and run:
 
 .. prompt:: bash
 
