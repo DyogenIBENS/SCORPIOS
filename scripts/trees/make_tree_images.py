@@ -19,7 +19,7 @@ Examples:
 SCORPiOs_example/Corrections/tmp_whole_trees_0/ori_27 --wgd Salmonidae --outgr Gasterosteus.aculeatus
 
     $ python scripts/trees/make_tree_images.py -i SCORPiOs_example/Corrections/tmp_whole_trees_0/ \
---wgd Clupeocephala --outgr Lepisosteus.oculatus,Amia.calva -f pdf -o img_clup/ --color_outgr
+--wgd Clupeocephala --outgr Lepisosteus.oculatus,Amia.calva -f pdf -o img_clup --color_outgr
 
 """
 
