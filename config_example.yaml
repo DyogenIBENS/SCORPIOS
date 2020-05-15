@@ -1,94 +1,44 @@
+#=========================== SCORPiOs EXAMPLE CONFIGURATION FILE ============================#
+##For a full description of supported settings, please take a look at SCORPiOs documentation.#
 
-#######################################
-# SCORPiOs EXAMPLE CONFIGURATION FILE #
-#######################################
 
-##################
-### Input data ###
-##################
-
-# NOTE: in this example data, species names are appended to the gene names, for clarity only.
-# This is *NOT REQUIRED* and *NOT* used by SCORPiOs to infer the genes-species mapping.
+#----------------------------------------- INPUTS -------------------------------------------#
 
 # INPUT1 - The gene trees to correct, as a single file in New Hampshire Extended (.nhx) format.
-## Remove or comment the `trees` entry below to build the trees from gene sequence alignments using TreeBeST. ##
-# Trees should be separated by '//'.
-# Internal nodes should be tagged using the `D` attribute for duplication/speciation (e.g. D=Y or D=N).
-# Leaves should be taggued using the `S` attribute to indicate the species to which the gene belongs (e.g. S=Danio_rerio).
-# Optionally, the `DD` and `DCS`attributes can help flag dubious duplications at internal nodes (DD=Y or DCS=0 for dubious duplications).
-# Of note, SCORPiOs is more suited to correct species-tree-aware gene trees, which have been reconciled with the species phylogeny.
 trees: data/example/forest.nhx
 
-
-# INPUT2 - The multiple sequence alignments used to build the trees, as a single file in fasta (.fa) format.
-# The file can be gzipped (.gz) or not.
-# These should be nucleotide sequence alignments (CDS alignments, back-translated from protein alignments).
-# Alignments should be separated by '//'.
-# Alignments should appear in the same order as their corresponding trees in INPUT1.
-# Gene names should match those used in the trees.
+# INPUT2 - The multiple sequence alignments used to build the trees, as a single fasta file.
 alis: data/example/ali.fa.gz
 
-
-# INPUT3 - The genes coordinates for all duplicated species and outgroup(s), one file per species, in BED (.bed) format.
-# Files can be bzipped2 (.bz2).
-# Files must be a minimal BED format with 4 columns: chromosome; start; end; gene_name.
-# All filenames should follow similar conventions, to be retrieved with a regular expression.
-# Gene names should match those used in the trees and alignments.
+# INPUT3 - The genes coordinates for all duplicated species and outgroup(s).
+#one file per species, in BED (.bed) format.
 genes: data/example/genes/genes.%s.bed
 
-
-# INPUT4 - The species tree in Newick format (.nwk) with labelled internal nodes (ancestor names).
-# The species tree should contain all species included in the gene trees.
-# Species names should not contain underscores '_'.
-# For better trees reconstruction with TreeBeST, the tree should not contain polytomies
+# INPUT4 - The species tree in Newick format with labelled internal nodes (ancestor names).
 species_tree: data/example/species_tree.nwk
 
-
-## Uncomment the `genes_sp_mapping` entry below to build the trees from gene sequence alignments with TreeBeST ##
 # Gene-to-species mapping file : a single text file with two columns: gene_name species_name.
-# Gene families should be separated by '//'.
-# They should appear in the same order as their corresponding alignment in the alignments file.
-# Gene names and species names should be the same as in the alignment and species tree, respectively.
 #genes_sp_mapping: data/example/genes_sp_mapping.txt
 
 
+#----------------------------------------- OUTPUTS ------------------------------------------#
 
-
-#####################
-### Output folder ###
-#####################
-
-# Provide a job name, which will be added as a tag to the output folder name.
-# All results will be stored in the folder: 'SCORPiOs_jobname'.
-# The corrected gene tree file will be: 'SCORPiOs_example/SCORPiOs_output_0.nhx'.
-# NHX tags are added to the corrected gene trees:
-# - leaves of corrected subtrees are tagged with "CORR_ID_`WGD`"
-# - leaves rearranged to reinsert subtrees are tagged with "MOVED_ID_`WGD`"
-# NOTE that "MOVED_ID_`WGD`" is currently NOT supported in iterative mode.
+# Provide a job name, which will be appended to the output folder name.
 jobname: 'example'
 
 
+#---------------------------------------- PARAMETERS ----------------------------------------#
 
-
-##################
-### Parameters ###
-##################
-
-# Each WGD event in the species tree should be indicated via the name of the ancestor of all duplicated species.
-# Then, for each WGD, provide one or several outgroup species to use as reference in the synteny analysis.
-# Any non-duplicated species can be used as outgroup.
-# A phylogenetically close outgroup should be preferred as synteny with duplicated species will be more conserved.
-# Multiple reference outgroups can be provided as a comma-separated list, in priority order, e.g.:
+# Whole-genome duplication(s) and outgroup(s)
 WGDs:
-  Clupeocephala: 'Lepisosteus.oculatus,Amia.calva'
-  Salmonidae: 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes'
+        Clupeocephala: 'Lepisosteus.oculatus,Amia.calva'
+        Salmonidae: 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes'
 
-# Whether the average number of syntenic orthologs to include genes in the Orthology Table should be optimized:
-# yes ('y') or no ('n')
-# Default value if the threshold is not optimized is 2.0.
+# Whether the average number of syntenic orthologs to include genes in the Orthology Table
+# should be optimized: yes ('y') or no ('n'). Default threshold value if not optimized: 2.0.
 optimize_synteny_support_threshold: 'y'
 
-# Whether phylogenetic orthologs without synteny support should be discarded from the synteny analysis:
+# Whether orthologs without synteny support should be discarded from the synteny analysis:
 # yes ('y') or no ('n')
 filter_otable_nosynteny: 'n'
 
@@ -98,22 +48,19 @@ windowSize: 15
 # Cut-off on pairwise synteny similarity scores (between 0 and 1):
 cutoff: 0
 
-# Whether branch-lengths should be recomputed after corrections: yes ('y') or no ('n')
+# Whether branch-lengths should be recomputed after corrections: yes ('y') or no ('n').
 brlength: 'y'
 
 # Any species with a poorer assembly quality that should be discarded for synteny analysis.
-# You should still provide their genes coordinate file.
 ## Comment out if you want to use all species in the synteny analysis.##
 lowcov_sp: 'data/example/lowcov'
 
-# Whether to ignore tree-synteny inconsistencies when an orthogroup graph community contains only a single gene:
-# yes ('y') or no ('n')
-# These are poorly-supported WGD duplication nodes.
+# Whether to ignore tree-synteny inconsistencies when an orthogroup graph community contains
+# only a single gene: yes ('y') or no ('n'). These are poorly-supported WGD duplication nodes.
 ignoreSingleGeneCom: 'y'
 
-# Whether each individual corrected tree and its non-corrected counterpart should be saved, each in a .nhx files:
-# yes ('y') or no ('n')
-# This facilitates direct inspection of corrections.
+# Whether each individual corrected tree and its non-corrected counterpart should be saved,
+# each in a .nhx file: yes ('y') or no ('n'). This facilitates direct inspection of corrections.
 save_tmp_trees: 'y'
 
 # Whether more detailed intermediary outputs should be saved: yes ('y') or no ('n').
@@ -123,33 +70,23 @@ save_tmp_trees: 'y'
 # - AU-tests outputs
 save_subtrees_lktest: 'n'
 
-# Iterative-correction related option, (automatically updated by the wrapper `iterate_scorpios.sh`).
-# 0 if SCORPiOs is run in simple mode, current iteration otherwise.
+# Iterative-correction related option, automatically updated by the wrapper iterate_scorpios.sh.
 ## DO NOT MODIFY MANUALLY even if using iterative mode.##
 current_iter: 0
 
 
-
-
-#######################
-### Running options ###
-#######################
+#---------------------------------------- RESSOURCES ----------------------------------------#
 
 # Maximum number of threads (will never use more than this number).
-# It will be restricted to the number of threads specified via --cores.
+# It will be restricted to the number specified via --cores (1 if --cores is not invoked).
 ncores: 14
 
 # Memory (--buffer_size) parameter for a bash sort. If decreased, more /tmp space will be used.
 buffer_size: 10G
 
 # Use a parallelization scheme specific to large jobs: yes ('y') or no ('n').
-# If number of duplicated species is large (~ >25), the default parallelization scheme is slow in snakemake.
-# Setting `parallel_scheme_large_job` to 'y' will greatly reduce computation time.
 parallel_scheme_large_job: 'n'
 
-# Optional limit to RAM usage.
 # Limit number of cores for the branch length computation (after all corrections).
-# Recomputing branch length can be RAM intensive for large trees (SCORPiOs uses TreeBeST PhyML here).
-# To use less RAM, you may want to reduce the number of parallel jobs.
 ## Uncomment to reduce RAM usage.##
 #limit_threads_for_branch_lengths: 37
