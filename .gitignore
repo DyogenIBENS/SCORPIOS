@@ -7,4 +7,4 @@ data/*
 data/example/genes/*.bz2
 config*
 !config_example.yaml
-doc/_build/
+doc/build/
