@@ -4,11 +4,11 @@
 
  SCORPiOs is a **synteny-guided gene tree correction pipeline** for clades that have undergone a whole-genome duplication event. SCORPiOs identifies gene trees where the whole-genome duplication is **missing** or **incorrectly placed**, based on the genomic locations of the duplicated genes across the different species. SCORPiOs then builds an **optimized gene tree** consistent with the known WGD event, the species tree, local synteny context, as well as gene sequence evolution.
 
-For more information, you can take a look at our preprint on biorxiv: https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full
+For more information, you can take a look at our [preprint](https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full) on biorxiv.
 
  SCORPiOs is implemented as a [Snakemake](https://snakemake.readthedocs.io/en/stable/) pipeline. SCORPiOs takes as input either gene trees or multiple alignments, and outputs the corresponding optimized gene trees.
 
- **To learn how to use SCORPiOs, please take a look at [SCORPiOs documentation](https://scorpios.readthedocs.io/en/latest/).**
+ **To learn how to use SCORPiOs, please take a look at [SCORPiOs documentation](https://scorpios.readthedocs.io/en/latest/)!**
 
  ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/scorpios_illustrated.png)
 
