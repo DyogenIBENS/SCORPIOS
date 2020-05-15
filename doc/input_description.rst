@@ -39,7 +39,7 @@ SCORPiOs requires four input files, which are:
 4. A species tree in NEWICK format, with names of ancestral species indicated at internal nodes (see `example <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/species_tree.nwk>`_ and :ref:`description<Species tree file>`).
 
 
-For a detailed description of expected formats please refer to the Data formatting section.
+For a detailed description of expected formats please refer to the :ref:`Data file formats` section.
 
 .. note::
 	If starting from gene trees, SCORPiOS uses the NHX :code:`S` (species name) tag to build the gene-species mapping. Otherwise, it uses the gene-to-species mapping file.
