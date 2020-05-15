@@ -323,7 +323,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor', cor
 
         #write tree
         all_features = ["S", "D", "DD", "DCS"] + edit_tags
-        wtree.write(outfile=outfolder+"/"+prefix+"_"+treeid, format=ete3_format,
+        wtree.write(outfile=outfolder+"/"+prefix+"_"+treeid+".nhx", format=ete3_format,
                     features=all_features, format_root_node=True)
 
         return True
