@@ -45,7 +45,7 @@ Converting to NHX format
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you already have phylogeny-reconciled gene trees, but they are not in NHX format, you will need to convert them.
-We recommend the Phylo module in Biopython, which will handle a variety of tree formats.
+We recommend the `Phylo module <https://biopython.org/wiki/Phylo>`_ in Biopython, which will handle a variety of tree formats.
 
 
 Gene multiple alignment file
