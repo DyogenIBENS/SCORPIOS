@@ -9,4 +9,4 @@ sphinx:
 
 # Optionally set the conda env required to build your docs
 conda:
-  environment: envs/docs.yml
+  environment: envs/docs.yaml
