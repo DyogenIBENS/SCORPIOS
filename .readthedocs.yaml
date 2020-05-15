@@ -1,0 +1,12 @@
+# Read the Docs configuration file
+
+# Required
+version: 2
+
+# Build documentation in the doc/ directory with Sphinx
+sphinx:
+  configuration: doc/conf.py
+
+# Optionally set the conda env required to build your docs
+conda:
+  environment: envs/docs.yml

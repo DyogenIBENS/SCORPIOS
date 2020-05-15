@@ -1,0 +1,59 @@
+.wy-body-for-nav {
+    background: #404040;
+}
+
+.wy-side-nav-search .wy-dropdown > a {
+    color: #404040;
+    }
+
+.wy-side-nav-search {
+    background-color: #57F1B1;
+}
+
+
+.wy-side-nav-search input[type="text"] {
+    border-color: #57F1B1;
+}
+
+
+.wy-menu-vertical header, .wy-menu-vertical p.caption {
+    color: #57F1B1;
+}
+
+
+.wy-side-nav-search > a, .wy-side-nav-search .wy-dropdown > a {
+    color: #404040
+ }
+
+
+ .rst-content tt.literal, .rst-content tt.literal, .rst-content code.literal {
+    color: #210A72;
+}
+
+@font-face {
+    font-family: "Metropolis";
+    src: url("./Metropolis-Medium.otf");
+}
+
+h1, h2, .rst-content .toctree-wrapper p.caption, h3, h4, h5, h6, legend {
+    font-family: "Metropolis","ff-tisa-web-pro","Georgia",Arial,sans-serif;
+    margin-top: 5mm;
+}
+
+.wy-nav-top a {
+    color: #404040;
+}
+
+.wy-nav-top i {
+    color: #404040;
+}
+
+.wy-nav-top {
+    background: #57F1B1;
+}
+
+.wy-menu-vertical a:active {
+ background-color:#66CCAA;
+ cursor:pointer;
+ color:#fff
+}

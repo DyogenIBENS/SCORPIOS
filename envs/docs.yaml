@@ -1,0 +1,11 @@
+name: docs
+channels:
+  - conda-forge
+  - anaconda
+dependencies:
+  - sphinx
+  - pip
+  - pip:
+    - sphinx-rtd-theme
+    - sphinx-prompt
+    
