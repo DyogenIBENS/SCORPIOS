@@ -21,8 +21,8 @@ project = 'SCORPiOs'
 copyright = '2020, Elise Parey & Camille Berthelot'
 author = 'Elise Parey & Camille Berthelot'
 
-# The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = ''
+version = ''
 
 master_doc = 'index'
 
