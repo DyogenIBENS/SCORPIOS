@@ -11,6 +11,7 @@ All gene trees should be listed into a single NHX (New Hampshire Extended) file,
 
 The gene trees should be phylogeny-reconciled: internal nodes should be tagged with the :code:`D` attribute to specify if they correspond to a speciation or a duplication (e.g. :code:`D=N` or :code:`D=Y`). Leaves should be tagged using the :code:`S` attribute to indicate the species (e.g. :code:`S=Danio.rerio`). Optionally, the :code:`DD` and :code:`DCS` attributes can help flag dubious duplications at internal nodes (:code:`DD=Y` or :code:`DCS=0` for dubious duplications).
 
+See an example gene tree file `here <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/forest.nhx>`_.
 
 Obtaining phylogeny-reconciled trees
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -55,6 +56,7 @@ Alignments should be separated by '//' and should appear in the same order as th
 
 This file can also be used as the primary input for SCORPiOs if phylogeny-reconciled trees are not available. SCORPiOs will then use these alignments to build the initial set of trees.
 
+See an example gene multiple alignment file `here <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/ali.fa.gz>`_.
 
 Building a gene sequence multiple alignment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -64,12 +66,13 @@ Precomputed gene sequence alignments can be downloaded from a variety of public 
 .. warning::
 	Building gene multiple alignments is non-trivial and we recommend you use precomputed alignments if possible, if you are not familiar with this task.
 
-
 Gene coordinates files
 ----------------------
 
 All genes and their coordinates should be provided as a separate file per species in BED format. Files can be bzipped2 (.bz2). Files must be a minimal BED format with 4 columns: chromosome; start; end; gene_name. 
 All file names should follow similar conventions, to be retrieved with a regular expression. Gene names should match those used in the trees and alignments.
+
+See an example gene coordinates file `here <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/genes/genes.Danio.rerio.bed>`_.
 
 
 Genes-to-species mapping file
@@ -79,8 +82,11 @@ This is an alternative input to the gene tree file, when phylogeny-reconciled ge
 
 Correspondances between gene IDs and species names should be provided as a single text file with two columns: gene_name; species_name. Genes from the same family should appear consecutively in the file. Genes families should be separated by '//'. Families should appear in the same order as their corresponding alignment in the alignments file . Gene names and species names should be the same as in the alignment and species tree, respectively.
 
+See an example genes-to-species mapping file `here <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/genes_sp_mapping.txt>`_.
 
 Species tree file
 -----------------
 
 The species tree in NEWICK format, with names of ancestral species indicated at internal nodes. The species tree should contain all species included in the gene trees. Species names should not contain underscores '_'. For optimal tree reconstruction with `TreeBeST <https://github.com/Ensembl/treebest>`_, the tree should not contain polytomies.
+
+See an example species tree file `here <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/species_tree.nwk>`_.
