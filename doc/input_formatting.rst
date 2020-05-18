@@ -61,7 +61,7 @@ See an example gene multiple alignment file `here <https://github.com/DyogenIBEN
 Building a gene sequence multiple alignment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Precomputed gene sequence alignments can be downloaded from a variety of public sources (databases, publications) for many species sets. However, if you cannot find precomputed gene alignments that suit your analysis, you will need to start the work from scratch and build your own gene alignments before you can use SCORPiOs. We provide a dedicated outline here: Building a dataset.
+Precomputed gene sequence alignments can be downloaded from a variety of public sources (databases, publications) for many species sets. However, if you cannot find precomputed gene alignments that suit your analysis, you will need to start the work from scratch and build your own gene alignments before you can use SCORPiOs. We provide a dedicated outline here: :ref:`Building a dataset`.
 
 .. warning::
 	Building gene multiple alignments is non-trivial and we recommend you use precomputed alignments if possible, if you are not familiar with this task.
