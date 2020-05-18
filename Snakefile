@@ -37,10 +37,10 @@ elif "trees" in config and not os.path.isfile(config["trees"]):
 else:
     input_trees = out_name("input_forest", JNAME, ITER)+'.nhx'
 
-OrthoTableStrict = out_name("Families/OrthoTableStrict", JNAME, ITER, True, True)
+OrthoTableStrict = out_name("Families/HomologsStrict", JNAME, ITER, True, True)
 Chr =  out_name("Families/Chr", JNAME, ITER, True, True)
-OrthoTable = out_name("Families/OrthoTable", JNAME, ITER, True, True)
-OrthoTableF = out_name("Families/OrthoTableFilter", JNAME, ITER, True, True)
+OrthoTable = out_name("Families/Homologs", JNAME, ITER, True, True)
+OrthoTableF = out_name("Families/HomologsFilter", JNAME, ITER, True, True)
 TreesOrthologies = out_name("TreesOrthologies", JNAME, ITER)
 SyntenyOrthoPred = out_name("SyntenyOrthoPred", JNAME, ITER, True, True)
 Sorted_SyntenyOrthoPred = out_name("Synteny/Sorted_SyntenyOrthoPred", JNAME, ITER, True, True)
@@ -76,7 +76,7 @@ Acc_prev = ''
 incombin = ''
 if int(ITER) > 1:
     Acc_prev = out_name("Corrections/Accepted_Trees", JNAME, int(ITER)-1, True, False)
-    OrthoTable_prev = out_name("Families/OrthoTable", JNAME, int(ITER)-1, True, True)
+    OrthoTable_prev = out_name("Families/Homologs", JNAME, int(ITER)-1, True, True)
     input_trees = out_name("SCORPiOs_output", JNAME, int(ITER)-1)+'.nhx'
     args_autho = '-filter '+regions
     incombin = out_name("Graphs/outcombin", JNAME, int(ITER)-1, True)

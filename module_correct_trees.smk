@@ -181,8 +181,8 @@ rule clean_up:
     shell:"""
     rm -r {SUBALIS} || true; rm -r {SUBTREES} || true; rm {NO_ANC_TREE} || true;\
     rm -r {TreesOrthologies} || true; rm {params.path}/Chr* || true;\
-    rm {params.path}/OrthoTableStrict* || true;\
-    rm {params.path}/OrthoTableFilter* || true;
+    rm {params.path}/HomologsStrict* || true;\
+    rm {params.path}/HomologsFilter* || true;
     rm {params.path}/UNCERTAIN* || true;
     rm {params.path}/orthologs* || true;
     rm {params.path}/paralogs* || true;
