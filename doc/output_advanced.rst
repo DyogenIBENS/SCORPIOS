@@ -81,7 +81,7 @@ This file gives the constrained tree topology for the gene family identified by 
 profileNJ and TreeBeST solutions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Synteny-aware trees built with `**ProfileNJ** <https://github.com/maclandrol/profileNJ>`_ and `**TreeBeST phyml** <https://github.com/Ensembl/treebest>`_, using the **constrained tree topology**, are stored in the :code:`Corrections/PolyS_0/` and :code:`Corrections/TreeB_0/` folders, respectively.
+Synteny-aware trees built with `ProfileNJ <https://github.com/maclandrol/profileNJ>`_ and `TreeBeST phyml <https://github.com/Ensembl/treebest>`_, using the **constrained tree topology**, are stored in the :code:`Corrections/PolyS_0/` and :code:`Corrections/TreeB_0/` folders, respectively.
 
 
 In the example, one profileNJ tree file is:
