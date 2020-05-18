@@ -11,11 +11,11 @@ Beyond description statistics printed to the standard output and final corrected
 
 Comprehensive list of orthologs
 --------------------------------
-The **orthology relationships** between genes of **duplicated species and outgroup** are stored in a single file, whose name starts with :code:`OrthoTable_`, and located inside the :code:`Families/` sub-folder. This table retains all gene copies since the ingroup/outgroup speciation node, as well as any other homologs with a loosely similar syntenic context.
+The **orthology relationships** between genes of **duplicated species and outgroup** are stored in a single file, whose name starts with :code:`Homologs_`, and located inside the :code:`Families/` sub-folder. This table retains all gene copies since the ingroup/outgroup speciation node, as well as any other homologs with a loosely similar syntenic context.
 
 In the example run, one such file is:
 
- :code:`SCORPiOs_example/Families/OrthoTable_Salmonidae_Esox.lucius_0`.
+ :code:`SCORPiOs_example/Families/Homologs_Salmonidae_Esox.lucius_0`.
 
 The three first columns of the file describe outgroup genes (chromosome, index of the gene on the chromosome, gene name). Other columns gives the predicted orthologous genes in duplicated species, with the same information.
 
@@ -81,7 +81,7 @@ This file gives the constrained tree topology for the gene family identified by 
 profileNJ and TreeBeST solutions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Synteny-aware trees built with `ProfileNJ <https://github.com/maclandrol/profileNJ>`_ from the PolytomySolver package and `TreeBeST phyml <https://github.com/Ensembl/treebest>`_, using the **constrained tree topology**, are stored in the :code:`Corrections/PolyS_0/` and :code:`Corrections/TreeB_0/` folders, respectively.
+Synteny-aware trees built with `ProfileNJ <https://github.com/maclandrol/profileNJ>`_ (an extension of the PolytomySolver package) and `TreeBeST phyml <https://github.com/Ensembl/treebest>`_, using the **constrained tree topology**, are stored in the :code:`Corrections/PolyS_0/` and :code:`Corrections/TreeB_0/` folders, respectively.
 
 
 In the example, one ProfileNJ tree file is:
