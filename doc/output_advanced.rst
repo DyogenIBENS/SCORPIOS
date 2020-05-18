@@ -81,24 +81,24 @@ This file gives the constrained tree topology for the gene family identified by 
 profileNJ and TreeBeST solutions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Synteny-aware trees built with `ProfileNJ <https://github.com/maclandrol/profileNJ>`_ and `TreeBeST phyml <https://github.com/Ensembl/treebest>`_, using the **constrained tree topology**, are stored in the :code:`Corrections/PolyS_0/` and :code:`Corrections/TreeB_0/` folders, respectively.
+Synteny-aware trees built with `ProfileNJ <https://github.com/maclandrol/profileNJ>`_ from the PolytomySolver package and `TreeBeST phyml <https://github.com/Ensembl/treebest>`_, using the **constrained tree topology**, are stored in the :code:`Corrections/PolyS_0/` and :code:`Corrections/TreeB_0/` folders, respectively.
 
 
-In the example, one profileNJ tree file is:
+In the example, one ProfileNJ tree file is:
 
  :code:`SCORPiOs_example/Corrections/PolyS_0/Clupeocephala/102697250_Lepisosteus.oculatus.nh`.
 
-Trees are in the newick format.
+Trees are in Newick format.
 
 ..  note::
 
-	SCORPiOs does not build a TreeBeST tree if the profileNJ solution is accepted. In this case, TreeBeST tree files will be empty.
+	SCORPiOs does not build a TreeBeST tree if the ProfileNJ solution is accepted. In this case, TreeBeST tree files will be empty.
 
-Likelihood au-tests
+Likelihood AU-tests
 ^^^^^^^^^^^^^^^^^^^^
-Output of the likelihood au-tests are stored in the :code:`Corrections/Res_polylk_0/` and :code:`Corrections/Res_treeBlk_0/` folders. These are direct outputs from the `CONSEL <https://github.com/shimo-lab/consel>`_ software.
+Output of the likelihood AU-tests are stored in the :code:`Corrections/Res_polylk_0/` and :code:`Corrections/Res_treeBlk_0/` folders. These are direct outputs from the `CONSEL <https://github.com/shimo-lab/consel>`_ software.
 
-In the example, the following file gives **au-test likelihood tests** results for the **original subtree** vs the corresponding synteny-aware tree resolved with **profileNJ**:
+In the example, the following file gives **AU-test likelihood tests** results for the **original subtree** vs the corresponding synteny-aware tree resolved with **profileNJ**:
 
  :code:`SCORPiOs_example/Corrections/Res_polylk_0/Clupeocephala/Res_102697250_Lepisosteus.oculatus.txt`
 
@@ -106,7 +106,7 @@ Similarly, files in the :code:`SCORPiOs_example/Corrections/Res_polylk_0/Clupeoc
 
 ..  note::
 
-	Au-test result files for TreeBeST solutions will be empty if the profileNJ solution was accepted.
+	AU-test result files for TreeBeST solutions will be empty if the profileNJ solution was accepted.
 
 
 
