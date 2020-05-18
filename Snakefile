@@ -122,8 +122,8 @@ rule Target:
     input: "SCORPiOs_"+config['jobname']+"/.cleanup_"+str(ITER)
 
 #include the 5 modules
-include: "module_build_trees.snake"
-include: "module_orthology_table.snake"
-include: "module_synteny_ortho_para.snake"
-include: "module_graphs_orthogroups.snake"
-include: "module_correct_trees.snake"
+include: "module_build_trees.smk"
+include: "module_orthology_table.smk"
+include: "module_synteny_ortho_para.smk"
+include: "module_graphs_orthogroups.smk"
+include: "module_correct_trees.smk"
