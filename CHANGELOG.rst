@@ -1,22 +1,41 @@
+All notable changes to SCORPiOs, added after the first released version v1.0.0, will be documented here.
 
-# Change Log
+[Version 1.3.0] - UNRELEASED - LINK
+-------------------------------------------
 
-All notable changes to SCORPiOs workflow, added after the first released version v1.0.0, will be documented in this file.
+Replaced PhyML by RAxML for improved computational efficiency on large datasets.
 
-## [1.1.0] - UNRELEASED
+Changed
+^^^^^^^
+- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests)
+- Improved conda environnment definition: new specific conda environments for groups of rules and simplification of the master scorpios env.
+- Simplified iterative correction: the wrapper script now parses the YAML configuration file, see new usage instructions.
+- New option to tag corrected WGD nodes instead of leaves in the final output file.
 
-Workflow update to improve computational efficiency and scalability to large datasets. More efficient tools and algorithms have been selected for the most expensive tasks. Changes concerns mainly the implementation of the steps and do not significantly affect the results.
+[Version 1.2.0] - UNRELEASED - LINK
+-------------------------------------------
  
-### Added
-- Option to perform community detection with **spectral clustering** instead of Girvan-Newman, for improved computational effciency on large datasets.
+Workflow updates to improve computational efficiency and scalability to large datasets.
+ 
+Added
+^^^^^
+- Option to perform community detection with spectral clustering instead of Girvan-Newman, for improved computational effciency on large datasets. (See the :ref:`documentation<Spectral clustering>` for usage instructions.)
 
-    See [config_example.yaml](config_example.yaml) for usage instructions.
+Changed
+^^^^^^^
+- treebest distmat now replaces fastdist to build input distance matrix for profileNJ
 
-### Changed
-- **treebest distmat** now replaces fastdist to build input distance matrix for profileNJ
-- **raxml** now replaces phyml to compute site likelihood (CONSEL input for likelihood AU-tests)
-- improved conda environnment definition: new specific conda environments for groups of rules and simplification of the master scorpios env.
+Version 1.1.0 - 19/05/2020 - `v1.1.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.1.0>`_
+-------------------------------------
 
-### Fixed
-- Fixed elevated memory usage in the subtree regrafting step
-- Various python code speed-ups
+Developped a new visualization tool to inspect tree corrections.
+
+Added
+^^^^^
+- New tool to generate .png images for corrected trees.
+- New html documentation.
+
+Fixed
+^^^^^
+- Fixed high memory usage in subtrees reinsertion step.
+- Minor python code speed-ups.
