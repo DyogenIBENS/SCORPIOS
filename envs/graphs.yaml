@@ -1,0 +1,11 @@
+name: graphs
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - networkx=2.3
+  - numpy=1.18.1
+  - python=3.6.8
+  - scikit-learn=0.22.1
+  - six=1.12.0

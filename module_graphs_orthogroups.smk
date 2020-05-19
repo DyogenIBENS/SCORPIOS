@@ -18,6 +18,7 @@ rule cut_orthology_graphs:
     threads: config["ncores"]
     params: Summary = Summary.replace("{{outgr}}", "{{wildcards.outgr}}")\
                                      .replace("{{wgd}}","{{wildcards.wgd}}")
+    conda: "envs/graphs.yaml"
     shell:"""
     python -m scripts.graphs.orthogroups -i {input} -o {output.a} -n {threads} -s {params.Summary}\
     -ignSg {config[ignoreSingleGeneCom]} -wgd {wildcards.wgd},{wildcards.outgr} {SPECTRAL}
