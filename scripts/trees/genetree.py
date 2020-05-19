@@ -453,8 +453,8 @@ def copy_nhx_tags(tree_ref_tags, tree_target):
 
     d_tags = {}
     for leaf in tree_ref_tags.get_leaves():
-        attr = {i:d[i] for i in vars(leaf) if i not in ["dist", "name", "support", "features"]\
-                                              and i[0] != '_'}
+        attr = {i:getattr(leaf, i) for i in vars(leaf) if i not in\
+                                   ["dist", "name", "support", "features"] and i[0] != '_'}
         d_tags[leaf.name] = attr
 
     for leaf in tree_target.get_leaves():
@@ -462,8 +462,6 @@ def copy_nhx_tags(tree_ref_tags, tree_target):
             for tag in d_tags[leaf.name]:
                 value = d_tags[leaf.name][tag]
                 setattr(leaf, tag, value)
-
-    return
 
 
 

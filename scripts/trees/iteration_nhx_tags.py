@@ -90,7 +90,6 @@ if __name__ == '__main__':
             for tree in ut.read_multiple_objects(f):
 
                 if k%1000 == 0 and k > 0:
-
                     sys.stderr.write(f"Browsed {k} trees\n")
 
                 k += 1
@@ -121,8 +120,6 @@ if __name__ == '__main__':
                             for tag, value in CORRECTIONS[i.name]:
                                 wgd = tag.split("_")[-2]
                                 if wgd not in seen:
-
-
                                     setattr(i, tag, value)
                                     seen.append(wgd)
 
@@ -146,7 +143,6 @@ if __name__ == '__main__':
                             wgds_dict[wgd] = DUP_SPECIES
 
                         t = Tree(t.write(format=1, features=all_features, format_root_node=True))
-
                         for wgd in wgds_dict:
 
                             leaves = t.get_leaves()
