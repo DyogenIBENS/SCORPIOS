@@ -402,7 +402,7 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, spt
     if alis.split('.')[-1] == 'gz':
         open_f = gzip.open
 
-        async_res = []
+    async_res = []
     pool = multiprocessing.Pool(ncores, maxtasksperchild=20)
 
     if brlengths:
