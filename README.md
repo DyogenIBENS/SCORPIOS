@@ -8,7 +8,7 @@ For more information, you can take a look at our [preprint](https://www.biorxiv.
 
  SCORPiOs is implemented as a [Snakemake](https://snakemake.readthedocs.io/en/stable/) pipeline. SCORPiOs takes as input either gene trees or multiple alignments, and outputs the corresponding optimized gene trees.
 
- **To learn how to use SCORPiOs, please take a look at [SCORPiOs documentation](https://scorpios.readthedocs.io/en/latest/)!**
+ **To learn how to use SCORPiOs, take a look at [SCORPiOs documentation](https://scorpios.readthedocs.io/en/latest/)!**
 
  ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/scorpios_illustrated.png)
 
