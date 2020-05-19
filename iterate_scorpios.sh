@@ -14,6 +14,7 @@
 max_iter=5
 min_corr=5
 iteration=1
+# snake_args="--configfile config_v89.yaml --cores 35"
 
 ### Command-line argument parsing ###
 while [ $# -gt 0 ]; do
@@ -120,13 +121,13 @@ done
 rm .tmp_corrected_prev_iter_${job_name}
 
 #If output exists (i.e no raised errors above) write .nhx correction tags and exit
-if [ -f "SCORPiOs_${job_name}/SCORPiOs_corrected_forest_${j}.nhx" ]; then
+if [ -f "SCORPiOs_${job_name}/SCORPiOs_output_${j}.nhx" ]; then
 
   echo "Termination after $j correction iterations ">&2
   echo "Browsing the corrected forests of each iteration to write final .nhx correction tags ">&2
 
-  input="SCORPiOs_${job_name}/SCORPiOs_corrected_forest_%d.nhx"
-  output="SCORPiOs_${job_name}/SCORPiOs_corrected_forest_${j}_with_tags.nhx"
+  input="SCORPiOs_${job_name}/SCORPiOs_output_%d.nhx"
+  output="SCORPiOs_${job_name}/SCORPiOs_output_${j}_with_tags.nhx"
 
   python -m scripts.trees.iteration_nhx_tags -o $output -i $j -c $input
 fi
