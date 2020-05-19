@@ -84,6 +84,9 @@ As an example, we provide `config_example.yaml <https://github.com/DyogenIBENS/S
 	# - AU-tests outputs
 	save_subtrees_lktest: 'n'
 
+	# Optionally, use spectral clustering instead of Girvan-Newman for graph community detection.
+	spectral: 'n'
+
 	# Iterative-correction related option, automatically updated by the wrapper iterate_scorpios.sh
 	## DO NOT MODIFY MANUALLY even if using iterative mode.##
 	current_iter: 0
@@ -314,6 +317,16 @@ Example:
 .. code:: yaml
 
 	save_subtrees_lktest: 'n'
+
+Spectral clustering
+"""""""""""""""""""""
+**Optional (default='n').** Use spectral clustering instead of Girvan-Newman for graph community detection. On large graphs, spectral clustering is computationally more efficient. Consider using it if your dataset contains many duplicated species.
+
+Example:
+
+.. code:: yaml
+
+	sapectral: 'y'
 
 Iterative-correction related option
 """""""""""""""""""""""""""""""""""
