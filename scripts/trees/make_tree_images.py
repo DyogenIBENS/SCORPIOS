@@ -87,6 +87,7 @@ def identify_outgroup_vs_wgd_subtree(subtrees, outgroups, tree):
     Returns:
         ete3.TreeNode: the node corresponding to wgd corrected subtree
     """
+    subtree_outgr = None
     for subtree in subtrees:
         leaves = subtree.get_leaves()
         if len(leaves) == 1:
@@ -94,7 +95,7 @@ def identify_outgroup_vs_wgd_subtree(subtrees, outgroups, tree):
             if leaf.S in outgroups:
                 subtree_outgr = subtree
                 break
-
+    assert subtree_outgr, "Error couldn't identify outgroup subtree"
     corrected_subtrees = {i for i in subtrees if i != subtree_outgr}
     if len(corrected_subtrees) == 1:
         corrected_subtree, = corrected_subtrees
