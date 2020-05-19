@@ -76,7 +76,7 @@ if [ -z "$snake_args" ]; then
 fi
 
 #extract config related args from snakemake args, to invoke the --config option correctly below
-snake_config_args=${snake_args#*--configfile }
+snake_config_args=${snake_args#*--config }
 if [ "$snake_config_args" == "$snake_args" ]; then
 
   snake_config_args="--config "
@@ -120,13 +120,13 @@ done
 rm .tmp_corrected_prev_iter_${job_name}
 
 #If output exists (i.e no raised errors above) write .nhx correction tags and exit
-if [ -f "SCORPiOs_${job_name}/SCORPiOs_corrected_forest_${j}.nhx" ]; then
+if [ -f "SCORPiOs_${job_name}/SCORPiOs_output_${j}.nhx" ]; then
 
   echo "Termination after $j correction iterations ">&2
   echo "Browsing the corrected forests of each iteration to write final .nhx correction tags ">&2
 
-  input="SCORPiOs_${job_name}/SCORPiOs_corrected_forest_%d.nhx"
-  output="SCORPiOs_${job_name}/SCORPiOs_corrected_forest_${j}_with_tags.nhx"
+  input="SCORPiOs_${job_name}/SCORPiOs_output_%d.nhx"
+  output="SCORPiOs_${job_name}/SCORPiOs_output_${j}_with_tags.nhx"
   # configfile=${snake_args#*--configfile }
   # configfile=${configfile/=}
   # configfile=${configfile%% *}

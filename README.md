@@ -1,15 +1,20 @@
 # SCORPiOs - Synteny-guided CORrection of Paralogies and Orthologies
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Snakemake](https://img.shields.io/badge/snakemake-≥5.5.4-brightgreen.svg)](https://snakemake.bitbucket.io)
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3727519.svg)](https://doi.org/10.5281/zenodo.3727519) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Snakemake](https://img.shields.io/badge/snakemake-≥5.5.4-brightgreen.svg)](https://snakemake.bitbucket.io) [![Documentation Status](https://readthedocs.org/projects/scorpios/badge/?version=latest)](https://scorpios.readthedocs.io/en/latest/?badge=latest)
 
  SCORPiOs is a **synteny-guided gene tree correction pipeline** for clades that have undergone a whole-genome duplication event. SCORPiOs identifies gene trees where the whole-genome duplication is **missing** or **incorrectly placed**, based on the genomic locations of the duplicated genes across the different species. SCORPiOs then builds an **optimized gene tree** consistent with the known WGD event, the species tree, local synteny context, as well as gene sequence evolution.
 
+For more information, you can take a look at our [preprint](https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full) on biorxiv.
+
  SCORPiOs is implemented as a [Snakemake](https://snakemake.readthedocs.io/en/stable/) pipeline. SCORPiOs takes as input either gene trees or multiple alignments, and outputs the corresponding optimized gene trees.
 
- For a complete description of SCORPiOs, see our preprint: https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full
+ **To learn how to use SCORPiOs, take a look at [SCORPiOs documentation](https://scorpios.readthedocs.io/en/latest/)!**
 
- ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/scorpios_illustrated.png)
+ ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/scorpios_illustrated.png)
+
+# Quick start
+
+**Below is a quick start guide to using SCORPiOs, we recommend reading [SCORPiOs documentation](https://scorpios.readthedocs.io/en/latest/) for detailed instructions.**
 
 ## Table of content
   - [Installation](#installation)
@@ -21,13 +26,8 @@
       - [Example 1: Simple SCORPiOs run](#example-1-simple-scorpios-run)
       - [Example 2: Iterative SCORPiOs run](#example-2-iterative-scorpios-run)
     - [Running SCORPiOS on your data](#running-scorpios-on-your-data)
-      - [Data preparation and formatting](#data-preparation-and-formatting)
       - [Preparing your configuration file](#preparing-your-configuration-file)
       - [Running SCORPiOs](#running-scorpios)
-    - [Understanding SCORPiOs outputs](#understanding-scorpios-outputs)
-      - [Basic](#basic)
-      - [Advanced](#advanced)
-    - [Complex configurations](#complex-configurations)
   - [Authors](#authors)
   - [License](#license)
   - [References](#references)
@@ -73,7 +73,7 @@ Before using SCORPiOs on your data, we recommend running a test with our example
 
 #### Example 1: Simple SCORPiOs run
 
-Inputs and parameters to execute SCORPiOs have to be specified in a YAML configuration file.
+SCORPiOs uses a YAML configuration file to specify inputs and parameters for each run.
 An example configuration file is provided: [config_example.yaml](config_example.yaml). This configuration file executes SCORPiOs on toy example data located in [data/example/](data/example/), that you can use as reference for input formats.
 
 The only required snakemake arguments to run SCORPiOs are `--configfile` and the `--use-conda` flag. Optionally, you can specify the number of threads via the `--cores` option. For more advanced options, you can look at the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/).
@@ -85,13 +85,11 @@ snakemake --configfile config_example.yaml --use-conda --cores 4
 ```
 
 The following output should be generated:
-`SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx`.
-
-We explain how to interpret outputs below ([Understanding SCORPiOs outputs](#understanding-scorpios-outputs)).
+`SCORPiOs_example/SCORPiOs_output_0.nhx`.
 
 #### Example 2: Iterative SCORPiOs run
 
-SCORPiOs can run in iterative mode, meaning that SCORPiOs improves gene trees a first time, and then uses the corrected set of gene trees again as input for a new correction run. Correcting gene trees improves orthologies accuracy, which in turn makes synteny conservation patterns more informative, allowing to better integrate it into the gene tree reconstruction. Usually, a small number of iterations (2-3) suffice to reach convergence.
+SCORPiOs can run in iterative mode: SCORPiOs improves the gene trees a first time, and then uses the corrected set of gene trees again as input for a new correction run, until convergence. Correcting gene trees improves orthologies accuracy, which in turn makes synteny conservation patterns more informative, improving the gene tree reconstructions after successive runs. Usually, a small number of iterations (2-3) suffice to reach convergence.
 
 To run SCORPiOs in iterative mode on example data, execute the wrapper bash script `iterate_scorpios.sh`:
 
@@ -111,27 +109,12 @@ Optional
 --min_corr=MINCORR, minimum number of corrected sub-trees to continue to the next iteration, default=1.
 --starting_iter=ITER, starting iteration, to resume a run at a given iteration, default=1.
 ```
-The following output should be generated: `SCORPiOs_example/SCORPiOs_corrected_forest_2_with_tags.nhx`.
+The following output should be generated: `SCORPiOs_example/SCORPiOs_output_2_with_tags.nhx`.
 
 ### Running SCORPiOs on your data
 
-#### Data preparation and formatting
-SCORPiOs is a flexible gene tree correction pipeline: it can either start from a set of precomputed, phylogeny-reconciled gene trees, or build one from a set of gene multiple aligments using [TreeBeST](https://github.com/Ensembl/treebest). Because SCORPiOs leverages local synteny similarity, i.e evolution of neighboring genes, it requires genome-wide data.
-
-SCORPiOs input files are:
-- A single file with a set of phylogeny-reconciled gene trees in NHX format (extended Newick format, see [example](data/example/forest.nhx)) **OR** a genes-to-species mapping file, if working from gene alignments (see [example](data/example/genes_sp_mapping.txt))
-- A single file with the corresponding gene multiple alignments in FASTA format (can be compressed with gzip) (see [example](data/example/ali.fa.gz))
-- Gene coordinates files for each species in BED format (see [example](data/example/genes/genes.Danio.rerio.bed))
-- A species tree in Newick format, with names of ancestral species indicated at internal nodes (see [example](data/example/species_tree.nwk)).
-
-If starting from gene trees, SCORPiOS uses the NHX 'S' (species name) tag to build the gene-species mapping. Otherwise, it uses the gene-to-species mapping file.
-
-Detailed information on input files, formats and all parameters can be found in [config_example.yaml](config_example.yaml).
-
-If you do not have gene alignments available for your study species, we recommend [this paper](https://academic.oup.com/gigascience/article/7/3/giy005/4841850). The authors explain how Ensembl Compara groups genes in families and subsequently build multiple alignments (and gene trees). In addition, they developped a Galaxy workflow, [GeneSeqToFamily](https://github.com/TGAC/earlham-galaxytools/tree/master/workflows/GeneSeqToFamily), to interactively run each step of the pipeline.
-
 #### Preparing your configuration file
-Once your data is formatted correctly, you have to create a new configuration file for your SCORPiOs run, using the provided example:
+To run SCORPiOs on your data, you have to create a new configuration file for your SCORPiOs run. You will need to format your input data adequately and write your configuration file, using the provided example [config_example.yaml](config_example.yaml) as a guide.
 
 - Copy the example config file `cp config_example.yaml config.yaml`
 - Open and edit `config.yaml` to specify paths, files and parameters for your data
@@ -148,69 +131,11 @@ Finally, you can run SCORPiOs as described above:
 snakemake --configfile config.yaml --use-conda
 ```
 
-or in iterative mode, assuming the jobname is set to 'myjobname' in the new config file:
+or in iterative mode, assuming the jobname is set to 'jobname' in the new config file:
 
 ```
-bash iterate_scorpios.sh --j=myjobname --snake_args="--configfile config.yaml"
+bash iterate_scorpios.sh --j=jobname --snake_args="--configfile config.yaml"
 ```
-
-### Understanding SCORPiOs outputs
-
-#### Basic
-
-All outputs from SCORPiOs are stored in a folder named SCORPiOs_jobname (jobname as specified in the configuration file).
-
-The main output is the **SCORPiOs-optimized gene trees**. Gene trees are provided as a single file in NHX format. SCORPiOs tags corrected nodes in the gene trees to allow easy inspection using tree visualisation softwares. We recommend the [ETE Toolkit](http://etetoolkit.org/) or [ggtree](https://guangchuangyu.github.io/software/ggtree/) for tree visualisation.
-
-The commands above generate:
-- `SCORPiOs_example/SCORPiOs_corrected_forest_0.nhx` for the simple run
-- `SCORPiOs_example/SCORPiOs_corrected_forest_2_with_tags.nhx` for the iterative run.
-
-Outputs are suffixed with a digit representing the iteration number. This number is set to 0 in simple mode and starts at 1 in iterative mode.
-
-Some intermediary outputs are also stored in different sub-folders (see below for a detailed description). In addition, SCORPiOs writes statistics on key steps of the workflow to the standard output. Thus, to separate output statistics from snakemake logs, you can run:
-
-```
-snakemake --configfile config_example.yaml --use-conda >out 2>err
-```
-
-or
-
-```
-bash iterate_scorpios.sh --j=example --snake_args="--configfile config_example.yaml" >out 2>err
-```
-
-#### Advanced
-
-Beyond description statistics printed to the standard output, you may want to investigate the detailed results of SCORPiOs for one or several given gene families. This section introduces a few key concepts of SCORPiOs, in order to better understand intermediary outputs.
-
-A gene family in SCORPiOs consists of a non-duplicated outgroup gene and all potential orthologous gene copies in WGD-duplicated species, based on the uncorrected gene trees. For each family, SCORPiOs computes a synteny-derived orthology graph, then a constrained tree topology based on synteny, and finally, if necessary, a synteny-aware corrected tree. Through each of these steps, a gene family is identified by the outgroup gene name.
-
-The orthology relationships between genes are stored in a single file in the `Families/` sub-folder. Raw synteny-predicted orthologies are stored in a single file in `Synteny/`. Predicted orthology groups based on community detection in synteny graphs are stored in a single file in `Graphs/`, along with a summary of the community detection step. Finally, `Corrections/` stores two files, one detailing trees vs synteny consistency and another with the list of successfully corrected trees.
-
-Several tags such as the name of the corrected WGD, the outgroup species and SCORPiOs iteration number are added to each output file, in order to precisely identify outputs in case of complex configurations (see below).
-
-Additional files can be saved if specified in the configuration file, see [config_example.yaml](config_example.yaml) for details.
-
-### Complex configurations
-
-SCORPiOs can correct gene trees that contain more than one whole-genome duplication event. In this case, each WGD is treated independently, starting from the more recent one (closer to the leaves) going up towards the more ancient one (closer to the root). If the WGDs are nested, the subtrees from the more recent events are ignored while correcting for the older WGD event(s), and reinserted after correction using their outgroup as a branching point.
-
-WGD(s) have to be specified in the configuration file, using the `WGDs` keyword. The position of each WGD in the species tree is to be indicated by giving the name of the corresponding duplicated ancestor.
-
-SCORPiOs can also use more than one reference outgroup to correct gene trees. Outgroup(s), separated by commas if more than one, are to be indicated for each WGDs.
-
-For instance, in the example [config_example.yaml](config_example.yaml), WGDs to correct are specified by:
-
-```
-WGDs:
-  Clupeocephala: 'Lepisosteus.oculatus,Amia.calva'
-  Salmonidae: 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes'
-```
-
-This specifies that gene trees have to be corrected for the teleost WGD (species below the Clupeocephala ancestor in the species tree) and for the salmonids WGD (species below the Salmonidae ancestor in the species tree). Lepisosteus.oculatus and Amia.calva should be used as outgroups to the teleost WGD and Esox.lucius, Gasterosteus.aculeatus and Oryzias.latipes as outgroups to the salmonids WGD.
-
-Again, we refer to [config_example.yaml](config_example.yaml) for details.
 
 ## Authors
 * [**Elise Parey**](mailto:elise.parey@bio.ens.psl.eu)
@@ -229,14 +154,8 @@ SCORPiOs uses the following tools to build and test gene trees:
 
 - [ProfileNJ](https://github.com/maclandrol/profileNJ): Noutahi et al. (2016) Efficient Gene Tree Correction Guided by Genome Evolution. PLOS ONE, 11, e0159559.
 
-- [RAxML](http://sco.h-its.org/exelixis/web/software/raxml/index.html) Stamatakis (2014) RAxML Version 8: A tool for Phylogenetic Analysis and Post-Analysis of Large Phylogenies. Bioinformatics, 30, 1312–1313.
-
 - [PhyML](http://www.atgc-montpellier.fr/phyml/): Guindon et al. (2010) New Algorithms and Methods to Estimate Maximum-Likelihood Phylogenies: Assessing the Performance of PhyML 3.0. Syst Biol, 59, 307–321.
 
 - [TreeBeST](https://github.com/Ensembl/treebest): Vilella et al. (2009) EnsemblCompara GeneTrees: Complete, duplication-aware phylogenetic trees in vertebrates. Genome Res., 19, 327–335.
 
 - [CONSEL](https://github.com/shimo-lab/consel): Shimodaira and Hasegawa (2001) CONSEL: for assessing the confidence of phylogenetic tree selection. Bioinformatics, 17, 1246–1247.
-
-For a tutorial on how to assemble an input dataset for SCORPiOs:
-
-- [GeneSeqToFamily](https://github.com/TGAC/earlham-galaxytools/tree/master/workflows/GeneSeqToFamily): Thanki et al. (2018) GeneSeqToFamily: a Galaxy workflow to find gene families based on the Ensembl Compara GeneTrees pipeline. GigaScience 7.

@@ -71,6 +71,7 @@ def one_file_consel(filename, alpha, item_test='1'):
                         obs = res[3]
 
             if tmp and obs != 'inf' and len(tmp) > 1:
+
                 if tmp[0][0] == item_test:
 
                     au_result = 'equivalent higher lk'
