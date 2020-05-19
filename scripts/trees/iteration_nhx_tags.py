@@ -27,7 +27,7 @@ def corr_tag_below_node(node, tags_corr):
         tags_corr (list of str): list of tags to search for
 
     Returns:
-        (bool): True if at least of the input `tags_corr` is in leaves below `node`
+        (bool): True if at least one of the input `tags_corr` is in leaves below `node`
     """
 
     has_tag = False
