@@ -41,10 +41,10 @@ def one_file_consel(filename, alpha, item_test='1'):
           could not be built with ProfileNJ due to fastdist failing to build the distance matrix.
 
         - CONSEL failed to compute the log-likelihoods from the phyml site likelihood file, because
-          one or several sites have likelihood 0. This never happened in any of my WGD datasets, I
-          only observed it with more distant species and genes. Thus, I did not include a cleaning
-          step for the phyml site likelihood file, nor the alignment. If the problem arises in the
-          future (check logs), we might need to consider it.
+          one or several sites have likelihood 0 (usually bad alignment). This never happened in any
+          of my WGD datasets, I only observed it with more distant species and genes. Thus, I did
+          not include a cleaning step for the phyml site likelihood file, nor the alignment. If the
+          problem arises in the future (check logs), we might need to consider it.
     """
 
     #if consel failed (probably because tree building failed) we return the 'error' value.
@@ -70,7 +70,7 @@ def one_file_consel(filename, alpha, item_test='1'):
                         tmp.append((item, au_value))
                         obs = res[3]
 
-            if tmp and obs != 'inf': #safeguard against a rare bug when making au-test
+            if tmp and obs != 'inf' and len(tmp) > 1:
 
                 if tmp[0][0] == item_test:
 
@@ -90,7 +90,7 @@ def one_file_consel(filename, alpha, item_test='1'):
 
             elif tmp:
 
-                sys.stderr.write("Error in {}, CONSEL failed to compute log-lk".format(filename))
+                sys.stderr.write(f"Warning: for {filename}, CONSEL failed to compute log-lk")
 
     return au_result
 
@@ -107,8 +107,8 @@ def count(filenames, name_sol="", alpha=0.05, item='1', parse_name=True, wgd='')
         Args:
             filenames (list of str): List of consel result files.
             name_sol (str, optional): Tag for tested trees that will be printed with the results.
-                                       For instance, it can be the program used to build tested
-                                       trees.
+                                      For instance, it can be the program used to build tested
+                                      trees.
             alpha (float): alpha threshold for significance of the AU-test.
             item (str, optional): tested tree consel label, the other is considered the reference.
             parse_name (bool, optional): parse filename (expects SCORPiOs naming pattern)
