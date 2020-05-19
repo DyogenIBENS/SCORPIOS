@@ -1,6 +1,7 @@
 import os
 import glob
 import itertools
+import sys
 from scripts.trees import speciestree as spt
 from scripts.synteny import filter_regions
 
@@ -29,13 +30,17 @@ ITER = config['current_iter']
 
 if "trees" in config and os.path.isfile(config["trees"]):
     input_trees = config["trees"]
+elif "trees" in config and not os.path.isfile(config["trees"]):
+    trees_err = config["trees"]
+    sys.stderr.write(f"Error: {trees_err} trees file does not exist.\n")
+    sys.exit(1)
 else:
     input_trees = out_name("input_forest", JNAME, ITER)+'.nhx'
 
-OrthoTableStrict = out_name("Families/OrthoTableStrict", JNAME, ITER, True, True)
+OrthoTableStrict = out_name("Families/HomologsStrict", JNAME, ITER, True, True)
 Chr =  out_name("Families/Chr", JNAME, ITER, True, True)
-OrthoTable = out_name("Families/OrthoTable", JNAME, ITER, True, True)
-OrthoTableF = out_name("Families/OrthoTableFilter", JNAME, ITER, True, True)
+OrthoTable = out_name("Families/Homologs", JNAME, ITER, True, True)
+OrthoTableF = out_name("Families/HomologsFilter", JNAME, ITER, True, True)
 TreesOrthologies = out_name("TreesOrthologies", JNAME, ITER)
 SyntenyOrthoPred = out_name("SyntenyOrthoPred", JNAME, ITER, True, True)
 Sorted_SyntenyOrthoPred = out_name("Synteny/Sorted_SyntenyOrthoPred", JNAME, ITER, True, True)
@@ -51,10 +56,10 @@ CTREES = out_name("Trees/ctrees", JNAME, ITER)
 Pairwise_SyntenyOrthoPred = out_name("Pairwise_SyntenyOrthoPred", JNAME, ITER)
 PolyS = out_name("Corrections/PolyS", JNAME, ITER)
 OutPolylk = out_name("Corrections/Res_polylk", JNAME, ITER)
-outTrees = out_name("SCORPiOs_corrected_forest", JNAME, ITER)+'.nhx'
-treeB= out_name("Corrections/TreeB", JNAME, ITER)
-OuttreeBlk=out_name("Corrections/Res_treeBlk", JNAME, ITER)
-outTmpTrees=out_name("Corrections/tmp_whole_trees", JNAME, ITER)
+outTrees = out_name("SCORPiOs_output", JNAME, ITER)+'.nhx'
+treeB = out_name("Corrections/TreeB", JNAME, ITER)
+OuttreeBlk = out_name("Corrections/Res_treeBlk", JNAME, ITER)
+outTmpTrees = out_name("Corrections/tmp_whole_trees", JNAME, ITER)
 UNCERTAIN = out_name("Families/UNCERTAIN", JNAME, ITER, True, True)
 regions = out_name("Families/tmp_iter_updated_regions", JNAME, ITER, True, True)
 NO_ANC_TREE = out_name("sptree_no_anc", JNAME, ITER)+'.nwk'
@@ -71,24 +76,27 @@ Acc_prev = ''
 incombin = ''
 if int(ITER) > 1:
     Acc_prev = out_name("Corrections/Accepted_Trees", JNAME, int(ITER)-1, True, False)
-    OrthoTable_prev = out_name("Families/OrthoTable", JNAME, int(ITER)-1, True, True)
-    input_trees = out_name("SCORPiOs_corrected_forest", JNAME, int(ITER)-1)+'.nhx'
+    OrthoTable_prev = out_name("Families/Homologs", JNAME, int(ITER)-1, True, True)
+    input_trees = out_name("SCORPiOs_output", JNAME, int(ITER)-1)+'.nhx'
     args_autho = '-filter '+regions
     incombin = out_name("Graphs/outcombin", JNAME, int(ITER)-1, True)
 
 
-arg_brlength = '-br '+str(config['brlength'])
+arg_brlength = '-br '+str(config.get('brlength', 'y'))
 #if in iterative mode we force re-computation of branch-lengths
 # if int(ITER) > 0:
 #     arg_brlength = '-br y'
 
 ## Set parameters from config
-if "genes_sp_mapping" not in config:
-    config["genes_sp_mapping"] = ""
+config["genes_sp_mapping"] = config.get("genes_sp_mapping", "")
+config["windowSize"] = config.get("windowSize", 15)
+config["cutoff"] = config.get("cutoff", 0)
+config["ignoreSingleGeneCom"] = config.get("ignoreSingleGeneCom", 'y')
+config["save_subtrees_lktest"] = config.get("save_subtrees_lktest", 'n')
+config["save_tmp_trees"] = config.get("save_tmp_trees", "n")
 
 # Set genes file format if dyogen format is specified (otherwise bed is assumed)
-if "genes_format" not in config:
-    config["genes_format"] = "bed"
+config["genes_format"] = config.get("genes_format", "bed")
 
 #all WGDs in trees
 anc_other = ''
@@ -105,8 +113,7 @@ if "lowcov_sp" in config:
 wildcard_constraints:
     pairwise="[A-Za-z.0-9]+_[A-Za-z.0-9]+" #no underscore in sp names, as also required in ensembl
 
-if "filter_otable_nosynteny" not in config:
-    config["filter_otable_nosynteny"] = 'n'
+config["filter_otable_nosynteny"] = config.get("filter_otable_nosynteny", 'n')
 
 ### WORKFLOW
 
@@ -115,8 +122,8 @@ rule Target:
     input: "SCORPiOs_"+config['jobname']+"/.cleanup_"+str(ITER)
 
 #include the 5 modules
-include: "module_build_trees.snake"
-include: "module_orthology_table.snake"
-include: "module_synteny_ortho_para.snake"
-include: "module_graphs_orthogroups.snake"
-include: "module_correct_trees.snake"
+include: "module_build_trees.smk"
+include: "module_orthology_table.smk"
+include: "module_synteny_ortho_para.smk"
+include: "module_graphs_orthogroups.smk"
+include: "module_correct_trees.smk"
