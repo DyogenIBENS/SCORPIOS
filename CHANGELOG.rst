@@ -7,10 +7,10 @@ Replaced PhyML by RAxML for improved computational efficiency on large datasets.
 
 Changed
 ^^^^^^^
-- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests)
-- Improved conda environnment definition: new specific conda environments for groups of rules and simplification of the master scorpios env.
+- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests) *and TODO branch-length computation*
+- Improved conda environnment definition: new specific conda environments for groups of rules, simplification of the master scorpios env *and TODO installation with mamba because conda is slow* :code:`conda install -c conda-forge mamba` :code:`mamba create -n test snakemake=5.18 ete3 -c bioconda -c conda-forge`
 - Simplified iterative correction: the wrapper script now parses the YAML configuration file, see new usage instructions.
-- New option to tag corrected WGD nodes instead of leaves in the final output file.
+- New option to tag corrected WGD nodes instead of leaves in the final output file (or both).
 
 [Version 1.2.0] - UNRELEASED - LINK
 -------------------------------------------
