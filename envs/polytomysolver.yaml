@@ -13,5 +13,5 @@ dependencies:
   - pip:
     - profileNJ
 
-    #profileNJ triggers the download of the latest numpy version, this forces a working version
+    #profileNJ triggers the download of the latest numpy version, this forces a compatible version
     - numpy==1.10.4

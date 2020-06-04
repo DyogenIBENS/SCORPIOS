@@ -40,11 +40,11 @@ Installing SCORPiOs
 
 	cd SCORPIOS
 
-* Create the main conda environment (solving dependencies may take a while, ~ up to an hour):
+* Create the main conda environment. We recommend using `Mamba <https://quantstack.net/mamba.html>`_ for a faster installation:
 
 .. prompt:: bash
-
-	conda env create -f envs/scorpios.yaml
+	conda install -c conda-forge mamba
+	mamba env create -f envs/scorpios.yaml
 
 
 .. note:: Once the conda environnment is successfully created, the installation process is complete. You can proceed to the next section and test your installation on example data. Before running SCORPiOs, remember to activate the conda environment with :code:`conda activate scorpios`.
