@@ -54,7 +54,13 @@ git clone https://github.com/DyogenIBENS/SCORPIOS.git
 cd SCORPIOS
 ```
 
-- Create the main conda environment (solving dependencies may take a while, ~ up to an hour)
+- Create the main conda environment. We recommend using [Mamba](https://quantstack.net/mamba.html) for a faster installation:
+```
+conda install -c conda-forge mamba
+mamba env create -f envs/scorpios.yaml
+```
+
+- **Alternatively,** you can use conda directly (solving dependencies may take a while, ~ up to an hour):
 ```
 conda env create -f envs/scorpios.yaml
 ```
