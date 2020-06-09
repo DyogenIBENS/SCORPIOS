@@ -291,9 +291,10 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
                 lca.prune(keep)
                 leavesnames_in_fam = set(keep)
 
-                if len(leavesnames_in_fam) <= 2:
-
-                    continue
+            if len(leavesnames_in_fam) <= 2:
+                sfile.write(outgr_leaf[1]+"\t"+"Too few genes"+'\n')
+                stats['Too few genes'] = stats.get('Too few genes', 0) + 1
+                continue
 
             comparison = ctree.compare(lca)
 
@@ -350,6 +351,7 @@ def print_out_stats(stats_dict, wgd=''):
         multi = stats_dict.get('Inconsistent_multigenic', 0)
         cons = stats_dict.get('Consistent', 0)
         incons = stats_dict.get('Inconsistent', 0)
+        sm = stats.get('Too few genes', 0)
         tot = cons + incons
         consp = round((cons/tot)*100, 2)
         inconsp = round((incons/tot)*100, 2)
@@ -359,7 +361,7 @@ def print_out_stats(stats_dict, wgd=''):
         print(" Whole-genome duplication: {}".format(wgd))
         print("\n")
         print(" {} total subtrees with predicted synteny constraints out of {}".format(tot,
-                                                                                       tot+multi))
+                                                                                    tot+multi+sm))
         print(" ({} discarded inconsistent multigenic subtrees)".format(multi))
 
         print(" {} out of {} ({} %) synteny-consistent subtrees".format(cons, tot, consp))
