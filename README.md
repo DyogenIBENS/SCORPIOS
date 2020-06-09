@@ -49,21 +49,23 @@ To install Miniconda3:
 ### Installing SCORPiOs
 
 - Clone the repository and go to SCORPiOs root folder
-```
-git clone https://github.com/DyogenIBENS/SCORPIOS.git
-cd SCORPIOS
-```
+  ```
+  git clone https://github.com/DyogenIBENS/SCORPIOS.git
+  cd SCORPIOS
+  ```
 
-- Create the main conda environment. We recommend using [Mamba](https://quantstack.net/mamba.html) for a faster installation:
-```
-conda install -c conda-forge mamba
-mamba env create -f envs/scorpios.yaml
-```
+- Create the main conda environment.
 
-- **Alternatively,** you can use conda directly (solving dependencies may take a while, ~ up to an hour):
-```
-conda env create -f envs/scorpios.yaml
-```
+  We recommend using [Mamba](https://quantstack.net/mamba.html) for a faster installation:
+  ```
+  conda install -c conda-forge mamba
+  mamba env create -f envs/scorpios.yaml
+  ```
+
+  **Alternatively,** you can use conda directly (solving dependencies may take a while, ~ up to an hour):
+  ```
+  conda env create -f envs/scorpios.yaml
+  ```
 
 ## Usage
 
