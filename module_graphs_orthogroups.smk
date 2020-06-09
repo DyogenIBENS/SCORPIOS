@@ -3,6 +3,11 @@
 SCORPiOs snakemake module to identify orthologous gene communtities in orthology graphs and derive
 topological constraints on corresponding gene trees.
 """
+SPECTRAL = config.get('spectral', '')
+if SPECTRAL and SPECTRAL.lower() not in ['n', 'no', 'false']:
+    SPECTRAL = "--spectral"
+else:
+    SPECTRAL = ""
 
 rule cut_orthology_graphs:
     """
@@ -13,9 +18,10 @@ rule cut_orthology_graphs:
     threads: config["ncores"]
     params: Summary = Summary.replace("{{outgr}}", "{{wildcards.outgr}}")\
                                      .replace("{{wgd}}","{{wildcards.wgd}}")
+    conda: "envs/graphs.yaml"
     shell:"""
     python -m scripts.graphs.orthogroups -i {input} -o {output.a} -n {threads} -s {params.Summary}\
-    -ignSg {config[ignoreSingleGeneCom]} -wgd {wildcards.wgd},{wildcards.outgr}
+    -ignSg {config[ignoreSingleGeneCom]} -wgd {wildcards.wgd},{wildcards.outgr} {SPECTRAL}
     """
 
 

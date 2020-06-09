@@ -70,6 +70,9 @@ save_tmp_trees: 'y'
 # - AU-tests outputs
 save_subtrees_lktest: 'n'
 
+# Optionally, use spectral clustering instead of Girvan-Newman for graph community detection.
+spectral: 'n'
+
 # Iterative-correction related option, automatically updated by the wrapper iterate_scorpios.sh.
 ## DO NOT MODIFY MANUALLY even if using iterative mode.##
 current_iter: 0
