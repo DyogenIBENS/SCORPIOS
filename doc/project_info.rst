@@ -3,7 +3,7 @@ How to cite
 
 If you use SCORPiOs, please cite:
 
-`Parey E, Louis A, Cabau C, Guiguen Y, Roest Crollius H, Berthelot C. Synteny-guided resolution of gene trees clarifies the functional impact of whole genome duplications. BioRxiv. 2020. <https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full>`_
+Parey E, Louis A, Cabau C, Guiguen Y, Roest Crollius H, Berthelot C., Synteny-guided resolution of gene trees clarifies the functional impact of whole genome duplications, Molecular Biology and Evolution, msaa149, https://doi.org/10.1093/molbev/msaa149.
 
 License
 =======
