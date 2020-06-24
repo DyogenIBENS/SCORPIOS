@@ -39,6 +39,7 @@ def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder='', X=10):
         sptree (str): path to the newick species tree
         ali_id (str): identifier of the tree, used in the output .nhx file name.
         tmp_folder (str): path to temp individual ali, will store temp individual tree.
+        X (int, optional): -X parameter for treebest best (default=10). 
 
     Returns:
         bool: True if no Exception was raised.
