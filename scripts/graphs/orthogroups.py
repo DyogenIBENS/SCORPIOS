@@ -558,8 +558,8 @@ if __name__ == '__main__':
             ASYNC_RESULTS += [JOB]
             k += 1
 
-    POOL.close()
-    POOL.join()
+        POOL.close()
+        POOL.join()
 
     for RESULT in ASYNC_RESULTS:
         if not RESULT.get():

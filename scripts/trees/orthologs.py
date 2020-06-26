@@ -3,12 +3,11 @@
 
 """
     Script to extract orthologous genes within a gene tree forest amongst a given list of species.
-    All pairwise orthologies will be stored in the output folder.
+    All pairwise orthologies will be stored in the output folder (one file for each species pair).
 
     Example:
         $ python -m scripts.trees.orthologs -t gene_trees.nhx -d Clupeocephala -s sptree.nwk
-                                            [-o out] [-to filename] [-o_wgds Salmonids]
-                                            [-l lowcov_sp1,lowcov_sp2]
+                                            [-o out] [-ow Salmonids] [-l lowcov_sp1,lowcov_sp2]
 """
 
 import itertools
@@ -126,17 +125,18 @@ if __name__ == '__main__':
     #Optional
     PARSER.add_argument('-o', '--out', help='Result folder.', required=False, default="out")
 
-    PARSER.add_argument('-ow', '--other_wgds', help='Name of ancestors to exclude.',
-                        required=False, default='')
+    PARSER.add_argument('-ow', '--other_wgds', help='Ancestor(s) to exclude (Comma-delimited,\
+                        exclude all species below these ancestors).', required=False, default='')
 
-    PARSER.add_argument('-l', '--lowcov', type=str, help='Species to exclude.', required=False,
-                        default='')
+    PARSER.add_argument('-l', '--lowcov', type=str, help='Species to exclude (Comma-delimited).',
+                        required=False, default='')
 
     ARGS = vars(PARSER.parse_args())
 
     #Get all pairs of duplicated species
     SPECIES = spt.get_species(ARGS["speciesTree"], ARGS["dupSp"], ARGS["other_wgds"],
                               ARGS["lowcov"])
+
     SPECIES = list(itertools.combinations(SPECIES, 2))
 
     ORTHOLOGIES = {}

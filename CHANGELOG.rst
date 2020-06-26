@@ -28,7 +28,7 @@ Changed
 Version 1.1.0 - 19/05/2020 - `v1.1.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.1.0>`_
 -------------------------------------
 
-Developped a new visualization tool to inspect tree corrections.
+Developed a new visualization tool to inspect tree corrections.
 
 Added
 ^^^^^
