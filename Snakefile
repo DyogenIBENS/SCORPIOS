@@ -1,3 +1,9 @@
+
+"""
+ SCORPiOs corrects orthologies and paralogy relationships in gene trees, so that they are consistent
+ with a known WGD event. To do so, the method takes advantage of synteny conservation patterns.
+"""
+
 import os
 import glob
 import itertools
@@ -5,10 +11,6 @@ import sys
 from scripts.trees import speciestree as spt
 from scripts.synteny import filter_regions
 
-"""
- SCORPiOs corrects orthologies and paralogy relationships in gene trees, so that they are consistent
- with a known WGD event. To do so, the method takes advantage of synteny conservation patterns.
-"""
 
 ## Set all output names
 def out_name(name, jobname, iteration, wcard_wgd=False, wcard_outgr=False):
