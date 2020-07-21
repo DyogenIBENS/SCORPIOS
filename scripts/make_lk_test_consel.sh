@@ -25,8 +25,8 @@ rm "${alidir}/RAxML_info.${name}"
 #if not already computed for original tree, compute sites likelihood under HKY model for both trees
 if [ ! -s "${alidir}/${name}_a.lk" ]; then
 
-	#cat the two tree to a single file and remove nhx tags
-	cat "${cortree}" "${enstree}" | sed -e 's/\[[^][]*\]//g' > "${cordir}/trees_${name}.nh"
+	#cat the two tree to a single file and remove nhx tags and remove '()' around a single leaf
+	cat "${cortree}" "${enstree}" | sed -e 's/\[[^][]*\]//g' -e 's/(\([^,]*\))/\1/g' > "${cordir}/trees_${name}.nh"
 
 	#compute site lk
 	raxmlHPC -f G -n ${name} -m GTRGAMMA --HKY85 -s "${alifile}" -z "${cordir}/trees_${name}.nh" -w "${workingDir}/${alidir}/" >&2
