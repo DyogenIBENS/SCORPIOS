@@ -3,27 +3,31 @@ All notable changes to SCORPiOs, added after the first released version v1.0.0, 
 [Version 1.3.0] - UNRELEASED - LINK
 -------------------------------------------
 
-Replaced PhyML by RAxML for improved computational efficiency on large datasets.
+Further workflow updates to improve computational efficiency and simplify its usage. Note that the main conda environnment has been updated and needs to be reinstalled.
+
+Added
+^^^^^
+- Default output trees in iterative mode have now tags for corrected internal WGD nodes (in addition to corresponding descending leaves).
 
 Changed
 ^^^^^^^
-- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests) *and TODO branch-length computation*
-- Improved conda environnment definition: new specific conda environments for groups of rules, simplification of the master scorpios env and installation instructions now recommend mamba.
-- Simplified iterative correction: *TODO* the wrapper script now parses the YAML configuration file, see new usage instructions.
-- *TODO* New option to tag corrected WGD nodes instead of leaves in the final output file (or both).
+- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests). *TODO branch-length computation*
+- Improved conda environnment definition: new specific conda environments for groups of rules, simplification of the master env. :ref:`Installation instructions <Installing SCORPiOs>` now recommend mamba for a faster dependency solving process. *TODO keep treebest in master env*
+- Simplified usage for iterative correction: the wrapper script directly parses the YAML configuration file so that providing the jobname is no longer required (see the updated :ref:`usage instructions <Example 2: Iterative SCORPiOs run>`).
+
 
 [Version 1.2.0] - UNRELEASED - LINK
 -------------------------------------------
  
-Workflow updates to improve computational efficiency and scalability to large datasets.
+Minor workflow updates to improve computational efficiency and scalability to large datasets.
  
 Added
 ^^^^^
-- Option to perform community detection with spectral clustering instead of Girvan-Newman, for improved computational effciency on large datasets. (See the :ref:`documentation<Spectral clustering>` for usage instructions.)
+- Option to perform community detection with spectral clustering instead of Girvan-Newman, for improved computational effciency on large datasets. (See the :ref:`documentation<Spectral clustering>` for usage instructions).
 
 Changed
 ^^^^^^^
-- treebest distmat now replaces fastdist to build input distance matrix for profileNJ
+- treebest distmat now replaces fastdist to build input distance matrices for profileNJ.
 
 Version 1.1.0 - 19/05/2020 - `v1.1.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.1.0>`_
 -------------------------------------

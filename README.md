@@ -102,14 +102,13 @@ SCORPiOs can run in iterative mode: SCORPiOs improves the gene trees a first tim
 To run SCORPiOs in iterative mode on example data, execute the wrapper bash script `iterate_scorpios.sh`:
 
 ```
-bash iterate_scorpios.sh --j=example --snake_args="--configfile config_example.yaml"
+bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml"
 ```
 
 Command-line arguments:
 
 ```
 Required
---j=JOBNAME, specifies scorpios jobname, should be the same as in config
 --snake_args="SNAKEMAKE ARGUMENTS", should at minimum contain --configfile
 
 Optional
@@ -139,10 +138,10 @@ Finally, you can run SCORPiOs as described above:
 snakemake --configfile config.yaml --use-conda
 ```
 
-or in iterative mode, assuming the jobname is set to 'jobname' in the new config file:
+or in iterative mode:
 
 ```
-bash iterate_scorpios.sh --j=jobname --snake_args="--configfile config.yaml"
+bash iterate_scorpios.sh --snake_args="--configfile config.yaml"
 ```
 
 ## Authors
@@ -161,6 +160,8 @@ This code may be freely distributed and modified under the terms of the GNU Gene
 SCORPiOs uses the following tools to build and test gene trees:
 
 - [ProfileNJ](https://github.com/maclandrol/profileNJ): Noutahi et al. (2016) Efficient Gene Tree Correction Guided by Genome Evolution. PLOS ONE, 11, e0159559.
+
+- [RAxML](https://github.com/stamatak/standard-RAxML): Stamatakis (2014) RAxML version 8: a tool for phylogenetic analysis and post-analysis of large phylogenies. Bioinformatics, 30, 1312–1313.
 
 - [PhyML](http://www.atgc-montpellier.fr/phyml/): Guindon et al. (2010) New Algorithms and Methods to Estimate Maximum-Likelihood Phylogenies: Assessing the Performance of PhyML 3.0. Syst Biol, 59, 307–321.
 

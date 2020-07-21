@@ -35,7 +35,7 @@ To run SCORPiOs in iterative mode on example data, execute the wrapper bash scri
 
 .. prompt:: bash
 
-	 bash iterate_scorpios.sh --j=example --snake_args="--configfile config_example.yaml"
+	 bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml"
 
 
 The following output should be generated: :code:`SCORPiOs_example/SCORPiOs_output_2_with_tags.nhx`.
@@ -44,9 +44,6 @@ Command-line arguments for :code:`iterate_scorpios.sh`
 """"""""""""""""""""""""""""""""""""""""""""""""""""""
 
 **Required:**
-
---j=jobname  Specifies the SCORPiOs job name,
-             should be the same as in config.
 
 --snake_args=snakemake_arguments  Snakemake arguments, should at minimum contain :code:`--configfile`.
 
@@ -79,8 +76,8 @@ Finally, you can run SCORPiOs as described above:
 
 	 snakemake --configfile config.yaml --use-conda
 
-or in iterative mode, assuming the jobname is set to "jobname" in the new config file:
+or in iterative mode:
 
 .. prompt:: bash
 
-	 bash iterate_scorpios.sh --j=jobname --snake_args="--configfile config.yaml"
+	 bash iterate_scorpios.sh --snake_args="--configfile config.yaml"
