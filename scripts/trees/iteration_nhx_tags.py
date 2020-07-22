@@ -50,7 +50,8 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-c', '--cor_f', help='path to corrected forests', required=True, type=str)
 
-    PARSER.add_argument('--internal', help='tag only corrected wgd nodes', action='store_true')
+    PARSER.add_argument('--internal', help='tag also internal corrected wgd nodes',
+                        action='store_true')
 
     PARSER.add_argument('-sp', '--sptree', type=str, required=False, default='')
 

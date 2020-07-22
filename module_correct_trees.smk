@@ -16,11 +16,11 @@ rule remove_anc_in_sptree:
 
 
 rule distance_matrix:
-    input: SUBALIS+"/{wgd}/{ctrees}.fa"
-    output: temp(tmp_matrix+"_{ctrees}.phy")
     """
     For each subtree to correct, builds a distance matrix using treebest distmat.
     """
+    input: SUBALIS+"/{wgd}/{ctrees}.fa"
+    output: temp(tmp_matrix+"_{ctrees}.phy")
     shell:"""
     treebest distmat kimura {input} > {output}
     """
