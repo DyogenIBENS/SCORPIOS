@@ -156,7 +156,7 @@ def count(filenames, name_sol="", alpha=0.05, item='1', parse_name=True, wgd='')
         reason = '??: Check logs.'
 
         if name_sol != "ProfileNJ":
-            reason = "Most likely reason : ProfileNJ solution already accepted" # should be checked
+            reason = "Likely reason: ProfileNJ solution already accepted" # should be checked
 
         print('\n')
         print("----------------------------------AU-TESTs----------------------------------")
