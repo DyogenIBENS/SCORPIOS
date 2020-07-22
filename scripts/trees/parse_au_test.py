@@ -153,10 +153,10 @@ def count(filenames, name_sol="", alpha=0.05, item='1', parse_name=True, wgd='')
         higher_p = str(round(higher_lk/float(tot-err)*100, 1))
         better_prop = str(round(better/float(tot-err)*100, 1))
 
-        reason = 'reason : fastdist failed to build the distance matrix'
+        reason = '??: Check logs.'
 
         if name_sol != "ProfileNJ":
-            reason = "reason : ProfileNJ solution already accepted"
+            reason = "Likely reason: ProfileNJ solution already accepted" # should be checked
 
         print('\n')
         print("----------------------------------AU-TESTs----------------------------------")
