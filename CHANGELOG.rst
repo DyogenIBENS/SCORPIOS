@@ -12,6 +12,7 @@ Added
 Changed
 ^^^^^^^
 - treebest distmat now replaces fastdist to build input distance matrices for profileNJ.
+- :ref:`Installation instructions <Installing SCORPiOs>` now recommend mamba for a faster dependency solving process.
 
 Version 1.1.0 - 19/05/2020 - `v1.1.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.1.0>`_
 -------------------------------------
