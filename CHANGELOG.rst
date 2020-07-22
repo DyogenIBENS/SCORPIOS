@@ -12,7 +12,7 @@ Added
 Changed
 ^^^^^^^
 - **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests). *TODO branch-length computation*
-- Improved conda environnment definition: new specific conda environments for groups of rules, simplification of the master env. :ref:`Installation instructions <Installing SCORPiOs>` now recommend mamba for a faster dependency solving process. *TODO keep treebest in master env*
+- Improved conda envs definition: new specific environments for groups of rules, simplification of the master env.
 - Simplified usage for iterative correction: the wrapper script directly parses the YAML configuration file so that providing the jobname is no longer required (see the updated :ref:`usage instructions <Example 2: Iterative SCORPiOs run>`).
 
 
@@ -28,6 +28,7 @@ Added
 Changed
 ^^^^^^^
 - treebest distmat now replaces fastdist to build input distance matrices for profileNJ.
+- :ref:`Installation instructions <Installing SCORPiOs>` now recommend mamba for a faster dependency solving process.
 
 Version 1.1.0 - 19/05/2020 - `v1.1.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.1.0>`_
 -------------------------------------
