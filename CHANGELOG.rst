@@ -11,8 +11,8 @@ Added
 
 Changed
 ^^^^^^^
-- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests). *TODO branch-length computation*
-- Improved conda envs definition: new specific environments for groups of rules, simplification of the master env.
+- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests). *TODO branch-length computation in a later release*
+- Improved conda envs definition: new specific environments for groups of rules, simplification of the master env. *TODO remove that : I want to keep treebest in the env*
 - Simplified usage for iterative correction: the wrapper script directly parses the YAML configuration file so that providing the jobname is no longer required (see the updated :ref:`usage instructions <Example 2: Iterative SCORPiOs run>`).
 
 
