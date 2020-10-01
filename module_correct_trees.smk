@@ -139,6 +139,9 @@ rule correct_input_trees:
     params: wgds = ','.join(config["WGDs"].keys()),
             outgroups = '_'.join([config["WGDs"][i] for i in config["WGDs"].keys()]),
             input = lambda wildcards, input: ",".join(list(input.acc))
+
+    conda: "envs/treebest_raxml_consel.yaml"
+
     shell:"""
     python -m scripts.trees.regraft_subtrees -t {input_trees} -a {config[alis]} \
     -acc {params.input} -o {output.a} -s {config[species_tree]} \
