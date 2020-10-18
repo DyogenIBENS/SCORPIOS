@@ -1,6 +1,6 @@
 All notable changes to SCORPiOs, added after the first released version v1.0.0, will be documented here.
 
-[Version 1.2.0] - UNRELEASED - LINK
+[Version 1.2.0] - 18/10/2020 - `v1.2.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.2.0>`_
 -------------------------------------------
  
 Minor workflow updates to improve computational efficiency and scalability to large datasets.
