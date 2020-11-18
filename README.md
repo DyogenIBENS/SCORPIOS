@@ -59,7 +59,7 @@ To install Miniconda3:
 
 - Create the main conda environment.
 
-  We recommend using [Mamba](https://quantstack.net/mamba.html) for a faster installation:
+  We recommend using [Mamba](https://github.com/mamba-org/mamba) for a faster installation:
   ```
   conda install -c conda-forge mamba
   mamba env create -f envs/scorpios.yaml
