@@ -79,8 +79,14 @@ fi
 j=0
 
 #get configfile name to then extract the jobname and the species tree from it
-configfile=${snake_args#*--configfile }
-configfile=${configfile/=}
+configfile=${snake_args#*--configfile=}
+
+if [ "$configfile" == "$snake_args" ]; then
+
+  configfile=${snake_args#*--configfile }
+
+fi
+
 configfile=${configfile%% *}
 configfile=${configfile%% --configfile}
 sptree=$(cat $configfile | shyaml get-value species_tree)
