@@ -21,7 +21,6 @@ rule distance_matrix:
     """
     input: SUBALIS+"/{wgd}/{ctrees}.fa"
     output: temp(tmp_matrix+"_{ctrees}.phy")
-    conda: "envs/treebest_raxml_consel.yaml"
     shell:"""
     treebest distmat kimura {input} > {output}
     """
@@ -55,7 +54,6 @@ rule test_polyS:
             ori_tree = SUBTREES+"/{wgd}/{ctrees}.nh"
     output: OutPolylk+"/{wgd}/Res_{ctrees}.txt", SUBALIS+"/{wgd}/{ctrees}_a.lk"
     threads: 1
-    conda: "envs/treebest_raxml_consel.yaml"
     shell:"""
     bash scripts/make_lk_test_consel.sh {wildcards.ctrees} {input.ori_tree} {input.ali}\
                                         {input.polys} {output}
@@ -75,7 +73,6 @@ rule build_test_tree_treebest:
     output: lktest=OuttreeBlk+"/{wgd}/Res_{ctrees}.txt",
             tree = treeB+"/{wgd}/{ctrees}.nh"
     params: outgroups=lambda wildcards: config['WGDs'][wildcards.wgd]
-    conda: "envs/treebest_raxml_consel.yaml"
     shell:"""
     bash scripts/correct_subtrees_treebest.sh {wildcards.ctrees} {input.ali} {input.ctree}\
     {input.ori_tree} {output.lktest} {input.polylk} {params.outgroups} {output.tree}\
@@ -139,9 +136,6 @@ rule correct_input_trees:
     params: wgds = ','.join(config["WGDs"].keys()),
             outgroups = '_'.join([config["WGDs"][i] for i in config["WGDs"].keys()]),
             input = lambda wildcards, input: ",".join(list(input.acc))
-
-    conda: "envs/treebest_raxml_consel.yaml"
-
     shell:"""
     python -m scripts.trees.regraft_subtrees -t {input_trees} -a {config[alis]} \
     -acc {params.input} -o {output.a} -s {config[species_tree]} \

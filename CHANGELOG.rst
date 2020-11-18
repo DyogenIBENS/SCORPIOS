@@ -16,7 +16,7 @@ Changed
 - Simplified usage for iterative correction: the wrapper script directly parses the YAML configuration file so that providing the jobname is no longer required (see the updated :ref:`usage instructions <Example 2: Iterative SCORPiOs run>`).
 
 
-[Version 1.2.0] - UNRELEASED - LINK
+Version 1.2.0 - 18/10/2020 - `v1.2.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.2.0>`_
 -------------------------------------------
  
 Minor workflow updates to improve computational efficiency and scalability to large datasets.

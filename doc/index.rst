@@ -24,7 +24,7 @@ SCORPiOs is a **synteny-guided gene tree correction pipeline** for clades that h
 
 SCORPiOs is implemented as a `Snakemake <https://snakemake.readthedocs.io/en/stable/>`_ pipeline. SCORPiOs takes as input either gene trees or multiple alignments, and outputs the corresponding optimized gene trees.
 
-For more information, you can take a look at our `preprint <https://www.biorxiv.org/content/10.1101/2020.01.30.926915v1.full>`_ on biorxiv.
+For more information, you can take a look at `SCORPiOs publication <https://doi.org/10.1093/molbev/msaa149>`_.
 
 .. image:: https://raw.githubusercontent.com/DyogenIBENS/SCORPIOS/master/doc/img/scorpios_illustrated.png
 
