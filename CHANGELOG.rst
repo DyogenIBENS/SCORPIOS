@@ -3,7 +3,7 @@ All notable changes to SCORPiOs, added after the first released version v1.0.0, 
 [Version 1.3.0] - UNRELEASED - LINK
 -------------------------------------------
 
-Further workflow updates to improve computational efficiency and simplify its usage. Note that the main conda environnment has been updated and needs to be reinstalled.
+Further workflow updates to improve computational efficiency and simplify its usage. Note that the main conda environnment has been updated and needs to be reinstalled if you have the previous version.
 
 Added
 ^^^^^
@@ -11,8 +11,7 @@ Added
 
 Changed
 ^^^^^^^
-- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests). *TODO branch-length computation in a later release*
-- Improved conda envs definition: new specific environments for groups of rules, simplification of the master env. *TODO remove that : I want to keep treebest in the env*
+- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests).
 - Simplified usage for iterative correction: the wrapper script directly parses the YAML configuration file so that providing the jobname is no longer required (see the updated :ref:`usage instructions <Example 2: Iterative SCORPiOs run>`).
 
 
