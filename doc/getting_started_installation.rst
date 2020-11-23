@@ -40,7 +40,7 @@ Installing SCORPiOs
 
 	cd SCORPIOS
 
-* Create the main conda environment. We recommend using `Mamba <https://quantstack.net/mamba.html>`_ for a faster installation:
+* Create the main conda environment. We recommend using `Mamba <https://github.com/mamba-org/mamba>`_ for a faster installation:
 
 .. prompt:: bash
 

@@ -52,7 +52,7 @@ rule test_polyS:
     """
     input:  polys = PolyS+"/{wgd}/{ctrees}.nh", ali = SUBALIS+"/{wgd}/{ctrees}.fa",
             ori_tree = SUBTREES+"/{wgd}/{ctrees}.nh"
-    output: OutPolylk+"/{wgd}/Res_{ctrees}.txt", SUBALIS+"/{wgd}/tmp_{ctrees}_c.phy_phyml_lk.txt"
+    output: OutPolylk+"/{wgd}/Res_{ctrees}.txt", SUBALIS+"/{wgd}/{ctrees}_a.lk"
     threads: 1
     shell:"""
     bash scripts/make_lk_test_consel.sh {wildcards.ctrees} {input.ori_tree} {input.ali}\
@@ -66,7 +66,7 @@ rule build_test_tree_treebest:
     accepted by lk-tests.
     """
     input: polylk = OutPolylk+"/{wgd}/Res_{ctrees}.txt",
-           hkyensembl = SUBALIS+"/{wgd}/tmp_{ctrees}_c.phy_phyml_lk.txt",
+           hkyensembl = SUBALIS+"/{wgd}/{ctrees}_a.lk",
            ali = SUBALIS+"/{wgd}/{ctrees}.fa",
            ori_tree = SUBTREES+"/{wgd}/{ctrees}.nh",
            ctree = CTREES+"/{wgd}/C_{ctrees}.nh"

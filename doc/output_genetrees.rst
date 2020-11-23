@@ -15,9 +15,11 @@ Outputs are suffixed with a digit representing the iteration number. This number
 ..  note::
 	NHX tags are added to the corrected gene trees:
 
-	- leaves of corrected subtrees are tagged with :code:`CORR_ID_WGD`,
+	- **NEW in 1.3.0 (iterative mode only)**, corrected WGD nodes :code:`CORR_ID_WGD=Y`,
 
- 	- leaves rearranged to reinsert subtrees are tagged with :code:`MOVED_ID_WGD`;
+	- leaves of corrected subtrees are tagged with :code:`CORR_ID_WGD=ID`,
+
+ 	- leaves rearranged to reinsert subtrees are tagged with :code:`MOVED_ID_WGD=ID`;
 
  	where WGD will be replaced by the name of the corrected WGD and members of the same corrected subtree will be given the same ID.
 
@@ -42,7 +44,7 @@ or
 
 .. prompt:: bash
 
-	bash iterate_scorpios.sh --j=example --snake_args="--configfile config_example.yaml" >out 2>err
+	bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml" >out 2>err
 
 
 

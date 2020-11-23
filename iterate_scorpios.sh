@@ -3,8 +3,7 @@
 #############################################################################################
 # Bash wrapper script to run SCORPiOs in iterative mode                                     #
 #                                                                                           #
-# Example usage: bash iterate_scorpios.sh --j=example                                       #
-#                                         --snake_args="--configfile config_example.yaml"   #
+# Example usage: bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml"   #
 #                                         [--max_iter=5] [--min_corr=1]                     #
 #                                         [--starting_iter=1]                               #
 #############################################################################################
@@ -31,15 +30,9 @@ while [ $# -gt 0 ]; do
       min_correction="${1#*=}"
       ;;
 
-      #starting iteration, if we want to resume a SCORPiOs run for a certain iter
+    #starting iteration, if we want to resume a SCORPiOs run for a certain iter
     --starting_iter=*)
       iteration="${1#*=}"
-      ;;
-
-    #SCORPiOs job_name argument in config file
-    #will be used to find the file(s) listing corrections
-    --j=*)
-      job_name="${1#*=}"
       ;;
 
     #arguments for snakemake execution
@@ -61,14 +54,7 @@ while [ $# -gt 0 ]; do
 
 done
 
-#check that required arguments are set
-if [ -z "$job_name" ]; then
-  echo "*********************************" >&2
-  echo " ArgumentError: --j is required  " >&2
-  echo "*********************************" >&2
-  exit 1
-fi
-
+#check that required arg is set
 if [ -z "$snake_args" ]; then
   echo "******************************************" >&2
   echo " ArgumentError: --snake_args is required  " >&2
@@ -78,11 +64,13 @@ fi
 
 #extract config related args from snakemake args, to invoke the --config option correctly below
 snake_config_args=${snake_args#*--config }
+
 if [ "$snake_config_args" == "$snake_args" ]; then
 
   snake_config_args="--config "
 
 else
+
   snake_config_args=${snake_config_args%% -*}
   snake_config_args="--config ${snake_config_args}"
   snake_args="${snake_args/${snake_config_args}/}"
@@ -90,6 +78,20 @@ else
 fi
 
 j=0
+
+#get configfile name to then extract the jobname and the species tree from it
+configfile=${snake_args#*--configfile=}
+
+if [ "$configfile" == "$snake_args" ]; then
+
+  configfile=${snake_args#*--configfile }
+
+fi
+
+configfile=${configfile%% *}
+configfile=${configfile%% --configfile}
+sptree=$(cat $configfile | shyaml get-value species_tree)
+job_name=$(cat $configfile | shyaml get-value jobname)
 
 #run SCORPiOs iteratively
 for i in $(seq $iteration $max_iter); do
@@ -102,7 +104,7 @@ for i in $(seq $iteration $max_iter); do
     touch .tmp_corrected_prev_iter_${job_name}
   fi
 
-  #run SCORPiOs if first iteration or number of corrections in previous iter > min_correction
+  #run SCORPiOs if first iteration or if number of corrections in previous iter > min_correction
   if (( $i==1 )) || [[ $(wc -l <.tmp_corrected_prev_iter_${job_name}) -gt $min_correction ]]
     then
       echo "----------------"
@@ -129,5 +131,6 @@ if [ -f "SCORPiOs_${job_name}/SCORPiOs_output_${j}.nhx" ]; then
   input="SCORPiOs_${job_name}/SCORPiOs_output_%d.nhx"
   output="SCORPiOs_${job_name}/SCORPiOs_output_${j}_with_tags.nhx"
 
-  python -m scripts.trees.iteration_nhx_tags -o $output -i $j -c $input
+  python -m scripts.trees.iteration_nhx_tags -o $output -i $j -c $input --internal -sp $sptree
+  # python -m scripts.trees.iteration_nhx_tags -o $output -i $j -c $input
 fi

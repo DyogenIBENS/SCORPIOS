@@ -1,5 +1,20 @@
 All notable changes to SCORPiOs, added after the first released version v1.0.0, will be documented here.
 
+[Version 1.3.0] - UNRELEASED - LINK
+-------------------------------------------
+
+Further workflow updates to improve computational efficiency and simplify its usage. Note that the main conda environnment has been updated and needs to be reinstalled if you have the previous version.
+
+Added
+^^^^^
+- Default output trees in iterative mode have now tags for corrected internal WGD nodes (in addition to corresponding descending leaves).
+
+Changed
+^^^^^^^
+- **RAxML** replaces PhyML to compute site likelihood (CONSEL input for likelihood AU-tests).
+- Simplified usage for iterative correction: the wrapper script directly parses the YAML configuration file so that providing the jobname is no longer required (see the updated :ref:`usage instructions <Example 2: Iterative SCORPiOs run>`).
+
+
 Version 1.2.0 - 18/10/2020 - `v1.2.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.2.0>`_
 -------------------------------------------
  
