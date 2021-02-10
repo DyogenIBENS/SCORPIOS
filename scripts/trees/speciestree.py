@@ -70,7 +70,10 @@ def get_species(species_tree, anc, other_wgd_anc='', lowcov_species=''):
 
     #get species under subsequent WGD nodes
     if other_wgd_anc:
-        other_wgd_anc = get_anc_order(species_tree, other_wgd_anc.split(','), tips_to_root=False)
+        other_wgd_anc = other_wgd_anc.split(',')
+        if anc not in other_wgd_anc:
+            other_wgd_anc.append(anc)
+        other_wgd_anc = get_anc_order(species_tree, other_wgd_anc, tips_to_root=False)
         all_wgd = other_wgd_anc[anc] #WGD that occurred after 'anc'
         species_with_other_wgd = []
         for wgd in all_wgd:
