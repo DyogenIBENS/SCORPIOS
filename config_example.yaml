@@ -68,7 +68,7 @@ save_tmp_trees: 'y'
 # - constrained tree topologies
 # - profileNJ and TreeBeST synteny-aware trees
 # - AU-tests outputs
-save_subtrees_lktest: 'n'
+save_subtrees_lktest: 'y'
 
 # Optionally, use spectral clustering instead of Girvan-Newman for graph community detection.
 spectral: 'n'
