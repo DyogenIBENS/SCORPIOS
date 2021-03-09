@@ -127,7 +127,7 @@ Example:
 	trees: data/example/forest.nhx
 
 .. important::
-	If you want to build the trees from gene sequence alignments using `TreeBeST <https://github.com/Ensembl/treebest>`_, you should remove or comment out the :code:`tree` entry.
+	If you want to build the trees from gene sequence alignments using `TreeBeST <https://github.com/Ensembl/treebest>`_, you should remove or comment out the :code:`trees` entry.
 
 
 The multiple sequence alignments (INPUT2)
