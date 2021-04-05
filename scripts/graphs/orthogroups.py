@@ -425,9 +425,9 @@ def worker_cut_graph(family, fam, res, spectral=False, g_id=0, verbose=False):
         else:
             res[fam] = (None, 'Filtered_Multigenic', 'NAN', 'None')
 
-        if verbose:
-            sys.stderr.write(f"Cut graph {g_id} \n")
-            sys.stderr.flush()
+        #if verbose:
+            #sys.stderr.write(f"Cut graph {g_id} \n")
+            #sys.stderr.flush()
 
         return True
 
