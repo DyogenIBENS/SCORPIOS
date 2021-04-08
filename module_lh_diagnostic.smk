@@ -25,19 +25,19 @@ else:
         input: fam = ORTHOTABLE, summary = SUMMARY, pm = REF_FILE, check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
         output: incons = f"SCORPiOs-LH_{JNAME}/conflicts", alltrees = f"SCORPiOs-LH_{JNAME}/trees"
         shell:
-            "python -m scripts.lore_hunter.homeologs_pairs_from_paralogymap.py -i {input.fam} -p {input.pm} "
+            "python -m scripts.lore_hunter.homeologs_pairs_from_paralogymap -i {input.fam} -p {input.pm} "
             "-s {input.summary} -oi {output.incons} -oa {output.alltrees}"
 
-
+#TODO: add stars for sign. elevated stuff
 rule plot_homeologs:
     input: incons = f"SCORPiOs-LH_{JNAME}/conflicts", all_trees = f"SCORPiOs-LH_{JNAME}/trees"
     output: f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_by_homeologs.svg"
     conda: "envs/plots.yaml"
     shell:
-        "python -m scripts.lore_hunter.homeologs_tree_conflicts.py -i {input.incons} -g {input.all_trees} -o {output} "
+        "python -m scripts.lore_hunter.homeologs_tree_conflicts -i {input.incons} -g {input.all_trees} -o {output} "
         " --refname '{REF}'"
 
-
+#TODO: if possible highlight high-densty regions
 rule prepare_genome_plot:
     input: ctreedir = CTREES_DIR, summary = SUMMARY
     output: fam = f"SCORPiOs-LH_{JNAME}/inconsistent_families.tsv", pal = f"SCORPiOs-LH_{JNAME}/palette.tsv"
@@ -67,6 +67,10 @@ rule get_conflicts_by_ancestors:
         "touch {output}"
         # "python -m scripts.trees.inconsistent_trees.py --by_anc --no_ctrees --by_sp"
 
+#TODO: get_conflicts_by_ancestor
+# --> mettre à jour inconsistent_trees
+# --> faire en sorte de pouvoir tester en enlevant les sp descendant de plusieurs ancêtres +  des sp_ind
+# --> il faudra prbabalement faire des copies des objets arbres de ete3 sinon je vais casser le script et casser scorpios par la même occaz :/
 
 rule plot_conflicts_by_ancestors:
     input: f"SCORPiOs-LH_{JNAME}/conflicts_by_anc_by_sp.csv"
