@@ -28,7 +28,6 @@ else:
             "python -m scripts.lore_hunter.homeologs_pairs_from_paralogymap -i {input.fam} -p {input.pm} "
             "-s {input.summary} -oi {output.incons} -oa {output.alltrees}"
 
-#TODO: add stars for sign. elevated stuff
 rule plot_homeologs:
     input: incons = f"SCORPiOs-LH_{JNAME}/conflicts", all_trees = f"SCORPiOs-LH_{JNAME}/trees"
     output: f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_by_homeologs.svg"
@@ -37,7 +36,6 @@ rule plot_homeologs:
         "python -m scripts.lore_hunter.homeologs_tree_conflicts -i {input.incons} -g {input.all_trees} -o {output} "
         " --refname '{REF}'"
 
-#TODO: if possible highlight high-densty regions
 rule prepare_genome_plot:
     input: ctreedir = CTREES_DIR, summary = SUMMARY
     output: fam = f"SCORPiOs-LH_{JNAME}/inconsistent_families.tsv", pal = f"SCORPiOs-LH_{JNAME}/palette.tsv"
@@ -47,6 +45,8 @@ rule prepare_genome_plot:
 
 
 #TODO: if possible use RIdeogram
+#TODO: if possible highlight high-densty regions
+#TODO: bundle adjacent genes together to decrease image size
 rule plot_conflicts_on_genome:
     input:
         fam = f"SCORPiOs-LH_{JNAME}/inconsistent_families.tsv",

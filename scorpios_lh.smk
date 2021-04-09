@@ -88,7 +88,8 @@ rule check_scorpios_output_integrity:
     run: 
         ctrees_a, = glob_wildcards(CTREES+"/"+LORE_WGD+"/C_{ctrees}.nh")
         ctrees_b, = glob_wildcards(RES+"/"+LORE_WGD+"/Res_{ctrees}.txt")
-        assert set(ctrees_a) and set(ctrees_a) == set(ctrees_b), "please re-run scorpios, output appears incomplete."
+        sys.stderr.write('Checking SCORPiOs output integrity...\n')
+        assert set(ctrees_a) and set(ctrees_a) == set(ctrees_b), "please re-run scorpios, output of the checkpoint rule appears to be incomplete."
 
 if MODE == "diagnostic":
     rule Target:
@@ -99,12 +100,10 @@ if MODE == "diagnostic":
 
 
 def get_ctrees(wildcards, restrict=None):
-    #get all generated ctrees to expand wildcards
     Ctrees, = glob_wildcards(CTREES+"/"+LORE_WGD+"/C_{ctrees}.nh")
     Ctrees = [i.split('/')[-1] for i in Ctrees]
     if restrict:
         Ctrees = [i for i in Ctrees if restrict in i]
-    # print(Ctrees)
 
     out = expand(CTREES+"/"+LORE_WGD+"/C_{ctrees}.nh", ctrees=Ctrees)
     # out = expand('test_lore/{ctrees}_test.txt', ctrees=Ctrees)

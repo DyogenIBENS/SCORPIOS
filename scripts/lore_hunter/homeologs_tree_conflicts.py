@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+
+"""
+    Barplots and hypergeomtric tests.
+
+    Example:
+
+        $ python -m scripts.lore_hunter.homeologs_tree_conflicts TODO
+"""
+import sys
 import argparse
 
 import seaborn as sns
@@ -8,30 +18,134 @@ import scipy.stats as ss
 from statsmodels.sandbox.stats.multicomp import multipletests
 
 
-## Command to generate the inputs ##
-
-#grep LG Families/OrthoTable_Salmonidae_Esox.lucius_1 | cut -f 1 | uniq -c > nb_genes_Esox_chrom
-
-#grep LG Families/OrthoTable_Salmonidae_Esox.lucius_1 | cut -f 1,3 > Esox_genes
-
-#grep Incons Corrections/Trees_summary_Salmonidae_2 | cut -f 1 > salmonids_inconsistent
-
-#grep -f salmonids_inconsistent Esox_genes | cut -f 1 | uniq -c > inconsistent_trees_by_Esox_chrom
-
 def load_counts(input_file):
+
     """
-    Load input files
+    Loads input data for hypergeom test: each line is a count category pair, space-separated.
+
+    Args:
+        input_file (str) : path to the input file
+
+    Returns:
+        (dict) : for each category (chromosomes), as keys, the count (value) 
     """
-    d = {}
+
+    data = {}
     with open(input_file, 'r') as f:
         for line in f:
             if line[0] != "#":
                 counts, chrom = line.strip().split()
-                d[chrom] = int(counts)
+                try:
+                    ch = int(chrom)
+                except ValueError:
+                    ch = chrom
+                data[ch] = int(counts)
+    return data
 
-    norm = sum(d.values())
-    # d = {k:v/norm for k,v in d.items()}
-    return d, norm
+
+def hypergeom_enrich_depl(data_obs, data_tot, alpha=0.05, multitest_adjust='fdr_bh'):
+
+    """
+    Hypergeometric tests for enrichment and depletion with multiple testing correction.
+    
+    Args:
+        data_obs (dict): for each category observed counts
+        data_tot (dict): for each category total number of objects
+        alpha (float): significance level
+        multitest_adjust (str): method to adjust pvalues for
+
+    Returns:
+        (tuple of lists) : categories, corresponding proportion of observed counts, enrichment or
+                           depletion, whether null hyp. is rejected, and adjusted p-values.
+    """
+
+    values = []
+    direction = []
+    pvalues = []
+    tot = sum(data_tot.values())
+    tot_obs = sum(data_obs.values())
+    for ch in sorted(list(data_obs.keys())):
+
+        exp = (tot_obs/tot)*data_tot[ch]
+        obs = data_obs[ch]
+        if obs > exp:
+            pval = ss.hypergeom.sf(obs-1, tot, tot_obs, data_tot[ch]) #enrichment
+            direction.append('enrichment')
+        else:
+            pval = ss.hypergeom.cdf(obs+1, tot, tot_obs, data_tot[ch]) #depletion
+            direction.append('depletion')
+
+        pvalues.append(pval)
+
+        values.append(data_obs[ch]/data_tot[ch]*100)
+
+    mtest = multipletests(pvalues, alpha=0.05, method=multitest_adjust)
+
+    return (sorted(list(data_obs.keys())), values, direction, list(mtest[0]), list(mtest[1]))
+
+
+def plot_sign(ax, to_highlight=None):
+
+    for i, rect in enumerate(ax.patches):
+        if i in to_highlight:
+            height = rect.get_height()
+            plt.text(rect.get_x() + rect.get_width()/2.0, height, '*', ha='center', va='bottom')
+
+
+def barplot(data, output, title='', xlabel='', ylabel='', highlight_over='', avg=None, avg_lab='',
+            highlight_under='', sign_all=False, sign_up_only=False, sign_down_only=False):
+
+    """
+
+    Args:
+
+    Returns:
+
+    """
+    if highlight_over:
+        clrs = [highlight_over if i == 'enrichment' else 'lightgrey' for i in data[2]]
+    elif highlight_under:
+        clrs = [highlight_under if i == 'depletion' else 'lightgrey' for i in data[2]]
+    else:
+        clrs = lightgrey
+
+    bar = pd.DataFrame([(data[1][i], data[0][i]) for i in range(len(data[0]))],
+                       columns = [ylabel, xlabel])
+
+    ax = sns.barplot(x=xlabel, y=ylabel, data=bar, palette=clrs)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right', fontsize=8)
+
+    if sign_all:
+        sign = [i for i, rej in enumerate(data[3]) if rej]
+    elif sign_up_only:
+        sign = [i for i, rej in enumerate(data[3]) if rej and data[2][i]=='enrichment']
+        for i in sign:
+            sys.stdout.write(f"{data[0][i]} significantly enriched, pval={data[-1][i]}\n")
+    elif sign_down_only:
+        sign = [i for i, rej in enumerate(data[3]) if rej and data[2][i]=='depletion']
+
+
+    plot_sign(ax, sign)
+
+
+    if avg:
+        plt.plot([-0.5, len(data[0])], [avg, avg], color='black', linestyle='--', linewidth=1) #draws/tot*100
+        leg = plt.legend([avg_lab])
+        # sys.stdout.write(f"{avg_lab}: {round(avg, 3)}\n")
+
+        # as usual, seaborn does its thing... 
+        # Let's get the individual lines inside legend and set line width and style
+        for line in leg.get_lines():
+            line.set_linestyle('--')
+            line.set_linewidth(1)
+
+    if title:
+        plt.title(title)
+
+    sns.despine(trim=True)
+    plt.tight_layout()
+    plt.savefig(output)
+    plt.close('all')
 
 
 if __name__ == '__main__':
@@ -45,66 +159,19 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-o', '--output', type=str, required=True)
 
-    PARSER.add_argument('--refname', type=str, required=False)
+    PARSER.add_argument('--refname', type=str, required=False, default='Outgroup')
 
     ARGS = vars(PARSER.parse_args())
 
-    expected = {}
-    enrichment = {}
-    pvalues = []
-    inconsistencies, draws = load_counts(ARGS["inc"])
-    chr_size, tot = load_counts(ARGS["nb_genes"]) 
-    # print(inconsistencies, expected, draws, tot)
-    print("Genome-wide", draws/tot)
+    observed_d = load_counts(ARGS["inc"])
+    all_d = load_counts(ARGS["nb_genes"])
 
-    values = {}
-    for c in inconsistencies:
-        print(c, inconsistencies[c]/chr_size[c])
-        # print(draws/tot, chr_size[c])
-        try:
-            ch = int(c)
-        except ValueError:
-            ch = c
-        values[ch] = inconsistencies[c]/chr_size[c]*100
-        
-        exp = (draws/tot)*chr_size[c]
-        obs = inconsistencies[c]
-        print(c, exp, obs)
-        # exp = expected[c]*tot
-        # obs = inconsistencies[c]*draws
-        pval = ss.hypergeom.sf(obs-1, tot, draws, chr_size[c]) #enrichment
-        p2 = ss.hypergeom.cdf(obs+1, tot, draws, chr_size[c]) #depletion
-        if p2 < pval:
-            pval = p2  
-        pvalues.append(pval)
+    res = hypergeom_enrich_depl(observed_d, all_d, alpha=0.05, multitest_adjust='fdr_bh')
 
-        print('######', ch, pval)
+    avg_prop =  sum(observed_d.values())  / sum(all_d.values()) * 100
 
-    pval_adj = multipletests(pvalues, alpha=0.05, method='fdr_bh')
-
-    print(values, expected)
-    print(pval_adj)
-    bar = [(i, j) for (j, i) in sorted(values.items())]
-
-    clrs = ['lightcoral' if (x > (draws/tot)*100) else 'lightgrey' for x, _ in bar]
-
-    OUTGROUP = ARGS.get("refname", "Outgroup")
-
-    bar = pd.DataFrame(bar, columns = ['Sequence/synteny conflicts (%)', f'{OUTGROUP} chromosomes'])
-
-    ax = sns.barplot(x=f'{OUTGROUP} chromosomes', y="Sequence/synteny conflicts (%)", data=bar, palette=clrs)
-    ax.set_xticklabels(ax.get_xticklabels(),rotation=45, ha='right', fontsize=8)
-    plt.plot([-0.5, len(inconsistencies)], [draws/tot*100, draws/tot*100], color='black', linestyle='--', linewidth=1)
-    leg = plt.legend(["Genome-wide conflicts (%)"])
-
-    # as usual, seaborn does its thing... 
-    # Let's get the individual lines inside legend and set line width and style
-    for line in leg.get_lines():
-        line.set_linestyle('--')
-        line.set_linewidth(1)
-
-    plt.title("Homeologs with increased sequence/synteny conflicts")
-    sns.despine(trim=True)
-    plt.tight_layout()
-    plt.savefig(ARGS["output"], dpi=100)
-    plt.close('all')
+    barplot(res, ARGS["output"],
+            title='Homeologs with increased sequence/synteny conflicts \n (* p-value < 0.05)',
+            xlabel=f'{ARGS["refname"]} chromosomes', ylabel='Sequence/synteny conflicts (%)',
+            avg_lab='Genome-wide conflicts (%)', avg=avg_prop, highlight_over='lightcoral',
+            sign_up_only=True)
