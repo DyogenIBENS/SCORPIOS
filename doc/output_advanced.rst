@@ -102,7 +102,7 @@ In the example, the following file gives **AU-test likelihood tests** results fo
 
  :code:`SCORPiOs_example/Corrections/Res_polylk_0/Clupeocephala/Res_102697250_Lepisosteus.oculatus.txt`
 
-Similarly, files in the :code:`SCORPiOs_example/Corrections/Res_polylk_0/Clupeocephala/` stores comparisons of **original subtree vs TreeBeST phyml** solution.
+Similarly, files in the :code:`SCORPiOs_example/Corrections/Res_treeBlk_0/Clupeocephala/` stores comparisons of **original subtree vs TreeBeST phyml** solution.
 
 ..  note::
 
