@@ -21,6 +21,10 @@
 }
 
 
+.wy-menu-vertical {
+ margin-bottom: 2px
+}
+
 .wy-side-nav-search > a, .wy-side-nav-search .wy-dropdown > a {
     color: #404040
  }
