@@ -52,12 +52,15 @@ rule plot_conflicts_on_genome:
         fam = f"SCORPiOs-LH_{JNAME}/inconsistent_families.tsv",
         pal = f"SCORPiOs-LH_{JNAME}/palette.tsv",
         genes = GENES
-    output: f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_on_genome.svg"
+    output: touch(f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_on_genome.svg")
     params: sp = SP
-    conda: "envs/plots.yaml"
+    conda: 'envs/rideogram.yaml'
     shell:
-        "python -m scripts.lore_hunter.plot_genome -c {input.fam} -g {input.genes} -pf {input.pal} "
-        "-o {output} -s {params.sp} -sort {SORTBY} -f dyogen -t 'sequence-synteny conflicts' --save"
+        "Rscript scripts/lore_hunter/plot_genome.R"
+    # conda: "envs/plots.yaml"
+    # shell:
+    #     "python -m scripts.lore_hunter.plot_genome -c {input.fam} -g {input.genes} -pf {input.pal} "
+    #     "-o {output} -s {params.sp} -sort {SORTBY} -f dyogen -t 'sequence-synteny conflicts'"
 
 
 rule get_conflicts_by_ancestors:
@@ -76,3 +79,16 @@ rule plot_conflicts_by_ancestors:
     input: f"SCORPiOs-LH_{JNAME}/conflicts_by_anc_by_sp.csv"
     output: f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_by_ancestors_and_sp.svg"
     shell: "touch {output}"
+
+
+
+#Introducing the LH extension: quick usage and 
+#Extension to scorpios and can be invoked with -s scorpios_lh.smk --> will first run scorpios and then the lh extension on the output (check it runs scorpios completely)
+# --> we could make this one use rejected correction of iteration 0.
+#However, more interesting in interative mode and in particular trees remain synteny inconsistent at the second iteration --> real sequence-synteny conflicts
+#--> first run scorpios with the wrapper and then lh extension will ensure integrity of output and use it
+#input data are scorpios but needs an additional configuration file 
+#Detailed presentation of supported modes : diagnostic, au, treecl
+#--> detail new config
+
+#Add a documentation for the API :)
