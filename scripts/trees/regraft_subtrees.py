@@ -374,7 +374,6 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
     except Exception:
 
         traceback.print_exc()
-        sys.exit(1)
         raise
 
 
