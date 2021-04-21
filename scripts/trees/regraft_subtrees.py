@@ -265,7 +265,6 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
     except Exception:
 
         traceback.print_exc()
-        sys.exit(1)
         raise
 
 
