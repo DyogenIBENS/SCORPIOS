@@ -223,7 +223,7 @@ class FamilyOrthologies():
 
 
 def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr, oal, stats=None,
-                           discard_sp=None):
+                           discard_sp=None, no_ctree=False):
 
     """
     For a given ensembl tree, check whether synteny-derived constrained topologies are consistent
@@ -281,7 +281,6 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
             if len(ctree_leaves) < len(leaves):
 
                 to_replace_inside = leavesnames_in_fam.difference(ctree_leaves)
-
                 all_families[outgr_leaf[1]].update_constrained_tree(to_replace_inside, lca)
 
             if discard_sp:
@@ -305,6 +304,13 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
                 #check if family is not too multigenic, in whih case correction is difficult
                 if not all_families[outgr_leaf[1]].is_multigenic():
 
+
+                    sfile.write(outgr_leaf[1]+"\t"+"Inconsistent"+'\n')
+                    stats['Inconsistent'] = stats.get('Inconsistent', 0) + 1
+
+                    if no_ctree:
+                        continue
+
                     #we make a copy in case more than 1 subtree is inconsistent
                     #"newick-extended" copy is iterative (based on ete3 load/write)
                     #This way we do not risk to hit recusrion limit
@@ -324,8 +330,7 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
                     gene_species_mapping = dict((name, sp) for namesp, name, sp  in leaves_in_fam)
                     seq = ut.get_subali(ali, gene_species_mapping, gene_species_mapping)
                     ut.write_fasta(seq, oal + '/' + outgr_leaf[1]+'.fa')
-                    sfile.write(outgr_leaf[1]+"\t"+"Inconsistent"+'\n')
-                    stats['Inconsistent'] = stats.get('Inconsistent', 0) + 1
+
 
                 else:
                     sfile.write(outgr_leaf[1]+"\t"+"Inconsistent_multigenic"+'\n')
@@ -426,6 +431,8 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-di', '--discard_sp', nargs='+', default=None)
 
+    PARSER.add_argument('--no_ctree', action='store_true')
+
     ARGS = vars(PARSER.parse_args())
 
 
@@ -487,6 +494,6 @@ if __name__ == '__main__':
 
             get_inconsistent_trees(TREE, ALI, OUTGROUPS, ALL_GRAPH_CUT, outfile_summary,\
                                    ARGS["outCons"], ARGS["outTree"], ARGS["outAli"], STATS,\
-                                   ARGS["discard_sp"])
+                                   ARGS["discard_sp"], ARGS["no_ctree"])
 
     print_out_stats(STATS, wgd=ARGS["wgd_tag"])
