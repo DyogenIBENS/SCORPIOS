@@ -26,6 +26,12 @@ To run SCORPiOs on example data, go to the SCORPiOs root folder and run:
 
 The following output should be generated: :code:`SCORPiOs_example/SCORPiOs_output_0.nhx`.
 
+To separate stdout and stderr (recommended, as SCORPiOs writes statistics on key steps of the workflow to the standard output):
+
+.. prompt:: bash
+
+     snakemake --configfile config_example.yaml --use-conda --cores 4  >out 2>err
+
 Example 2: Iterative SCORPiOs run
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

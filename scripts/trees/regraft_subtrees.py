@@ -16,6 +16,7 @@ import multiprocessing
 import traceback
 import os
 import sys
+import pathlib
 import argparse
 import gzip
 
@@ -200,6 +201,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
         #Re-graft each subtree that we corrected
         for cor_subtree in cor_subtrees:
             missing_leaves = []
+
             corrected_tree = gt.get_solution_subtree(to_cor, cor_subtree.name)
             cor_descendants = []
             for leaf in corrected_tree.get_leaves():
@@ -271,7 +273,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
 
 
 def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
-                      brlengths=True, resume=False):
+                      brlengths=True, resume=False, raxml=False):
 
     """
     Reconciles a given gene tree with the species tree using treebest sdi, and optionaly computes
@@ -288,6 +290,8 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
                              computed
         prefix (str, optional): string to add as prefix to the output file
         brlengths (bool, optional): Whether branch-lengths should be computed
+        raxml (bool, optional): if true, use raxml instead of treebest phyml to compute br. lengths.
+
 
     Returns:
         bool: True if no Exception was raised.
@@ -312,6 +316,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
             d_sp = {}
             leaves = wtree.get_leaves()
 
+
             #remove artefactual single-child nodes
             wtree.prune(leaves)
 
@@ -332,12 +337,49 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
                 wtree.write(outfile=outfolder+"/tmp_"+treeid, format=1, features=["S"]+edit_tags,
                             format_root_node=True)
 
-                #compute branch-length
-                os.system("treebest phyml -t opt -n -Z 1e-3 "+outfolder+"/tmp_"+treeid+".fa "+\
-                          outfolder+"/tmp_"+treeid+" -c 2 > "+outfolder+"/"+treeid)
 
-                #copy correction nhx tags (wiped out by phyml above)
+                if not raxml:
+
+                    #compute branch-length
+                    os.system("treebest phyml -t opt -n -Z 1e-3 "+outfolder+"/tmp_"+treeid+".fa "+\
+                              outfolder+"/tmp_"+treeid+" -c 2 > "+outfolder+"/"+treeid)
+
+                else:
+                    pwd = str(pathlib.Path().absolute())
+
+                    #remove nhx tags for raxml
+                    os.system("sed -e 's/\[[^][]*\]//g' -e 's/(\([^,]*\))/\1/g' "+outfolder+\
+                              "/tmp_"+treeid+ "  > "+outfolder+"/tmp2_"+treeid)
+
+                    os.replace(outfolder+"/tmp2_"+treeid, outfolder+"/tmp_"+treeid)
+
+                    os.system("raxmlHPC -f e -t "+outfolder+"/tmp_"+treeid+" -m GTRGAMMA -s "+\
+                               outfolder+"/tmp_"+treeid+".fa --HKY85 -n "+treeid+" -w "+pwd+'/'+\
+                               outfolder+" > "+outfolder+"/log_"+treeid)
+
+                    os.remove(outfolder+"/RAxML_log."+treeid)
+                    os.remove(outfolder+"/log_"+treeid)
+                    os.remove(outfolder+"/RAxML_info."+treeid)
+                    os.remove(outfolder+"/RAxML_binaryModelParameters."+treeid)
+                    if os.path.exists(outfolder+"/tmp_"+treeid+".fa.reduced"):
+                        os.remove(outfolder+"/tmp_"+treeid+".fa.reduced")
+
+                    os.replace(outfolder+"/RAxML_result."+treeid, outfolder+"/"+treeid)
+
+
+
                 tmp = Tree(outfolder+"/"+treeid, format=1)
+
+                #raxml returns unrooted trees, we re-root as it was in the original tree
+                if raxml:
+                    rooting_outgr = {i.name for i in wtree.children[0].get_leaves()}
+                    rooting_node = tmp.get_common_ancestor(rooting_outgr)
+                    if rooting_node == tmp:
+                        rooting_outgr = {i.name for i in wtree.children[1].get_leaves()}
+                        rooting_node = tmp.get_common_ancestor(rooting_outgr)
+                    tmp.set_outgroup(rooting_node)
+
+                #copy correction nhx tags (wiped out by phyml or raxml above)
                 gt.copy_nhx_tags(wtree, tmp)
                 tmp.write(outfile=outfolder+"/"+treeid, format=1, features=["S"]+edit_tags,
                           format_root_node=True)
@@ -378,7 +420,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
 
 
 def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, sptree,
-                            prefix="cor", brlengths=True, resume=False):
+                            prefix="cor", brlengths=True, resume=False, raxml=False):
     """
     Reconciles with the species tree and optionaly compute branch-lengths for a subset of trees in
     `modified_trees` of a gene trees forest, in parallel. Each output reconciled tree is written
@@ -393,7 +435,7 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, spt
         sptree (str): name of the species tree file
         prefix (str, optional): prefix to add to output trees
         brlengths (bool, optional): Whether branch-lengths should be computed
-
+        raxml (bool, optional): if true, use raxml instead of treebest phyml to compute br. lengths.
     """
 
     open_f = open
@@ -411,7 +453,7 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, spt
                 if i in modified_trees:
                     res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
                                                                     sptree, input_ali, prefix,
-                                                                    brlengths, resume))
+                                                                    brlengths, resume, raxml))
                     async_res += [res]
             pool.close()
             pool.join()
@@ -482,6 +524,9 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-res', '--resume', help='Resume an interrupted run ?',
                         required=False, default='n')
+
+    PARSER.add_argument('--raxml', dest='raxml', action='store_true', help='Compute branch lengths\
+                        with RAxML instead of treebest phyml.')
 
     ARGS = vars(PARSER.parse_args())
 
@@ -592,7 +637,7 @@ if __name__ == '__main__':
     #reconcile with the species tree and re-compute branch-lengths
     multiprocess_rec_brlgth(ARGS["out"]+'_'+str(j), ARGS["alisFile"], NCORES, CORRECTION_STATS,
                             CORFOLDER, ARGS["Species_tree"], brlengths=ARGS["branch_lengths"],
-                            resume=ARGS["resume"])
+                            resume=ARGS["resume"], raxml=ARGS["raxml"])
 
     #clean temp
     os.remove(ARGS["out"]+'_'+str(j))

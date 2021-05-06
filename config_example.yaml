@@ -51,6 +51,10 @@ cutoff: 0
 # Whether branch-lengths should be recomputed after corrections: yes ('y') or no ('n').
 brlength: 'y'
 
+# Software to recompute the branch-lengths: 'treebest phyml' (default) or 'raxml'.
+## Uncomment to use RAxML##
+#brlength_tool: raxml
+
 # Any species with a poorer assembly quality that should be discarded for synteny analysis.
 ## Comment out if you want to use all species in the synteny analysis.##
 lowcov_sp: 'data/example/lowcov'
@@ -89,7 +93,3 @@ buffer_size: 10G
 
 # Use a parallelization scheme specific to large jobs: yes ('y') or no ('n').
 parallel_scheme_large_job: 'n'
-
-# Limit number of cores for the branch length computation (after all corrections).
-## Uncomment to reduce RAM usage.##
-#limit_threads_for_branch_lengths: 37

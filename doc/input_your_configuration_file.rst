@@ -65,6 +65,10 @@ As an example, we provide `config_example.yaml <https://github.com/DyogenIBENS/S
 	# Whether branch-lengths should be recomputed after corrections: yes ('y') or no ('n').
 	brlength: 'y'
 
+	# Software to recompute the branch-lengths: 'treebest phyml' (default) or 'raxml'.
+	## Uncomment to use RAxML##
+	#brlength_tool: raxml
+
 	# Any species with a poorer assembly quality that should be discarded for synteny analysis.
 	## Comment out if you want to use all species in the synteny analysis.##
 	lowcov_sp: 'data/example/lowcov'
@@ -103,10 +107,6 @@ As an example, we provide `config_example.yaml <https://github.com/DyogenIBENS/S
 
 	# Use a parallelization scheme specific to large jobs: yes ('y') or no ('n').
 	parallel_scheme_large_job: 'n'
-
-	# Limit number of cores for the branch length computation (after all corrections).
-	## Uncomment to reduce RAM usage.##
-	#limit_threads_for_branch_lengths: 37
 
 We detail each of the settings in the next section.
 
@@ -260,6 +260,16 @@ Example:
 
 	brlength: 'y'
 
+Tool for branch-lengths computation after correction
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+**Optional (default='treebest phyml').** Whether branch-lengths should be recomputed with treebest or raxml after subtree corrections: 'treebest phyml' or 'raxml'.
+
+Example:
+
+.. code:: yaml
+
+	brlength_tool: 'raxml'
+
 Lower-quality genome assemblies
 """""""""""""""""""""""""""""""
 **Optional.** A file listing species with a poorer assembly quality that should be discarded for synteny analysis. You should still provide their genes coordinate files. 
@@ -375,13 +385,3 @@ Example:
 .. code:: yaml
 
 	parallel_scheme_large_job: 'n'
-
-Parallel jobs for branch-length computation (soon deprecated)
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-**Optional**. Limit the number of cores for the branch length computation (after all corrections). Recomputing branch lengths can be RAM intensive for large trees (SCORPiOs uses TreeBeST PhyML here). To use less RAM, you may want to reduce the number of parallel jobs.
-
-Example:
-
-.. code:: yaml
-
-	limit_threads_for_branch_lengths: 10
