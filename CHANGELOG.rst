@@ -1,5 +1,12 @@
 All notable changes to SCORPiOs, added after the first released version v1.0.0, will be documented here.
 
+UNRELEASED
+-----------
+
+Added
+^^^^^
+- New option to recompute branch-lengths with RAxML after all subtrees corrections (instead of treebest phyml).
+
 [Version 1.3.0] - 23/11/2020 - `v1.3.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.3.0>`_
 -------------------------------------------
 
