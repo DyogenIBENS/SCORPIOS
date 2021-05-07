@@ -385,3 +385,14 @@ Example:
 .. code:: yaml
 
 	parallel_scheme_large_job: 'n'
+
+
+Parallel jobs for branch-length computation 
+""""""""""""""""""""""""""""""""""""""""""""""
+**Optional**. Limit the number of cores for the branch length computation (after all corrections). Recomputing branch lengths can be RAM intensive for large trees (SCORPiOs can use TreeBeST PhyML or RAxML here). To use less RAM, you may want to reduce the number of parallel jobs.
+
+Example:
+
+.. code:: yaml
+
+	limit_threads_for_branch_lengths: 10

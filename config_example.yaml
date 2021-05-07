@@ -93,3 +93,7 @@ buffer_size: 10G
 
 # Use a parallelization scheme specific to large jobs: yes ('y') or no ('n').
 parallel_scheme_large_job: 'n'
+
+# Limit number of cores for the branch length computation (after all corrections).
+## Uncomment to reduce RAM usage.##
+#limit_threads_for_branch_lengths: 37
