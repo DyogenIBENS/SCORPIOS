@@ -353,7 +353,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
 
                     os.replace(outfolder+"/tmp2_"+treeid, outfolder+"/tmp_"+treeid)
 
-                    os.system("raxmlHPC -f e -t "+outfolder+"/tmp_"+treeid+" -m GTRGAMMA -s "+\
+                    os.system("raxmlHPC -f e -t "+outfolder+"/tmp_"+treeid+" -m GTRCAT -c 2 -s "+\
                                outfolder+"/tmp_"+treeid+".fa --HKY85 -n "+treeid+" -w "+pwd+'/'+\
                                outfolder+" > "+outfolder+"/log_"+treeid)
 
@@ -372,11 +372,16 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
 
                 #raxml returns unrooted trees, we re-root as it was in the original tree
                 if raxml:
-                    rooting_outgr = {i.name for i in wtree.children[0].get_leaves()}
-                    rooting_node = tmp.get_common_ancestor(rooting_outgr)
-                    if rooting_node == tmp:
-                        rooting_outgr = {i.name for i in wtree.children[1].get_leaves()}
-                        rooting_node = tmp.get_common_ancestor(rooting_outgr)
+                    for ind in range(2):
+                        rooting_outgr = {i.name for i in wtree.children[ind].get_leaves()}
+                        if len(rooting_outgr) > 1:
+                            rooting_node = tmp.get_common_ancestor(rooting_outgr)
+                        else:
+                            rooting_node, = rooting_outgr
+
+                        if rooting_node != tmp:
+                            break
+
                     tmp.set_outgroup(rooting_node)
 
                 #copy correction nhx tags (wiped out by phyml or raxml above)
