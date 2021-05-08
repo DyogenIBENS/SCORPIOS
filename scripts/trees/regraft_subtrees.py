@@ -353,7 +353,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
 
                     os.replace(outfolder+"/tmp2_"+treeid, outfolder+"/tmp_"+treeid)
 
-                    os.system("raxmlHPC -f e -t "+outfolder+"/tmp_"+treeid+" -m GTRCAT -c 2 -s "+\
+                    os.system("raxmlHPC -f e -t "+outfolder+"/tmp_"+treeid+" -m GTRCAT -c 1 -s "+\
                                outfolder+"/tmp_"+treeid+".fa --HKY85 -n "+treeid+" -w "+pwd+'/'+\
                                outfolder+" > "+outfolder+"/log_"+treeid)
 
