@@ -7,6 +7,7 @@ Added
 ^^^^^
 - New option to recompute branch-lengths with RAxML after all subtrees corrections (instead of treebest phyml).
 
+
 [Version 1.3.0] - 23/11/2020 - `v1.3.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.3.0>`_
 -------------------------------------------
 
