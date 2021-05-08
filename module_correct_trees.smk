@@ -6,12 +6,12 @@ SCORPiOs snakemake module to build test and regraft synteny aware subtrees for i
 RESUME = config.get("resume", "n")
 
 RAXML = config.get("brlength_tool", '')
+RAXML_ARG = ''
 if RAXML:
     assert RAXML.lower() in ["raxml", "treebest phyml"], "Bad 'brlength_tool' parameter in config."
     if RAXML.lower() == "raxml":
         RAXML_ARG = '--raxml'
-    else:
-        RAXML_ARG = ''
+
 
 rule remove_anc_in_sptree:
     """
