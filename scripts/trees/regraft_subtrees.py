@@ -384,7 +384,7 @@ def worker_rec_brlgth(tree, outfolder, treeid, sptree, ali='', prefix='cor',
 
                     tmp.set_outgroup(rooting_node)
 
-                #copy correction nhx tags (wiped out by phyml or raxml above)
+                #copy correction nhx tags (wiped out by phyml or raxml)
                 gt.copy_nhx_tags(wtree, tmp)
                 tmp.write(outfile=outfolder+"/"+treeid, format=1, features=["S"]+edit_tags,
                           format_root_node=True)
