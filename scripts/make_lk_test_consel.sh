@@ -6,7 +6,6 @@ alifile=$3
 cortree=$4
 output=$5
 
-
 workingDir=$(pwd)
 
 alidir=${alifile%/*}
@@ -14,8 +13,9 @@ ensdir=${enstree%/*}
 cordir=${cortree%/*}
 
 
+
 #check alignment and remove undetermined columns (if any)
-raxmlHPC -f c --print-identical-sequences -n ${name} -m GTRGAMMA --HKY85 -s "${alifile}" -w "${workingDir}/${alidir}/" > "${alidir}/info.${name}"
+raxmlHPC -f c --print-identical-sequences -n ${name} -m GTRGAMMA --HKY85 -s "${alifile}" -w "${workingDir}/${alidir}/" >&2
 if [ -s "${alifile}.reduced" ]; then
 	alifile="${alifile}.reduced"
 fi
@@ -29,7 +29,7 @@ if [ ! -s "${alidir}/${name}_a.lk" ]; then
 	cat "${cortree}" "${enstree}" | sed -e 's/\[[^][]*\]//g' -e 's/(\([^,]*\))/\1/g' > "${cordir}/trees_${name}.nh"
 
 	#compute site lk
-	raxmlHPC -f G -n ${name} -m GTRGAMMA --HKY85 -s "${alifile}" -z "${cordir}/trees_${name}.nh" -w "${workingDir}/${alidir}/" > "${alidir}/info.${name}"
+	raxmlHPC -f G -n ${name} -m GTRGAMMA --HKY85 -s "${alifile}" -z "${cordir}/trees_${name}.nh" -w "${workingDir}/${alidir}/" >&2
 	rm "${cordir}/trees_${name}.nh"
 
 	#rename output
@@ -42,7 +42,7 @@ else
 	sed -e 's/\[[^][]*\]//g' "${cortree}" > "${cordir}/tmp_${name}.nh"
 
 	#compute site lk
-	raxmlHPC -f g -n ${name} -m GTRGAMMA --HKY85 -s "${alifile}" -z "${cordir}/tmp_${name}.nh" -w "${workingDir}/${alidir}/" > "${alidir}/info.${name}"
+	raxmlHPC -f g -n ${name} -m GTRGAMMA --HKY85 -s "${alifile}" -z "${cordir}/tmp_${name}.nh" -w "${workingDir}/${alidir}/" >&2
 	rm "${cordir}/tmp_${name}.nh"
 
 	#extract original tree site log-lk and put it together in one file
@@ -53,28 +53,26 @@ fi
 
 
 #workaround since consel decides to trim filenames containing '.' (looks like extension split issue)
-namenew="${name%.*}"
+namenew="${name//./}"
+mv "${alidir}/tmp_${name}.lk" "${alidir}/tmp_${namenew}.lk"
 
 #test if difference in likelihood is signifiant with the AU-Test using consel
-makermt --puzzle "${alidir}/tmp_${name}.lk" > "${alidir}/info.${name}"
-consel "${alidir}/tmp_${name}" > "${alidir}/info.${name}"
+makermt --puzzle "${alidir}/tmp_${namenew}.lk" >&2
+consel "${alidir}/tmp_${namenew}" >&2
 catpv "${alidir}/tmp_$namenew.pv" > "$output"
 
 ## CLEAN ALL TEMP ##
 #clean all consel temp
-rm "${alidir}/tmp_${name}.lk" &> "${alidir}/rmlog.${name}"
-rm "${alidir}/tmp_${name}.rmt" &> "${alidir}/rmlog.${name}"
-rm "${alidir}/tmp_${name}.vt" &> "${alidir}/rmlog.${name}"
-rm "${alidir}/tmp_${name}" &> "${alidir}/rmlog.${name}"
-rm "${alidir}/tmp_${namenew}.pv" &> "${alidir}/rmlog.${name}"
-rm "${alidir}/tmp_${namenew}.ci" &> "${alidir}/rmlog.${name}"
+rm "${alidir}/tmp_${namenew}.lk"
+rm "${alidir}/tmp_${namenew}.rmt"
+rm "${alidir}/tmp_${namenew}.vt"
+rm "${alidir}/tmp_${namenew}.pv"
+rm "${alidir}/tmp_${namenew}.ci"
 
 #clean tmp logs
 rm "${alidir}/RAxML_info.${name}"
-rm "${alidir}/rmlog.${name}"
 
 #clean raxml tmp
-rm "${alidir}/info.${name}"
 if [ -s "${alifile}.reduced" ]; then
 	rm "${alifile}.reduced"
 fi
