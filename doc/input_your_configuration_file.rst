@@ -196,7 +196,7 @@ Parameters
 Whole-genome duplication(s) and outgroup(s)
 """""""""""""""""""""""""""""""""""""""""""
 
-**Required.** Each WGD event in the species tree should be indicated via the name of the ancestor of all duplicated species. Then, for each WGD, provide one or several outgroup species to use as reference in the synteny analysis. Any non-duplicated species can be used as outgroup, but phylogenetically close outgroup should be preferred as synteny with duplicated species will be more conserved. Multiple reference outgroups can be provided as a comma-separated list. For an illustrated explanation on how to specify the duplicated ancestor, please see the "Data preparation and formatting" section.
+**Required.** Each WGD event in the species tree, that you wish to correct gene trees for, should be indicated via the name of the ancestor of all duplicated species. Then, for each WGD, provide one or several outgroup species to use as reference in the synteny analysis. Any non-duplicated species can be used as outgroup, but phylogenetically close outgroup should be preferred as synteny with duplicated species will be more conserved. Multiple reference outgroups can be provided as a comma-separated list. For an illustrated explanation on how to specify the duplicated ancestor, please see the "Data preparation and formatting" section.
 
 Example:
 
