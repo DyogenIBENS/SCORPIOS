@@ -113,7 +113,9 @@ if "lowcov_sp" in config:
     lowcov_arg = '-l '+lowcov
 
 wildcard_constraints:
-    pairwise="[A-Za-z.0-9]+_[A-Za-z.0-9]+" #no underscore in sp names, as also required in ensembl
+    pairwise="[A-Za-z.0-9]+_[A-Za-z.0-9]+", #no underscore in sp names, as also required in ensembl
+    wgd="[A-Za-z.0-9]+",
+    outgr="[A-Za-z.0-9]+"
 
 config["filter_otable_nosynteny"] = config.get("filter_otable_nosynteny", 'n')
 
