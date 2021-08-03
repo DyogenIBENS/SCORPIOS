@@ -88,7 +88,7 @@ def get_ctrees(wildcards):
     co = checkpoints.gene_trees_to_correct.get(**wildcards).output[0]
 
     #get all generated ctrees to expand wildcards
-    Ctrees, = glob_wildcards(co+"C_{ctrees}.nh")
+    Ctrees, = glob_wildcards(co+"/C_{ctrees}.nh")
     poly = expand(OutPolylk+"/{wgd}/Res_{ctrees}.txt", ctrees=Ctrees, wgd=wildcards.wgd)
     treeb = expand(OuttreeBlk+"/{wgd}/Res_{ctrees}.txt", ctrees=Ctrees, wgd=wildcards.wgd)
     return poly+treeb
