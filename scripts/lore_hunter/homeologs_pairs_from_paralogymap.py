@@ -6,7 +6,8 @@ import sys
 from collections import Counter
 import argparse
 
-UPDATE_HOMEO_NAMES = {1:13, 2:12, 3:9, 4:5, 5:1, 6:3, 7:10, 8:2, 9:8, 10:4, 11:7, 12:11, 13:6} #FIXME, remove in this code and update my input data
+#FIXME, remove in this code and update my input data
+UPDATE_HOMEO_NAMES = {1:13, 2:12, 3:9, 4:5, 5:1, 6:3, 7:10, 8:2, 9:8, 10:4, 11:7, 12:11, 13:6} 
 
 
 def load_pm(input_file, update_name=UPDATE_HOMEO_NAMES):
@@ -33,13 +34,15 @@ def load_pm(input_file, update_name=UPDATE_HOMEO_NAMES):
     return fam_homeo
 
 
-def load_summary(input_file):
+def load_summary(input_file, accepted):
 
     """
-    Loads SCORPiOs summary of synteny-trees inconsistencies.
+    Loads SCORPiOs summary of synteny-sequence trees inconsistencies.
 
     Args:
         input_file (str): path to the input file
+        accepted (str): path to the file with accepted correction (inconsistent trees which have 
+                        been corrected are now consistent)
 
     Returns:
         dict: for each outgroup gene family identifier (key, str) wheter trees and synteny
@@ -53,6 +56,8 @@ def load_summary(input_file):
             consistency = consistency.lower().split('_')[0]
 
             if consistency in ["consistent", "inconsistent"]:
+                if consistency == "inconsistent" and fam_id in accepted:
+                    consistency = "consistent"
                 d_summary[fam_id] = consistency
 
     return d_summary
@@ -83,6 +88,22 @@ def load_outgr_fam(input_file, ctrees):
                     d_fam[outgr_gene] = genes
 
     return d_fam
+
+def load_acc(input_file):
+
+    """
+    Loads accepted correction.
+
+    Args:
+        input_file (str): path to the input file.
+
+    Returns:
+        set: all family ids (outgroup gene name) for which correction was accepted
+    """
+
+    with open(input_file, 'r') as infile:
+        res = {line.strip().split('\t')[0] for line in infile}
+    return res
 
 
 def outgroup_genes_to_homeologs(fam_outgr, fam_homeo):
@@ -164,6 +185,9 @@ if __name__ == '__main__':
     PARSER.add_argument('-s', '--summary', help='SCORPiOs trees-synteny consistency summary',
                         required=True)
 
+    PARSER.add_argument('-a', '--accepted', help='SCORPiOs accepted corrections',
+                        required=True)
+
     PARSER.add_argument('-oa', '--out_all', help='Output directory', required=False,
                         default="out_all_trees.txt")
 
@@ -171,7 +195,8 @@ if __name__ == '__main__':
 
     ARGS = vars(PARSER.parse_args())
 
-    CTREES = load_summary(ARGS["summary"])
+    ACC = load_acc(ARGS["accepted"])
+    CTREES = load_summary(ARGS["summary"], ACC)
 
     sys.stderr.write('Loading orthotable(s)...')
     D_OUTGR = {}
@@ -186,5 +211,4 @@ if __name__ == '__main__':
     sys.stderr.write(f'Transferring homeologs from paralogy map to SCORPiOs families ({len(D_OUTGR)} families)...\n')
     HOMEOLOGS = outgroup_genes_to_homeologs(D_OUTGR, PM)
     sys.stderr.write('ok\n')
-    print(len(HOMEOLOGS))
     write_output(HOMEOLOGS, CTREES, ARGS["out_all"], ARGS["out_incons"])

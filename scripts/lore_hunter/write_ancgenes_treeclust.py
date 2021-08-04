@@ -19,6 +19,11 @@ def write_ancgenes(clustered_genes, treedir, out_ancgenes):
 
         for gene in clustered_genes:
 
+            cluster = clustered_genes[gene]
+
+            if cluster != "Inconsistent":
+                continue
+
             treefile = treedir +  '/' + gene + '.nhx'
 
             if not os.path.exists(treefile):
@@ -33,7 +38,6 @@ def write_ancgenes(clustered_genes, treedir, out_ancgenes):
             
             descendants = sorted(list(leaves))
 
-            cluster = clustered_genes[gene]
 
             anc = 'Name_'+str(k)
                     
@@ -42,14 +46,21 @@ def write_ancgenes(clustered_genes, treedir, out_ancgenes):
             k += 1
 
 
-def load_gene_list(input):
+def load_gene_list(input_summary, input_acc):
 
     """
 
     """
 
-    with open(input, 'r') as infile:
+    with open(input_summary, 'r') as infile:
         genes = {line.strip().split('\t')[0]:line.strip().split('\t')[1] for line in infile}
+
+    with open(input_acc, 'r') as infile:
+        acc = {line.strip().split('\t')[0] for line in infile}
+
+    for g in genes:
+        if genes[g] == "Inconsistent" and g in acc:
+            genes[g] = "Consistent"
 
     return genes
 
@@ -60,16 +71,19 @@ if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    PARSER.add_argument('-t', '--treesdir', help='',\
-                         required=True)
+    PARSER.add_argument('-t', '--treesdir', help='', required=True)
 
     PARSER.add_argument('-c', '--clusters', help='', required=True)
+
+    PARSER.add_argument('-a', '--accepted', help='SCORPiOs accepted corrections',
+                        required=True)
+
 
     PARSER.add_argument('-o', '--outfile', help='Output file', required=False, default="out")
 
 
     ARGS = vars(PARSER.parse_args())
 
-    CLUSTERS = load_gene_list(ARGS["clusters"])
+    CLUSTERS = load_gene_list(ARGS["clusters"], ARGS["accepted"])
 
     write_ancgenes(CLUSTERS, ARGS["treesdir"], ARGS["outfile"])

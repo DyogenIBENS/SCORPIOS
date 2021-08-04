@@ -60,7 +60,7 @@ if not LORE_OUTGR:
 JNAME = SCORPIOS_CONFIG["jobname"]
 ITER = config.get("iter", 0)
 CTREES = out_name("Trees/ctrees", JNAME, ITER)
-Acc = out_name("Corrections/Accepted_Trees", JNAME, ITER, LORE_WGD, LORE_OUTGR)
+Acc = out_name("Corrections/Accepted_Trees", JNAME, ITER, LORE_WGD)
 ORTHOTABLE = out_name("Families/Homologs", JNAME, ITER, LORE_WGD, LORE_OUTGR)
 SUMMARY = out_name("Corrections/Trees_summary", JNAME, ITER, LORE_WGD)
 RES = out_name("Corrections/Res_polylk", JNAME, ITER)
@@ -83,21 +83,23 @@ CTREES_DIR = CTREES+"/"+LORE_WGD+"/"
 
 ### WORKFLOW
 
+print(MODE)
+if MODE == "diagnostic":
+    rule Target:
+        input:
+            f"SCORPiOs-LH_{JNAME}/diagnostic/seq_synteny_conflicts_by_homeologs.svg",
+            f"SCORPiOs-LH_{JNAME}/diagnostic/seq_synteny_conflicts_on_genome.svg"
+
 rule check_scorpios_output_integrity:
+    input: scorpios("SCORPiOs_"+JNAME+"/.cleanup_"+str(ITER))
     output: touch(f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out")
     run: 
         ctrees_a, = glob_wildcards(CTREES+"/"+LORE_WGD+"/C_{ctrees}.nh")
         ctrees_b, = glob_wildcards(RES+"/"+LORE_WGD+"/Res_{ctrees}.txt")
         sys.stderr.write('Checking SCORPiOs output integrity...\n')
-        assert set(ctrees_a) and set(ctrees_a) == set(ctrees_b), "please re-run scorpios, output of the checkpoint rule appears to be incomplete."
-
-if MODE == "diagnostic":
-    rule Target:
-        input:
-            f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_by_homeologs.svg",
-            f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_on_genome.svg",
-            f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_by_ancestors_and_sp.svg"
-
+        if not set(ctrees_a) and set(ctrees_a) == set(ctrees_b):
+            print("Please re-run scorpios, output of the checkpoint rule appears to be incomplete.")
+            sys.exit(1)
 
 def get_ctrees(wildcards, restrict=None):
     Ctrees, = glob_wildcards(CTREES+"/"+LORE_WGD+"/C_{ctrees}.nh")
@@ -109,20 +111,20 @@ def get_ctrees(wildcards, restrict=None):
     # out = expand('test_lore/{ctrees}_test.txt', ctrees=Ctrees)
     return out
 
-if MODE != "diagnostic":
+# if MODE != "diagnostic":
 
-    rule all:
-        input: get_ctrees, "done.txt"
+#     rule Target:
+#         input: get_ctrees, "done.txt"
 
-    rule test:
-        input: scorpios(directory(CTREES+"/"+LORE_WGD+"/"))
-        output: 'test_lore/{ctrees}_test.txt'
-        shell: "touch {output}"
+#     rule test:
+#         input: scorpios(directory(CTREES+"/"+LORE_WGD+"/"))
+#         output: 'test_lore/{ctrees}_test.txt'
+#         shell: "touch {output}"
 
-    rule test2:
-        input: scorpios("SCORPiOs_example/Corrections/Accepted_Trees_"+LORE_WGD+"_0")
-        output: "done.txt"
-        shell: "touch done.txt"
+#     rule test2:
+#         input: scorpios("SCORPiOs_example/Corrections/Accepted_Trees_"+LORE_WGD+"_0")
+#         output: "done.txt"
+#         shell: "touch done.txt"
 
 
 #include the 3 SCORPiOs LORe Hunter modules

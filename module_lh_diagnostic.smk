@@ -1,94 +1,95 @@
 PATTERN = config["pattern"] #TODO --> remove this somehow or have a default like 'chr*'
 SP, GENES = list(config["dup_genome"].items())[0]
-SORTBY = config.get("sort_by", "names")
 assert "use_anc" in config.get("pre_dup_proxy", "") or "use_outgr" in config.get("pre_dup_proxy", "")
+
+OUTFOLDER = f"SCORPiOs-LH_{JNAME}/diagnostic"
 
 if "use_outgr" in config["pre_dup_proxy"]:
 
     REF = config["pre_dup_proxy"]["use_outgr"]
 
     rule prepare_homeologs_outgr:
-        input: fam = ORTHOTABLE, summary = SUMMARY, check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
-        output: incons = f"SCORPiOs-LH_{JNAME}/conflicts", all_trees = f"SCORPiOs-LH_{JNAME}/trees"
-        shell:
+        input:
+            fam = scorpios(ORTHOTABLE),
+            summary = scorpios(SUMMARY),
+            acc = scorpios(Acc),
+            check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
+        output:
+            incons = f"{OUTFOLDER}/conflicts",
+            all_trees = f"{OUTFOLDER}/trees",
+            tmp_acc = temp(f"{OUTFOLDER}/tmp_acc")
+        shell:#FIXME: not sure this works with outfolder that way
             "grep {PATTERN} {input.fam} | cut -f 1 | uniq -c > {output.all_trees}; "
-            "grep {PATTERN} {input.fam} | cut -f 1,3 > SCORPiOs-LH_{JNAME}/tmp_genes; "
-            "grep Incons {input.summary} | cut -f 1 > SCORPiOs-LH_{JNAME}/tmp_incons; "
-            "grep -f SCORPiOs-LH_{JNAME}/tmp_incons SCORPiOs-LH_{JNAME}/tmp_genes | cut -f 1 | uniq -c > {output.incons}"
+            "grep {PATTERN} {input.fam} | cut -f 1,3 > {OUTFOLDER}/tmp_genes; "
+            "grep Incons {input.summary} | cut -f 1 > {OUTFOLDER}/tmp_incons; "
+            "cut -f 1 {input.acc} > {OUTFOLDER}/tmp_acc; "
+            "grep -v {OUTFOLDER}/tmp_acc {OUTFOLDER}/tmp_incons > {OUTFOLDER}/tmp_uncorr; "
+            "grep -f {OUTFOLDER}/tmp_incons {OUTFOLDER}/tmp_genes | cut -f 1 | uniq -c > {output.incons}"
 
 else:
 
     REF_FILE = config["pre_dup_proxy"]["use_anc"]
     REF = "Pre-duplication"
 
+    #FIXME remove the dict to re-assign pm chromosomes (fix input data)
     rule prepare_homeologs_anc: #TODO: fam could take several orthothables (ORTHOTABLES.split())
-        input: fam = ORTHOTABLE, summary = SUMMARY, pm = REF_FILE, check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
-        output: incons = f"SCORPiOs-LH_{JNAME}/conflicts", alltrees = f"SCORPiOs-LH_{JNAME}/trees"
+        input:
+            fam = scorpios(ORTHOTABLE),
+            summary = scorpios(SUMMARY),
+            acc = scorpios(Acc),
+            pm = REF_FILE,
+            check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
+        output: incons = f"{OUTFOLDER}/conflicts", alltrees = f"{OUTFOLDER}/trees"
         shell:
             "python -m scripts.lore_hunter.homeologs_pairs_from_paralogymap -i {input.fam} -p {input.pm} "
-            "-s {input.summary} -oi {output.incons} -oa {output.alltrees}"
+            "-s {input.summary} -oi {output.incons} -oa {output.alltrees} -a {input.acc}"
 
 rule plot_homeologs:
-    input: incons = f"SCORPiOs-LH_{JNAME}/conflicts", all_trees = f"SCORPiOs-LH_{JNAME}/trees"
-    output: f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_by_homeologs.svg"
+    input: incons = f"{OUTFOLDER}/conflicts", all_trees = f"{OUTFOLDER}/trees"
+    output: f"{OUTFOLDER}/seq_synteny_conflicts_by_homeologs.svg"
     conda: "envs/plots.yaml"
     shell:
         "python -m scripts.lore_hunter.homeologs_tree_conflicts -i {input.incons} -g {input.all_trees} -o {output} "
         " --refname '{REF}'"
 
 rule prepare_genome_plot:
-    input: ctreedir = CTREES_DIR, summary = SUMMARY
-    output: fam = f"SCORPiOs-LH_{JNAME}/inconsistent_families.tsv", pal = f"SCORPiOs-LH_{JNAME}/palette.tsv"
+    input: ctreedir = scorpios(CTREES_DIR), summary = scorpios(SUMMARY), acc = scorpios(Acc),
+    output: fam = f"{OUTFOLDER}/inconsistent_families.tsv"
     shell:
-        "grep Incons {input.summary} | grep -v multigenic > SCORPiOs-LH_{JNAME}/incons; echo -e 'Inconsistent\tred' > {output.pal}; "
-        "python scripts/lore_hunter/write_ancgenes_treeclust.py -t {input.ctreedir} -c SCORPiOs-LH_{JNAME}/incons -o {output.fam}" #RIdeogram + bundle adjacent
+        "python -m scripts.lore_hunter.write_ancgenes_treeclust -a {input.acc} -t {input.ctreedir} -c {input.summary} -o {output.fam}" #RIdeogram + bundle adjacent
+
+rule prepare_input_rideogram:
+    input:
+        fam = f"{OUTFOLDER}/inconsistent_families.tsv",
+        genes = GENES
+    output:
+        karyo = f"{OUTFOLDER}/karyo_ide.txt",
+        feat = f"{OUTFOLDER}/incons_ide.txt"
+    params: sp = SP
+    shell: "python -m scripts.lore_hunter.make_rideograms_inputs -i {input.fam} -g {input.genes} "
+           "-k {output.karyo} -o {output.feat} -f dyogen"
 
 
-#TODO: if possible use RIdeogram
-#TODO: if possible highlight high-densty regions
-#TODO: bundle adjacent genes together to decrease image size
+#TODO: if possible highlight high-density regions
+#TODO: add a title with sp name
 rule plot_conflicts_on_genome:
     input:
-        fam = f"SCORPiOs-LH_{JNAME}/inconsistent_families.tsv",
-        pal = f"SCORPiOs-LH_{JNAME}/palette.tsv",
-        genes = GENES
-    output: touch(f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_on_genome.svg")
+        karyo = f"{OUTFOLDER}/karyo_ide.txt",
+        feat = f"{OUTFOLDER}/incons_ide.txt",
+    output: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome.svg"
     params: sp = SP
     conda: 'envs/rideogram.yaml'
     shell:
-        "Rscript scripts/lore_hunter/plot_genome.R"
-    # conda: "envs/plots.yaml"
-    # shell:
-    #     "python -m scripts.lore_hunter.plot_genome -c {input.fam} -g {input.genes} -pf {input.pal} "
-    #     "-o {output} -s {params.sp} -sort {SORTBY} -f dyogen -t 'sequence-synteny conflicts'"
-
-
-rule get_conflicts_by_ancestors:
-    input: ctrees = get_ctrees("ENSLOC"), ori_forest = INPUT_FOREST 
-    output: f"SCORPiOs-LH_{JNAME}/conflicts_by_anc_by_sp.csv"
-    shell:
-        "touch {output}"
-        # "python -m scripts.trees.inconsistent_trees.py --by_anc --no_ctrees --by_sp"
-
-#TODO: get_conflicts_by_ancestor
-# --> mettre à jour inconsistent_trees
-# --> faire en sorte de pouvoir tester en enlevant les sp descendant de plusieurs ancêtres +  des sp_ind
-# --> il faudra prbabalement faire des copies des objets arbres de ete3 sinon je vais casser le script et casser scorpios par la même occaz :/
-
-rule plot_conflicts_by_ancestors:
-    input: f"SCORPiOs-LH_{JNAME}/conflicts_by_anc_by_sp.csv"
-    output: f"SCORPiOs-LH_{JNAME}/seq_synteny_conflicts_by_ancestors_and_sp.svg"
-    shell: "touch {output}"
-
+        "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output}"
 
 
 #Introducing the LH extension: quick usage and 
 #Extension to scorpios and can be invoked with -s scorpios_lh.smk --> will first run scorpios and then the lh extension on the output (check it runs scorpios completely)
 # --> we could make this one use rejected correction of iteration 0.
-#However, more interesting in interative mode and in particular trees remain synteny inconsistent at the second iteration --> real sequence-synteny conflicts
+#For iterative run
 #--> first run scorpios with the wrapper and then lh extension will ensure integrity of output and use it
-#input data are scorpios but needs an additional configuration file 
+#input data are same as scorpios but needs an additional configuration file 
 #Detailed presentation of supported modes : diagnostic, au, treecl
 #--> detail new config
-
+#--> make a small example which includes 1 chr in outgroup salmon with mix AORe and LORe
 #Add a documentation for the API :)
