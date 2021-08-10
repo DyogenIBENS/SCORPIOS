@@ -10,9 +10,9 @@ if "use_outgr" in config["pre_dup_proxy"]:
 
     rule prepare_homeologs_outgr:
         input:
-            fam = scorpios(ORTHOTABLE),
-            summary = scorpios(SUMMARY),
-            acc = scorpios(Acc),
+            fam = ORTHOTABLE,
+            summary = SUMMARY,
+            acc = Acc,
             check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
         output:
             incons = f"{OUTFOLDER}/conflicts",
