@@ -1,6 +1,9 @@
 from snakemake.io import load_configfile
 import sys
 
+#may need --scheduler greedy
+
+
 #get scorpios config,
 SCORPIOS_CONFIGFILE = config["scorpios_config"]
 
@@ -28,7 +31,7 @@ def out_name(name, jobname, iteration, wcard_wgd='', wcard_outgr=''):
     return name
 
 #check lh mode
-assert config.get("mode", "diagnostic").lower() in ["treecl", "au", "diagnostic"],\
+assert config.get("mode", "diagnostic").lower() in ["clustering", "au", "diagnostic"],\
                                 "Invalid `mode`, please check your config."
 MODE = config["mode"].lower()
 
@@ -59,11 +62,12 @@ if not LORE_OUTGR:
 #Get SCORPiOs inputs and outputs
 JNAME = SCORPIOS_CONFIG["jobname"]
 ITER = config.get("iter", 0)
-CTREES = out_name("Trees/ctrees", JNAME, ITER)
-Acc = out_name("Corrections/Accepted_Trees", JNAME, ITER, LORE_WGD)
-ORTHOTABLE = out_name("Families/Homologs", JNAME, ITER, LORE_WGD, LORE_OUTGR)
-SUMMARY = out_name("Corrections/Trees_summary", JNAME, ITER, LORE_WGD)
-RES = out_name("Corrections/Res_polylk", JNAME, ITER)
+CTREES = scorpios(out_name("Trees/ctrees", JNAME, ITER))
+Acc = scorpios(out_name("Corrections/Accepted_Trees", JNAME, ITER, LORE_WGD))
+ORTHOTABLE = scorpios(out_name("Families/Homologs", JNAME, ITER, LORE_WGD, LORE_OUTGR))
+SUMMARY = scorpios(out_name("Corrections/Trees_summary", JNAME, ITER, LORE_WGD))
+RES = scorpios(out_name("Corrections/Res_polylk", JNAME, ITER))
+SCORPIOS_CORRTREES = scorpios(out_name("SCORPiOs_output", JNAME, ITER)+'.nhx')
 
 SPTREE = SCORPIOS_CONFIG["species_tree"]
 if "trees" in SCORPIOS_CONFIG and ITER == 0:
@@ -84,11 +88,16 @@ CTREES_DIR = CTREES+"/"+LORE_WGD+"/"
 ### WORKFLOW
 
 print(MODE)
-if MODE == "diagnostic":
+if MODE.lower() == "diagnostic":
     rule Target:
         input:
             f"SCORPiOs-LH_{JNAME}/diagnostic/seq_synteny_conflicts_by_homeologs.svg",
             f"SCORPiOs-LH_{JNAME}/diagnostic/seq_synteny_conflicts_on_genome.svg"
+
+elif MODE.lower() == "clustering":
+    rule Target:
+        input:
+            f"SCORPiOs-LH_{JNAME}/clustering/.touch"
 
 rule check_scorpios_output_integrity:
     input: scorpios("SCORPiOs_"+JNAME+"/.cleanup_"+str(ITER))
@@ -129,5 +138,5 @@ def get_ctrees(wildcards, restrict=None):
 
 #include the 3 SCORPiOs LORe Hunter modules
 include: "module_lh_diagnostic.smk"
-# include: "module_lh_clustering.smk"
+include: "module_lh_clustering.smk"
 # include: "module_lh_au-test.smk"
