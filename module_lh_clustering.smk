@@ -19,12 +19,12 @@ arg_balance = config.get("balance_ohno", False)
 if arg_balance:
     arg_balance = "--balance_ohno"
 
-# rule Target:
-#     input:
-#         expand(f"{JOBNAME}/hmm_clusters_on_genome_{{i}}clusters_{{j}}states.svg", i=range(2, 5),
-#                j=range(2, 5))
+#TODO: compare clustering results to synteny-consistent vs synteny-inconsistent
+#TODO: fix rideogram figure (legend, colorpalette use one similar to treecl and add species label)
+#TODO: linting
 
-checkpoint extract_subtrees_subalis:
+#FIXME: handle outgroup better to have correspondance with the Accepted SCORPiOs file
+checkpoint extract_subtrees_subalis: 
     input:
         forest = SCORPIOS_CORRTREES,
         sptree = SPTREE,
@@ -41,7 +41,6 @@ checkpoint extract_subtrees_subalis:
 rule check_ali:
     input: f"{OUTFOLDER}/subalis/{{subtrees}}.fa"
     output: f"{OUTFOLDER}/subalis/{{subtrees}}.reduced.fa"
-    # conda: "envs/raxml.yaml"
     shell: 
         "raxmlHPC -f c --print-identical-sequences -n {wildcards.subtrees} -m GTRGAMMA "
         "-s {input} -w {PWD}/{OUTFOLDER}/subalis/; "
@@ -60,7 +59,6 @@ rule brlength:
         tree = f"{OUTFOLDER}/subtrees/{{subtrees}}.reduced.nhx",
         ali = f"{OUTFOLDER}/subalis/{{subtrees}}.reduced.fa"
     output: f"{OUTFOLDER}/subtrees/{{subtrees}}_raxml.nhx"
-    # conda: "envs/raxml.yaml"
     shell:
         "raxmlHPC -f e -n {wildcards.subtrees} -m GTRGAMMA -s {input.ali} -t {input.tree} "
         "-w {PWD}/{OUTFOLDER}/subalis/; mv {OUTFOLDER}/subalis/RAxML_result.{wildcards.subtrees} {output}; "
@@ -111,59 +109,91 @@ rule dummy:
     input: get_all_subtrees
     output: touch(f"{OUTFOLDER}/.touch")
 
-rule tree_distances:
-    input: t = OUTFOLDER+".touch", incons = SUMMARY
-    output: f"{OUTFOLDER}/dist_mat.csv"
-    conda: "envs/tree_dist.yaml"
-    params: trees = OUTFOLDER + "/subtrees/"
-    threads: 50
+
+rule prepare_summary:
+    input: ctreedir = scorpios(CTREES_DIR), summary = scorpios(SUMMARY), acc = scorpios(Acc)
+    output: fam = f"{OUTFOLDER}/trees_summary.txt"
     shell:
-        "python src/trees_distances.py -t {params.trees} -i {input.incons} -nc {threads} -o {output}; "
-        "cat {OUTFOLDER}/dist_mat*.csv > {output}"
+        "python -m scripts.lore_hunter.write_ancgenes_treeclust -a {input.acc} -t {input.ctreedir} "
+        "--summary_only -c {input.summary} -o {output.fam}"
+
+rule tree_distances:
+    input: t = OUTFOLDER+"/.touch", incons = f"{OUTFOLDER}/trees_summary.txt"
+    output: temp(f"{OUTFOLDER}/distance_matrix.csv")
+    conda: "envs/tree_dist.yaml"
+    params: trees = OUTFOLDER + "/subtrees/", odir = OUTFOLDER
+    threads: 50 #max_cores in config
+    shell:
+        "python -m scripts.lore_hunter.trees_distances -t {params.trees} -i {input.incons} -nc {threads} -o {params.odir}; "
+        "cat {OUTFOLDER}/dist_mat*.csv > {output}; rm {OUTFOLDER}/dist_mat*.csv"
+
+k = config.get("k", 3)
 
 #TODO add medoid representation of clusters and of each consistent/inconsistent group (top 10 medoids?)
 rule treeclust:
-    input: f"{OUTFOLDER}/dist_mat.csv"
+    input: f"{OUTFOLDER}/distance_matrix.csv"
     output:
-        expand(OUTFOLDER+"/clust_{i}.tsv", i=range(2, 5)),
-        expand(OUTFOLDER+"/mds_{i}.svg", i=range(2, 5)),
-        expand(OUTFOLDER+"/mat_{i}.svg", i=range(2, 5))
+        clust = f"{OUTFOLDER}/clust_{k}.tsv",
+        mds = f"{OUTFOLDER}/mds_{k}.svg",
+        mat = f"{OUTFOLDER}/mat_{k}.svg",
+        omat = f"{OUTFOLDER}/distance_matrix_converted.csv"
     conda: "envs/treecl.yaml"
-    params: clust = OUTFOLDER+"/clust.tsv", mds = OUTFOLDER+"/mds.svg", mat = OUTFOLDER+"/mat.svg"
-    threads: 50
+    params: k = k
     shell:
-        "python src/tree_clust.py -d {input} -o {params.clust} -om {params.mds} -od {params.mat} -nc {threads}"
+        "python -m scripts.lore_hunter.tree_clust -d {input} -o {output.clust} -om {output.mds} "
+        "-od {output.mat} -k {params.k}"
 
-rule prepare_clusters_for_genome_plot:
-    input: c = f"{OUTFOLDER}/clust_{{i}}.tsv", t = OUTFOLDER+".touch"
-    output: f"{OUTFOLDER}/clust_{{i}}_for_plot.tsv"
-    params: trees = OUTFOLDER + "/subtrees/", sp = "Arapaima.gigas" #TODO: put in config
+n = config.get("n", 5)
+
+rule medoids_clust:
+    input: dmat = f"{OUTFOLDER}/distance_matrix_converted.csv", clust = f"{OUTFOLDER}/clust_{k}.tsv"
+    output: expand(OUTFOLDER+'/medoids_clustering_k_'+str(k)+"/cluster_{i}_medoid_{n}.nhx", i=range(0, k), n=range(1, n+1))
+    params: n = n, odir = OUTFOLDER+'/medoids_clustering_k_'+str(k), trees = OUTFOLDER + "/subtrees/{}_final.nhx"
+    shell: "python -m scripts.lore_hunter.medoid_topologies -d {input.dmat} -c {input.clust} -n {params.n} -t {params.trees} -o {params.odir}"
+
+rule medoids_incons:
+    input: dmat = f"{OUTFOLDER}/distance_matrix_converted.csv", incons = f"{OUTFOLDER}/trees_summary.txt"
+    output: expand(OUTFOLDER+'/medoids_incons/medoid_{n}.nhx', n=range(1, n+1))
+    params: n = n, trees = OUTFOLDER + "/subtrees/{}_final.nhx", odir = OUTFOLDER+'/medoids_incons',
+    shell: "python -m scripts.lore_hunter.medoid_topologies -d {input.dmat} -c {input.incons} -n {params.n} -t {params.trees} -o {params.odir} -r 'Inconsistent'"
+
+rule compare_incons_clusters:
+    input: clust = f"{OUTFOLDER}/clust_{k}.tsv", incons = f"{OUTFOLDER}/trees_summary.txt"
+    output: OUTFOLDER+'/inconsistent_trees_vs_clusters.txt'
+    shell: "python -m scripts.lore_hunter.compare_incons_clusters -c {input.clust} -i {input.incons} -o {output}"
+
+rule clusters_full_summary:
+    input: treedir = f"{OUTFOLDER}/subtrees/", clusters = f"{OUTFOLDER}/clust_{k}.tsv"
+    output: f"{OUTFOLDER}/clustering_summary_k-{k}.tsv"
+    shell: "python -m scripts.lore_hunter.write_ancgenes_treeclust -t {input.treedir} "
+        "-c {input.clusters} -o {output}"
+
+rule prepare_clusters_for_rideogram:
+    input: c = f"{OUTFOLDER}/clustering_summary_k-{k}.tsv", genes = GENES
+    output: karyo = f"{OUTFOLDER}/karyo_ide.txt",
+            feat = f"{OUTFOLDER}/clust_k-{k}_ide.txt"        
     shell:
-        "python src/clustering_res_to_dupsp.py -c {input.c} -t {params.trees} -s {params.sp} -o {output}"
+        "python -m scripts.lore_hunter.make_rideograms_inputs -i {input.c} -g {input.genes} "
+        "-k {output.karyo} -o {output.feat} -f dyogen"
 
-# rule consensus_topologies:
-#     input: clusters = f"{OUTFOLDER}/clust_{{i}}.tsv", trees = get_all_subtrees
-#     output: lambda wildcards: expand(OUTFOLDER+"/consensus_tree_{j}.nhx", j=range(1, wildcards.i))
-#     params: odir = f"SCORPiOs-LH_{OUTFOLDER}/"
-#     shell: "python scripts.lore_hunter.consensus_topologies -c {input.clusters} -t {input.trees} -o {params.odir}"
-
-rule plot_clusters:
+# #TODO: fix colors and legend
+# #TODO: add a title with sp name
+rule plot_clusters_on_genome:
     input:
-        fam = f"{OUTFOLDER}/clust_{{i}}_for_plot.tsv",
-        genes = GENES
-        
-    output: fig = f"{OUTFOLDER}/clusters_on_genome_{{i}}.png", data = f"{OUTFOLDER}/clusters_on_genome_{{i}}.pkl"
-    params: sp = SP
+        karyo = f"{OUTFOLDER}/karyo_ide.txt",
+        feat = f"{OUTFOLDER}/clust_k-{k}_ide.txt"
+    output: f"{OUTFOLDER}/clusters_k-{k}_on_genome.svg"
+    params: sp = SP, k=k
+    conda: 'envs/rideogram.yaml'
     shell:
-        "python ../paralogy_map/src/plot_paralogy_map.py -c {input.fam} -g {input.genes} -o {output.fig} "
-        "-s {params.sp} -sort {SORTBY} -f dyogen -t 'tree topology clusters (k={wildcards.i})' --default_palette --singlesp --save"
+        "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.k}"
 
-
-rule fit_hmm:
-    input:
-        clust = f"{OUTFOLDER}/clusters_on_genome_{{i}}.pkl"        
-    output: fig = f"{OUTFOLDER}/hmm_clusters_on_genome_{{i}}clusters_{{j}}states.svg"
-    params: sp = SP
-    conda: "envs/hmm.yaml"
-    shell:
-        "python src/fit_simple_hmm.py -c {input.clust} -o {output.fig} -n {wildcards.j} --sp {params.sp}"
+#TODO: lk test to find best fitting HMM
+# rule fit_hmm:
+#     input:
+#         clust = f"{OUTFOLDER}/clusters_on_genome_{{i}}.pkl"        
+#     output: fig = f"{OUTFOLDER}/hmm_clusters_on_genome_{{i}}clusters_{{j}}states.svg"
+#     params: sp = SP
+#     conda: "envs/hmm.yaml"
+#     shell:
+#         "python src/fit_simple_hmm.py -c {input.clust} -o {output.fig} -n {wildcards.j} --sp {params.sp}"

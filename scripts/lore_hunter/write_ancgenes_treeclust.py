@@ -7,7 +7,7 @@ import argparse
 from ete3 import Tree
 
 
-def write_ancgenes(clustered_genes, treedir, out_ancgenes):
+def write_ancgenes(clustered_genes, treedir, out_ancgenes, clusters_to_load = None):
 
     """
 
@@ -21,7 +21,7 @@ def write_ancgenes(clustered_genes, treedir, out_ancgenes):
 
             cluster = clustered_genes[gene]
 
-            if cluster != "Inconsistent":
+            if clusters_to_load is not None and cluster not in clusters_to_load: #!= "Inconsistent"
                 continue
 
             treefile = treedir +  '/' + gene + '.nhx'
@@ -30,14 +30,19 @@ def write_ancgenes(clustered_genes, treedir, out_ancgenes):
 
                 treefile = treedir +  '/C_' + gene + '.nh'
 
+            if not os.path.exists(treefile):
+                treefile = treedir + "/" + gene + "_final.nhx"
+
             assert os.path.exists(treefile), f"The file {treefile} does not exist"
 
             tree = Tree(treefile)
 
             leaves = {'_'.join(i.name.split('_')[:-1]) for i in tree.get_leaves()}
+
+            if leaves == {''}:
+                leaves = {i.name for i in tree.get_leaves()}
             
             descendants = sorted(list(leaves))
-
 
             anc = 'Name_'+str(k)
                     
@@ -46,7 +51,7 @@ def write_ancgenes(clustered_genes, treedir, out_ancgenes):
             k += 1
 
 
-def load_gene_list(input_summary, input_acc):
+def load_gene_list(input_summary, input_acc=None):
 
     """
 
@@ -55,14 +60,24 @@ def load_gene_list(input_summary, input_acc):
     with open(input_summary, 'r') as infile:
         genes = {line.strip().split('\t')[0]:line.strip().split('\t')[1] for line in infile}
 
-    with open(input_acc, 'r') as infile:
-        acc = {line.strip().split('\t')[0] for line in infile}
+    if input_acc is not None:
 
-    for g in genes:
-        if genes[g] == "Inconsistent" and g in acc:
-            genes[g] = "Consistent"
+        with open(input_acc, 'r') as infile:
+            acc = {line.strip().split('\t')[0] for line in infile}
+
+        for g in genes:
+            if genes[g] == "Inconsistent" and g in acc:
+                genes[g] = "Consistent"
 
     return genes
+
+
+def write_summary(summary_dict, output_file):
+    """
+    """
+    with open(output_file, 'w') as out:
+        for key in summary_dict:
+            out.write('\t'.join([key, summary_dict[key]])+'\n')
 
 
 if __name__ == '__main__':
@@ -76,14 +91,21 @@ if __name__ == '__main__':
     PARSER.add_argument('-c', '--clusters', help='', required=True)
 
     PARSER.add_argument('-a', '--accepted', help='SCORPiOs accepted corrections',
-                        required=True)
-
+                        required=False, default=None)
 
     PARSER.add_argument('-o', '--outfile', help='Output file', required=False, default="out")
 
+    PARSER.add_argument('--summary_only', help='Only write outgroup gene name + tree consistency.',
+                        action="store_true")
+
+    PARSER.add_argument('-r', '--restrict_to', required=False, default=None, nargs='*')
 
     ARGS = vars(PARSER.parse_args())
 
     CLUSTERS = load_gene_list(ARGS["clusters"], ARGS["accepted"])
 
-    write_ancgenes(CLUSTERS, ARGS["treesdir"], ARGS["outfile"])
+    if ARGS["summary_only"]:
+        write_summary(CLUSTERS, ARGS["outfile"])
+
+    else:
+        write_ancgenes(CLUSTERS, ARGS["treesdir"], ARGS["outfile"], ARGS["restrict_to"])

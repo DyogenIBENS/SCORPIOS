@@ -84,7 +84,6 @@ print(SUMMARY)
 CTREES_DIR = CTREES+"/"+LORE_WGD+"/"
 
 
-
 ### WORKFLOW
 
 print(MODE)
@@ -97,7 +96,12 @@ if MODE.lower() == "diagnostic":
 elif MODE.lower() == "clustering":
     rule Target:
         input:
-            f"SCORPiOs-LH_{JNAME}/clustering/.touch"
+            expand("SCORPiOs-LH_"+JNAME+"/clustering/medoids_clustering_k_"+str(config.get("k", 3))+"/cluster_{i}_medoid_{n}.nhx",
+                   i=range(0, config.get("k", 3)), n=range(1, config.get("n", 5)+1)),
+            expand("SCORPiOs-LH_"+JNAME+"/clustering/medoids_incons/medoid_{n}.nhx",
+                   n=range(1, config.get("n", 5)+1)),
+            "SCORPiOs-LH_"+JNAME+"/clustering/inconsistent_trees_vs_clusters.txt",
+            "SCORPiOs-LH_"+JNAME+"/clustering/clusters_k-"+str(config.get("k", 3))+"_on_genome.svg"
 
 rule check_scorpios_output_integrity:
     input: scorpios("SCORPiOs_"+JNAME+"/.cleanup_"+str(ITER))

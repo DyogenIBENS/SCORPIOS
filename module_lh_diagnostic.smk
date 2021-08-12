@@ -56,7 +56,8 @@ rule prepare_genome_plot:
     input: ctreedir = scorpios(CTREES_DIR), summary = scorpios(SUMMARY), acc = scorpios(Acc),
     output: fam = f"{OUTFOLDER}/inconsistent_families.tsv"
     shell:
-        "python -m scripts.lore_hunter.write_ancgenes_treeclust -a {input.acc} -t {input.ctreedir} -c {input.summary} -o {output.fam}" #RIdeogram + bundle adjacent
+        "python -m scripts.lore_hunter.write_ancgenes_treeclust -a {input.acc} -t {input.ctreedir} "
+        "-c {input.summary} -o {output.fam} -r 'Inconsistent'"
 
 rule prepare_input_rideogram:
     input:
