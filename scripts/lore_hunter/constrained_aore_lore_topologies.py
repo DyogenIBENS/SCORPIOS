@@ -1,0 +1,305 @@
+
+
+"""
+It would have been nice if my past self had left some minimal documentation here but, y'know...
+"""
+
+import sys
+
+import os
+import argparse
+import gzip
+from ete3 import Tree
+
+from itertools import compress
+from collections import Counter
+
+from scripts.synteny.duplicated_families import tag_duplicated_species
+from scripts.trees.speciestree import get_species
+import scripts.trees.utilities as ut
+
+
+#FIXME: atm OUTGROUPS, if multiple, must be a monophyletic group 
+
+def get_species_groups(speciestree, dup_anc, outgroups, restrict_sp=None):
+    """
+    """
+    tree = Tree(speciestree, format=1)
+    node = tree.search_nodes(name=dup_anc)[0]
+    groups = [outgroups,\
+             [i.name for i in node.children[0].get_leaves()\
+              if restrict_sp is None or i.name in restrict_sp],\
+             [i.name for i in node.children[1].get_leaves()\
+              if restrict_sp is None or i.name in restrict_sp]]
+    return groups
+
+
+def get_scorpios_aore_tree(gene_list, treefile, outgroups, outgr_gene):
+
+    t = Tree(treefile)
+    tleaves = t.get_leaves()
+
+    #remove sp name
+    for leaf in tleaves:
+        leaf.name = '_'.join(leaf.name.split('_')[:-1])
+
+    t.prune([i for i in tleaves if i.name in gene_list])
+    leaves = {i.name for i in t.get_leaves()}
+    if leaves != set(gene_list.keys()):
+
+        diff = set(gene_list.keys()).difference(leaves)
+
+        outgr_node = t.get_leaves_by_name(outgr_gene)[0]
+        outgr_t = Tree()
+        for gened in diff:
+            if gene_list[gened] in outgroups:
+                outgr_t.add_child(name=gened)
+            else:
+                return None #use print to better understand what happens here
+        outgr_t.add_child(name=outgr_gene)
+        outgr_node.add_child(outgr_t)
+    t.prune(t.get_leaves())
+
+    return t
+
+def check_aore_consistent_tree(subtree, outgroups, dup_sp):
+    outgr_node, node_3r = subtree.get_children()
+
+    if outgroups[0] not in {i.S for i in outgr_node.get_leaves()}:
+        node_3r, outgr_node = outgr_node, node_3r
+
+    #No dup species in outgr
+    outgr = {i.name for i in outgr_node.get_leaves() if i.S in outgroups}
+    if {i for i in outgr_node.get_leaves() if i.S in dup_sp}:
+        return None, None
+
+    #No outgr in dup_species
+    if {i for i in node_3r.get_leaves() if i.S in outgroups}:
+        return None, None
+
+    if hasattr(node_3r, "D") and node_3r.D=='Y':
+        group1, group2 = node_3r.get_children()
+        group1 = {i.name for i in group1.get_leaves()}
+        group2 = {i.name for i in group2.get_leaves()}
+
+    else:
+        group1 = {i.name for i in node_3r.get_leaves()}
+        group2 = None
+
+
+    t, outgr_gene = make_tree_from_groups(None, [outgr, group1, group2], groups_are_genes=True)
+    return t, outgr_gene
+
+
+def make_tree_from_groups(subtree_leaves, species_groups, groups_are_genes=False):
+    t = Tree()
+
+    outgr, group1, group2 = species_groups
+
+    if not groups_are_genes:
+
+        outgr = {i.name for i in subtree_leaves if i.S in outgr}
+        group1 = {i.name for i in subtree_leaves if i.S in group1}
+        group2 = {i.name for i in subtree_leaves if i.S in group2}
+
+    outgr_gene = list(outgr)[0]
+    if len(outgr) >= 2:
+        outgr_node = t.add_child(name='outgr_node')
+        for i in outgr:
+            outgr_node.add_child(name=i)
+
+    else:
+        outgr = outgr.pop()
+        t.add_child(name=outgr)
+
+    
+    if group1 and group2:
+        next_node = t.add_child(name="anc_3r")
+        gr1 = next_node.add_child(name="gr1")
+        for i in group1:
+            gr1.add_child(name=i)
+
+        gr2 = next_node.add_child(name="gr2")
+        for i in group2:
+            gr2.add_child(name=i)
+
+
+    elif group1:
+        next_node = t.add_child(name="anc_3r")
+        for i in group1:
+            next_node.add_child(name=i)
+
+    elif group2:
+        next_node = t.add_child(name="anc_3r")
+        for i in group2:
+            next_node.add_child(name=i)
+    t.prune(t.get_leaves())
+    return t, outgr_gene
+
+def check_copy_number(tree, ref_species, sp_min=3, copy_max=2):
+
+    ref_gene = [i.name for i in tree.get_leaves() if i.S in ref_species]
+    species = [i.S for i in tree.get_leaves()]
+
+    if not set(species).intersection(ref_species):
+        return False
+
+    if len(set(species)) <= sp_min:
+        return False
+
+    ref_gene = ref_gene[0]
+    count_genes = Counter(species)
+    for sp in count_genes:
+        if count_genes[sp] > copy_max:
+            return False
+
+    return True
+
+
+def extract_subtrees(tree, ali, target_species, ref_species, treedir, outali, ol, oa,
+                     species_groups, restrict_sp=None):
+
+    """
+
+    """
+
+
+    tree = Tree(tree)
+
+    #find all monophyletic groups (clades with only target species genes in the tree)
+    #called duplicated for historical reason but here I fetch outgr+dup_sp
+    tag_duplicated_species(tree.get_leaves(), target_species)
+    subtrees = tree.get_monophyletic(values=["Y"], target_attr="duplicated")
+
+    for subtree in subtrees:
+        subtree_copy = subtree.copy()
+
+        if restrict_sp:
+            small_set = [i for i in subtree_copy.get_leaves() if i.S in restrict_sp]
+            if len(small_set) > 3:
+            
+                subtree_copy.prune([i for i in subtree_copy.get_leaves() if i.S in restrict_sp],
+                                    preserve_branch_length=True)
+            else:
+                continue
+
+        if not check_copy_number(subtree_copy, ref_species):
+            continue
+
+        #Build contrained AORe tree topology
+        gene_list = {i.name:i.S for i in subtree_copy.get_leaves()}
+
+        file_exist = [os.path.isfile(treedir+'/C_'+gene+".nh") for gene in list(gene_list.keys())]
+        file_exist = list(compress(range(len(file_exist)), file_exist))
+
+        if len(file_exist) == 1:
+            outgr_gene = list(gene_list.keys())[file_exist.pop()]
+            treefile = treedir+'/C_'+outgr_gene+".nh"
+            ctree_aore = get_scorpios_aore_tree(gene_list, treefile, ref_species, outgr_gene)
+
+        elif len(file_exist) == 0:
+            dup_sp = set(target_species).difference(ref_species)
+            ctree_aore, outgr_gene = check_aore_consistent_tree(subtree_copy, ref_species, dup_sp)
+
+        else:
+            continue
+
+        #Build contrained LORe tree topology
+        ctree_lore, _ = make_tree_from_groups(subtree_copy.get_leaves(), species_groups)
+
+        #check that LORe and AORe have been succesfully built and that they are different
+        if ctree_aore is not None and ctree_lore is not None:
+            assert {i.name for i in ctree_lore.get_leaves()} == {i.name for i in ctree_aore.get_leaves()}, f"{ctree_aore}, {ctree_lore}"
+            comp1 = ctree_aore.compare(ctree_lore)
+            comp2 = ctree_lore.compare(ctree_aore)
+            comp_res = max(comp1['source_edges_in_ref'], comp2['source_edges_in_ref'])
+
+            if comp_res != 1:
+
+                ctree_lore.write(outfile=ol+'/'+outgr_gene+'.nh', format=9, features=["D"])
+                ctree_aore.write(outfile=oa+'/'+outgr_gene+'.nh', format=9, features=["D"])
+
+                leaves = [i.name for i in subtree_copy.get_leaves()]
+
+                seq = ut.get_subali(ali, leaves)
+
+                ut.write_fasta(seq, outali + '/' + outgr_gene + '.fa')
+
+
+if __name__ == '__main__':
+
+    # Arguments
+    PARSER = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+
+    PARSER.add_argument('-t', '--trees', help='Forest of trees in .nhx, with species,\
+                         duplication/speciation nodes and ancestor species.', required=True)
+
+    PARSER.add_argument('-a', '--alis', help='Multiple alignments in fasta.',
+                         required=True)
+    
+    PARSER.add_argument('-c', '--ctree_dir', help='Directory with scorpios constrained topologies',
+                         required=True)
+
+    PARSER.add_argument('-s', '--speciesTree', help='Species tree (newick), with ancestor names.',
+                         required=True)
+
+    PARSER.add_argument('--anc', help='Name of the ancestor of duplicated species.',
+                         required=True)
+
+    PARSER.add_argument('-sp', '--outgr_species', required=True, nargs='*')
+
+
+    PARSER.add_argument('-o', '--outdir_ali', help='Output directory for subalis', required=False,
+                        default="out_alis")
+
+    PARSER.add_argument('-ol', '--outdir_lore', help='Output directory for lore ctree', required=False,
+                        default="out_trees")
+
+    PARSER.add_argument('-oa', '--outdir_aore', help='Output directory for aore ctree', required=False,
+                        default="out_trees")
+
+    PARSER.add_argument('-set', '--small_sp_set', required=False, default=None, nargs='+')
+
+    ARGS = vars(PARSER.parse_args())
+
+    OPEN = open
+
+    if ARGS["alis"].split('.')[-1] == 'gz':
+        OPEN = gzip.open
+
+    #Dup species
+    SPECIES = get_species(ARGS["speciesTree"], ARGS["anc"])
+
+    SPTREE = Tree(ARGS["speciesTree"], format=1)
+    ANC = SPTREE.get_common_ancestor(SPECIES + ARGS["outgr_species"])
+    SPECIES2 = {i.name for i in ANC.get_leaves()}
+
+    SP_GROUPS = get_species_groups(ARGS["speciesTree"], ARGS["anc"], ARGS["outgr_species"])
+
+    os.makedirs(ARGS["outdir_ali"], exist_ok=True)
+    os.makedirs(ARGS["outdir_aore"], exist_ok=True)
+    os.makedirs(ARGS["outdir_lore"], exist_ok=True)
+
+    SMALL_SP_SET = ARGS.get("small_sp_set", None)
+    if SMALL_SP_SET is None:
+        SMALL_SP_SET = SPECIES + ARGS["outgr_species"]
+    else:
+        SMALL_SP_SET += ARGS["outgr_species"]
+
+
+    k = 0
+
+    with open(ARGS["trees"], "r") as infile_t, OPEN(ARGS["alis"], "rt") as infile_a:
+
+        for TREE, ALI in zip(ut.read_multiple_objects(infile_t),
+                             ut.read_multiple_objects(infile_a)):
+
+            if k%500 == 0 and k != 0:
+                print(k)
+
+            extract_subtrees(TREE, ALI, SPECIES2, ARGS["outgr_species"], ARGS["ctree_dir"],
+                             ARGS["outdir_ali"], ARGS["outdir_lore"], ARGS["outdir_aore"], SP_GROUPS,
+                             SMALL_SP_SET)
+
+            k+=1
