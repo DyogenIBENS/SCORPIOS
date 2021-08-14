@@ -83,6 +83,34 @@ def load_features(genome, features_file, to_load=None):
                         feat[g] = classif
     return feat
 
+
+def features_to_ide1(genome, features_file, karyo, output):
+
+    feat = load_features(genome, features_file)
+
+    dgenes = genome.genes_list
+
+    with open(output, 'w') as out:
+        out.write("Chr\tStart\tEnd\tValue\n")
+
+        for k in karyo:
+            chrom_int, lg, chrom = k
+            prev = False
+
+            for i, gene in enumerate(dgenes[chrom]):
+                name = gene.names[0]
+                to_write = False
+
+                if name in feat:
+                    # if feat[name] == "Inconsistent":
+                    classif = feat[name]
+                    start = i
+                    stop = i + 1
+
+                    out.write(f"{chrom_int}\t{start}\t{stop}\t{classif}\n")
+
+
+
 def features_to_ide(genome, features_file, karyo, output):
 
     feat = load_features(genome, features_file)
@@ -117,7 +145,7 @@ def features_to_ide(genome, features_file, karyo, output):
                     out.write(f"{chrom_int}\t{start}\t{stop}\t{prev}\n")
                     prev = False
                     if name in feat:
-                        prev = classif
+                        prev = feat[name]
                         start = i
                         stop = i + 1
 
@@ -145,4 +173,4 @@ if __name__ == '__main__':
 
     GENOME, KARYO = make_karyo(ARGS["genesfile"], ARGS["outfile_karyo"], fomt=ARGS["format"])
 
-    features_to_ide(GENOME, ARGS["input_incons"], KARYO, ARGS["outfile_features"])
+    features_to_ide1(GENOME, ARGS["input_incons"], KARYO, ARGS["outfile_features"])

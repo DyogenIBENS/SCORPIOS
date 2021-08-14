@@ -27,6 +27,9 @@ def write_ancgenes(clustered_genes, treedir, out_ancgenes, clusters_to_load = No
             treefile = treedir +  '/' + gene + '.nhx'
 
             if not os.path.exists(treefile):
+                treefile = treedir +  '/' + gene + '.nh'
+
+            if not os.path.exists(treefile):
 
                 treefile = treedir +  '/C_' + gene + '.nh'
 
@@ -45,6 +48,9 @@ def write_ancgenes(clustered_genes, treedir, out_ancgenes, clusters_to_load = No
             descendants = sorted(list(leaves))
 
             anc = 'Name_'+str(k)
+
+            if clusters_to_load is not None:
+                cluster = str(clusters_to_load.index(cluster))
                     
             outfile.write(anc+'\t'+ ' '.join(descendants)+'\t'+cluster+'\n')
 

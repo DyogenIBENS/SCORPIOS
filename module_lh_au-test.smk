@@ -62,7 +62,7 @@ rule lk_test:
         aore = f"{OUTFOLDER}/aore_trees/{{tree}}.nh", lore = f"{OUTFOLDER}/lore_trees/{{tree}}.nh"
     output: f"{OUTFOLDER}/lktest/Res_{{tree}}.txt"
     shell:
-        "bash src/prototype_au_test3.sh {wildcards.tree} {input.ml} {input.ali} {input.aore} "
+        "bash scripts/prototype_au_test3.sh {wildcards.tree} {input.ml} {input.ali} {input.aore} "
         "{input.lore} {output} || touch {output};"
 
 
@@ -75,6 +75,49 @@ def get_result(wildcards):
     return out
 
 
-rule get_res:
+# rule get_res:
+#     input: get_result
+#     output: touch(".touch_autests")
+
+
+rule list_lktest:
     input: get_result
-    output: touch(".touch_autests")
+    output: outf = temp(OUTFOLDER+"/file_list.txt")
+    run:
+        with open(output.outf,'w') as fw1:
+            for f in input:
+                fw1.write(f+'\n')
+
+
+rule make_summary:
+    input: OUTFOLDER+"/file_list.txt"
+    output: OUTFOLDER+"/lore_aore_summary.txt"
+    shell:
+        "python -m scripts.trees.parse_au_test -i {input} -o {output} --lh -w {LORE_WGD}"
+
+
+rule lore_aore_full_summary:
+    input: treedir = f"{OUTFOLDER}/ml_trees/", clusters = OUTFOLDER+"/lore_aore_summary.txt"
+    output: f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv"
+    shell: "python -m scripts.lore_hunter.write_ancgenes_treeclust -t {input.treedir} "
+           "-c {input.clusters} -o {output} -r 'lore rejected' 'aore rejected'"
+
+rule prepare_lore_aore_for_rideogram:
+    input: c = f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv", genes = GENES
+    output: karyo = f"{OUTFOLDER}/karyo_ide.txt",
+            feat = f"{OUTFOLDER}/lore_aore_ide.txt"        
+    shell:
+        "python -m scripts.lore_hunter.make_rideograms_inputs -i {input.c} -g {input.genes} "
+        "-k {output.karyo} -o {output.feat} -f dyogen"
+
+# #TODO: fix colors and legend
+# #TODO: add a title with sp name
+rule plot_lore_aore_on_genome:
+    input:
+        karyo = f"{OUTFOLDER}/karyo_ide.txt",
+        feat = f"{OUTFOLDER}/lore_aore_ide.txt"
+    output: f"{OUTFOLDER}/lore_aore_on_genome.svg"
+    params: sp = SP
+    conda: 'envs/rideogram.yaml'
+    shell:
+        "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c 2"

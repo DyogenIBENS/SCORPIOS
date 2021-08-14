@@ -107,7 +107,7 @@ elif MODE.lower() == "clustering":
 else:
     rule Target:
         input:
-            ".touch_autests"
+            "SCORPiOs-LH_"+JNAME+"/lktests/lore_aore_on_genome.svg"
 
 rule check_scorpios_output_integrity:
     input: scorpios("SCORPiOs_"+JNAME+"/.cleanup_"+str(ITER))

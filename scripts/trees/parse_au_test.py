@@ -15,6 +15,8 @@ import os
 import sys
 import argparse
 
+#FIXME: DRY after adding lore hunter mode... (low priority)
+
 def one_file_consel(filename, alpha, item_test='1'):
 
     """
@@ -87,6 +89,64 @@ def one_file_consel(filename, alpha, item_test='1'):
                 else:
 
                     au_result = 'rejected'
+
+            elif tmp:
+
+                sys.stderr.write(f"Warning: for {filename}, CONSEL failed to compute log-lk\n")
+
+    return au_result
+
+
+def one_file_consel_3_trees(filename, alpha, item_dict={"ml": "1", "aore": "2", "lore":"3"}):
+
+    """
+    
+    """
+
+    #if consel failed (probably because tree building failed) we return the 'error' value.
+    au_result = 'error'
+
+    if  os.stat(filename).st_size != 0:
+
+        tmp = []
+
+        with open(filename, 'r') as infile:
+
+            for line in infile:
+
+                if line[0] == '#' and line[0:3] != '# r':
+
+                    res = line.strip().split()
+
+                    #If no error occurred each result line in consel should contain more than 4 col
+                    if len(res) > 4:
+
+                        item = res[2]
+                        au_value = res[4]
+                        tmp.append((item, au_value))
+                        obs = res[3]
+                        if obs != 'inf':
+                            if item == item_dict['ml'] and float(au_value) < alpha:
+                                au_result = 'convergence_pb'
+                                break
+
+                            elif item == item_dict['lore'] and float(au_value) < alpha:
+                                if au_result == 'aore rejected':
+                                    au_result = 'lore and aore rejected'
+                                else:
+                                    au_result = 'lore rejected'
+
+                            elif item == item_dict['aore'] and float(au_value) < alpha:
+                                if au_result == 'lore rejected':
+                                    au_result = 'lore and aore rejected'
+                                else:
+                                    au_result = 'aore rejected'
+
+            if tmp and obs != 'inf' and len(tmp) > 1:
+
+               if au_result == 'error':
+
+                    au_result = 'neither lore or aore rejected'
 
             elif tmp:
 
@@ -187,6 +247,68 @@ def count(filenames, name_sol="", alpha=0.05, item='1', parse_name=True, wgd='')
     return a_list
 
 
+def lore_aore_summary(filenames, alpha=0.05, item_dict={"ml": "1", "aore": "2", "lore":"3"},
+                      parse_name=True, wgd=''):
+
+    """
+
+    """
+
+    res_dict = {}
+    all_res = {}
+
+    for filename in filenames:
+
+
+        #naming parsing is specific to SCORPiOs inputs and outputs
+        #parsing below allows to retrieve the outgroup gene used as name for gene families.
+        if parse_name:
+            name = os.path.splitext(os.path.basename(filename).split('Res_')[1])[0]
+        else:
+            name = filename
+
+        au_result = one_file_consel_3_trees(filename, alpha, item_dict)
+        res_dict[name] = au_result
+        all_res[au_result] = all_res.get(au_result, 0) + 1
+
+    tot = sum(all_res.values())
+    err = all_res.get('error', 0)
+
+    if tot - err != 0:
+
+        both_rej = all_res.get('lore and aore rejected', 0)
+        both_acc = all_res.get('neither lore or aore rejected', 0)
+        lore = all_res.get('aore rejected', 0)
+        aore = all_res.get('lore rejected', 0)
+        issue = all_res.get('convergence_pb', 0)
+
+        reason = '??: Check logs.'
+
+        print('\n')
+        print("----------------------------------AU-TESTs----------------------------------")
+        print(" LORe vs AORe at speciation: {}".format(wgd))
+        print("\n")
+        print(" Total : {} tested subtrees                                 ".format(tot-err))
+        print(" AORe topologies (LORe rejected):  {}        ".format(aore))
+        print(" LORe topologies (AORe rejected):  {}       ".format(lore))
+        print(" Ambiguous : {} ({} both rejected, {} none rejected, {} convergence issue)"\
+              .format(both_rej+both_acc+issue, both_rej, both_acc, issue))
+        if err:
+            print(" {} subtrees not tested ({})".format(err, reason))
+        print("----------------------------------------------------------------------------")
+        print("\n")
+
+    else:
+        print('\n')
+        print("----------------------------------AU-TESTs----------------------------------")
+        print(" LORe vs AORe at speciation: {}".format(wgd))
+        print("\n")
+        print(" Total : {} tested subtrees                                 ".format(tot-err))
+        print("----------------------------------------------------------------------------")
+        sys.stderr.write("None of consel result files could be parsed, check the inputs")
+
+    return res_dict
+
 if __name__ == '__main__':
 
 
@@ -210,6 +332,9 @@ if __name__ == '__main__':
     PARSER.add_argument('-p', '--path', help='Path to corresponding tree',
                         required=False, default='')
 
+    PARSER.add_argument('--lh', help='Call script in LORe Hunter mode: i.e to compare ml, lore and\
+                        aore trees', required=False, action='store_true')
+
     ARGS = vars(PARSER.parse_args())
 
     assert ARGS["one_file"] in ['y', 'n'], 'one_file should be y or n'
@@ -230,7 +355,7 @@ if __name__ == '__main__':
             print("false")
 
     #if the script is called on all results
-    else:
+    elif not ARGS["lh"]:
         TREE_PATHS = ARGS["path"].split(',')
         with open(ARGS['input'], 'r') as INFILE:
             INPUTS = [LINE.strip() for LINE in INFILE]
@@ -249,3 +374,12 @@ if __name__ == '__main__':
             for i in ACCEPTED_TREES_2:
                 if i not in ACCEPTED_TREES_1:
                     OUTFILE.write(i+'\t'+TREE_PATHS[1]+'\t'+ARGS['wgd']+'\n')
+
+    else:
+        with open(ARGS['input'], 'r') as INFILE:
+            INPUTS = [LINE.strip() for LINE in INFILE]
+        SUMMARY_TREES = lore_aore_summary(INPUTS, wgd=ARGS['wgd'])
+
+        with open(ARGS['output'], "w") as OUTFILE:
+            for i in SUMMARY_TREES:
+                OUTFILE.write(i+'\t'+SUMMARY_TREES[i]+'\n')

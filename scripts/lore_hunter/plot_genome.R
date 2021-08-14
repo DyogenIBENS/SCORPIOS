@@ -25,6 +25,10 @@ if (opt$ncolors == 3){
 	colors <-  c('#FF0000', "#332288", "#44AA99") #"#DDCC77", "#CC6677", "#117733", "#88CCEE", "#AA4499")
 }
 
+if (opt$ncolors == 2){
+	colors <-  c('#FF0000', "#332288") #"#DDCC77", "#CC6677", "#117733", "#88CCEE", "#AA4499")
+}
 
-ideogram(karyotype = karyotype, overlaid = overlay_data, output = opt$outfile, width = 180,
-         colorset1= colors)
+
+ideogram(karyotype = karyotype, overlaid = overlay_data, output = opt$outfile, width = 180, colorset1=colors)
+         # colorset1= colors)
