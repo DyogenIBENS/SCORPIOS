@@ -16,6 +16,9 @@ from scripts.synteny.duplicated_families import tag_duplicated_species
 from scripts.trees.speciestree import get_species
 import scripts.trees.utilities as ut
 
+#TODO handle multiple outgroups better (see constrained_aore_lore)...
+#small_sp_set should be dup sp only and final set small_sp + outgr
+#+ allo to fetch tree named with second scorpios outgr (even if only one for clust)
 
 def extract_subtrees(tree, ali, target_species, ref_species, outali, outtrees,
                      restrict_species_set=None, balanced_groups=None):

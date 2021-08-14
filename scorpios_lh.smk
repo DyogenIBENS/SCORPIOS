@@ -31,8 +31,9 @@ def out_name(name, jobname, iteration, wcard_wgd='', wcard_outgr=''):
     return name
 
 #check lh mode
-assert config.get("mode", "diagnostic").lower() in ["clustering", "au", "diagnostic"],\
-                                "Invalid `mode`, please check your config."
+assert config.get("mode", "diagnostic").lower() in ["clustering", "likelihood_tests", "diagnostic"],\
+       "Invalid `mode`, please check your config."
+
 MODE = config["mode"].lower()
 
 REC_BR = config.get("recompute_brln", False)
@@ -81,7 +82,7 @@ print(Acc)
 print(CTREES)
 print(SUMMARY)
 
-CTREES_DIR = CTREES+"/"+LORE_WGD+"/"
+CTREES_DIR = scorpios(CTREES+"/"+LORE_WGD+"/")
 
 
 ### WORKFLOW
@@ -102,6 +103,11 @@ elif MODE.lower() == "clustering":
                    n=range(1, config.get("n", 5)+1)),
             "SCORPiOs-LH_"+JNAME+"/clustering/inconsistent_trees_vs_clusters.txt",
             "SCORPiOs-LH_"+JNAME+"/clustering/clusters_k-"+str(config.get("k", 3))+"_on_genome.svg"
+
+else:
+    rule Target:
+        input:
+            ".touch_autests"
 
 rule check_scorpios_output_integrity:
     input: scorpios("SCORPiOs_"+JNAME+"/.cleanup_"+str(ITER))
@@ -124,23 +130,8 @@ def get_ctrees(wildcards, restrict=None):
     # out = expand('test_lore/{ctrees}_test.txt', ctrees=Ctrees)
     return out
 
-# if MODE != "diagnostic":
-
-#     rule Target:
-#         input: get_ctrees, "done.txt"
-
-#     rule test:
-#         input: scorpios(directory(CTREES+"/"+LORE_WGD+"/"))
-#         output: 'test_lore/{ctrees}_test.txt'
-#         shell: "touch {output}"
-
-#     rule test2:
-#         input: scorpios("SCORPiOs_example/Corrections/Accepted_Trees_"+LORE_WGD+"_0")
-#         output: "done.txt"
-#         shell: "touch done.txt"
-
 
 #include the 3 SCORPiOs LORe Hunter modules
 include: "module_lh_diagnostic.smk"
 include: "module_lh_clustering.smk"
-# include: "module_lh_au-test.smk"
+include: "module_lh_au-test.smk"

@@ -34,9 +34,9 @@ else:
     #FIXME remove the dict to re-assign pm chromosomes (fix input data)
     rule prepare_homeologs_anc: #TODO: fam could take several orthothables (ORTHOTABLES.split())
         input:
-            fam = scorpios(ORTHOTABLE),
-            summary = scorpios(SUMMARY),
-            acc = scorpios(Acc),
+            fam = ORTHOTABLE,
+            summary = SUMMARY,
+            acc = Acc,
             pm = REF_FILE,
             check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
         output: incons = f"{OUTFOLDER}/conflicts", alltrees = f"{OUTFOLDER}/trees"
@@ -53,7 +53,7 @@ rule plot_homeologs:
         " --refname '{REF}'"
 
 rule prepare_genome_plot:
-    input: ctreedir = scorpios(CTREES_DIR), summary = scorpios(SUMMARY), acc = scorpios(Acc),
+    input: ctreedir = CTREES_DIR, summary = SUMMARY, acc = Acc,
     output: fam = f"{OUTFOLDER}/inconsistent_families.tsv"
     shell:
         "python -m scripts.lore_hunter.write_ancgenes_treeclust -a {input.acc} -t {input.ctreedir} "
