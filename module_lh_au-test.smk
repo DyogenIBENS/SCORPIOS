@@ -74,15 +74,9 @@ def get_result(wildcards):
     out = expand(OUTFOLDER+"/lktest/Res_{tree}.txt", tree=subtrees)
     return out
 
-
-# rule get_res:
-#     input: get_result
-#     output: touch(".touch_autests")
-
-
 rule list_lktest:
     input: get_result
-    output: outf = temp(OUTFOLDER+"/file_list.txt")
+    output: outf = OUTFOLDER+"/file_list.txt"
     run:
         with open(output.outf,'w') as fw1:
             for f in input:
@@ -116,8 +110,21 @@ rule plot_lore_aore_on_genome:
     input:
         karyo = f"{OUTFOLDER}/karyo_ide.txt",
         feat = f"{OUTFOLDER}/lore_aore_ide.txt"
-    output: f"{OUTFOLDER}/lore_aore_on_genome.svg"
-    params: sp = SP
+    output: temp(f"{OUTFOLDER}/lore_aore_on_genome_tmp.svg")
     conda: 'envs/rideogram.yaml'
     shell:
         "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c 2"
+
+rule rm_legend:
+    input: f"{OUTFOLDER}/lore_aore_on_genome_tmp.svg"
+    output: temp(f"{OUTFOLDER}/lore_aore_on_genome_tmp2.svg")
+    shell: "sed 's/Low.*//g' {input} | sed 's/\\(.*\\)\\<text.*/\\1\\/svg\\>/' > {output}"
+
+rule add_legend_and_title:
+    input: f"{OUTFOLDER}/lore_aore_on_genome_tmp2.svg"
+    output: f"{OUTFOLDER}/lore_aore_on_genome.svg"
+    params: sp = SP
+    conda: "envs/plots.yaml"
+    shell:
+        "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c 2 "
+        "-t 'AORe and LORe topologies on {params.sp} chromosomes'"
