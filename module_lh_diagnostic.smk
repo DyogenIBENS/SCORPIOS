@@ -70,18 +70,29 @@ rule prepare_input_rideogram:
     shell: "python -m scripts.lore_hunter.make_rideograms_inputs -i {input.fam} -g {input.genes} "
            "-k {output.karyo} -o {output.feat} -f dyogen"
 
-
-#TODO: if possible highlight high-density regions
-#TODO: add a title with sp name
 rule plot_conflicts_on_genome:
     input:
         karyo = f"{OUTFOLDER}/karyo_ide.txt",
         feat = f"{OUTFOLDER}/incons_ide.txt",
-    output: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome.svg"
+    output: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp.svg"
     params: sp = SP
     conda: 'envs/rideogram.yaml'
     shell:
         "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output}"
+
+rule remove_legend_rideogram:
+    input: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp.svg"
+    output: temp(f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp2.svg")
+    shell: "sed 's/Low.*//g' {input} | sed 's/\\(.*\\)\\<text.*/\\1\\/svg\\>/' > {output}"
+
+rule new_legend_and_title_rideogram:
+    input: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp2.svg"
+    output: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome.svg"
+    params: sp = SP
+    conda: "envs/plots.yaml"
+    shell:
+        "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c 1 "
+        "-t 'Sequence-synteny on {params.sp} chromosomes'"
 
 
 #Introducing the LH extension: quick usage and 

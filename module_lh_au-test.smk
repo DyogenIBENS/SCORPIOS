@@ -104,8 +104,6 @@ rule prepare_lore_aore_for_rideogram:
         "python -m scripts.lore_hunter.make_rideograms_inputs -i {input.c} -g {input.genes} "
         "-k {output.karyo} -o {output.feat} -f dyogen"
 
-# #TODO: fix colors and legend
-# #TODO: add a title with sp name
 rule plot_lore_aore_on_genome:
     input:
         karyo = f"{OUTFOLDER}/karyo_ide.txt",

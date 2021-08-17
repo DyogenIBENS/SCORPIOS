@@ -8,9 +8,9 @@ import sys
 import os
 import argparse
 import gzip
-from ete3 import Tree
-
 from collections import Counter
+
+from ete3 import Tree
 
 from scripts.synteny.duplicated_families import tag_duplicated_species
 from scripts.trees.speciestree import get_species
@@ -19,6 +19,46 @@ import scripts.trees.utilities as ut
 #TODO handle multiple outgroups better (see constrained_aore_lore)...
 #small_sp_set should be dup sp only and final set small_sp + outgr
 #+ allo to fetch tree named with second scorpios outgr (even if only one for clust)
+
+
+def check_copy_number(tree, ref_species, sp_min=3, copy_max=2, sp_min_2copies=0, copy_in_ref=None,
+                      groups=None):
+
+    ref_gene = [i.name for i in tree.get_leaves() if i.S in ref_species]
+    species = [i.S for i in tree.get_leaves()]
+
+    if not set(species).intersection(ref_species):
+        return False
+
+    if len(set(species)) <= sp_min:
+        return False
+
+    if copy_in_ref is not None and len(ref_gene) != copy_in_ref:
+        return False
+
+    ref_gene = ref_gene[0]
+    count_genes = Counter(species)
+
+    sp_2copies = [i for i in count_genes if count_genes[i] == 2]
+    if len(sp_2copies) < sp_min_2copies:
+        return False
+
+    for spec in count_genes:
+        if count_genes[spec] > copy_max:
+            return False
+
+    groups_2copies = []
+    if groups is not None:
+        for group in groups:
+            for spec in group:
+                if spec in sp_2copies:
+                    groups_2copies.append(spec)
+                    break
+
+        if len(groups_2copies) != len(groups):
+            return False
+
+    return True
 
 def extract_subtrees(tree, ali, target_species, ref_species, outali, outtrees,
                      restrict_species_set=None, balanced_groups=None):
@@ -35,92 +75,45 @@ def extract_subtrees(tree, ali, target_species, ref_species, outali, outtrees,
     #all clades with only target species genes in the tree
     subtrees = tree.get_monophyletic(values=["Y"], target_attr="duplicated")
 
-    for subtree in subtrees: #ENSPKIG00000000415
+    for subtree in subtrees:
         subtree_copy = subtree.copy()
         if restrict_species_set is not None:
 
             small_set = [i for i in subtree_copy.get_leaves() if i.S in restrict_species_set]
 
             if len(small_set) > 3:
-            
+
                 subtree_copy.prune([i for i in subtree_copy.get_leaves()\
                                     if i.S in restrict_species_set], preserve_branch_length=True)
             else:
 
                 continue
 
-        ref_gene = [i.name for i in subtree_copy.get_leaves() if i.S == ref_species]
 
-        species = [i.S for i in subtree_copy.get_leaves()]
-
-        if ref_species not in species:
+        if not check_copy_number(subtree_copy, ref_species, sp_min=3, copy_max=2, sp_min_2copies=2,
+                                 groups=balanced_groups, copy_in_ref=1):
             continue
 
-        count_genes = Counter(species)
-        sp_2copies = [sp for sp in count_genes if count_genes[sp]==2]
-        if len(sp_2copies) < 2:
-            continue
 
-        if balanced_groups is not None:
-            ok = False
-            for i in balanced_groups[0]:
-                if i in sp_2copies:
-                    ok = True
-                    break
+        ref_gene = [i.name for i in subtree_copy.get_leaves() if i.S in ref_species]
 
-            if not ok:
-                continue
+        ref_gene = ref_gene[0]
 
-            ok = False
-            for i in balanced_groups[1]:
-                if i in sp_2copies:
-                    ok = True
-                    break
+        count_sp = {}
 
-            if not ok:
-                continue
+        for leaf in subtree_copy.get_leaves():
 
-        ok = True
-        # print(subtree)
-        # print(sp_2copies)
+            species = leaf.S
+            count_sp[species] = count_sp.get(species, 0) + 1
 
-        for sp in count_genes:
+            leaf.S = leaf.S  + '_' + str(count_sp[species])
 
-            if sp == ref_species and count_genes[sp] != 1:
+        subtree_copy.write(outfile=outtrees+'/'+ref_gene+'.nhx', format=1, features=["S", "D"])
 
-                ok = False
-                break
+        leaves = [i.name for i in subtree_copy.get_leaves()]
 
-            elif count_genes[sp] > 2:
-
-                ok = False
-                break
-
-
-        if ok and len(set(species)) > 2:
-
-            ref_gene = ref_gene[0]
-
-            count_sp = {}
-
-            for leaf in subtree_copy.get_leaves():
-
-                sp = leaf.S
-                count_sp[sp] = count_sp.get(sp, 0) + 1
-
-                leaf.S = leaf.S  + '_' + str(count_sp[sp])
-
-            subtree_copy.write(outfile=outtrees+'/'+ref_gene+'.nhx',
-                               format=1, features=["S", "D"])
-
-            leaves = [i.name for i in subtree_copy.get_leaves()]
-
-            d = []
-            for leaf in leaves:
-                d.append(leaf) 
-
-            seq = ut.get_subali(ali, d)
-            ut.write_fasta(seq, outali + '/' + ref_gene + '.fa')
+        seq = ut.get_subali(ali, leaves)
+        ut.write_fasta(seq, outali + '/' + ref_gene + '.fa')
 
 
 
@@ -144,13 +137,13 @@ if __name__ == '__main__':
     PARSER.add_argument('-s', '--speciesTree', help='Species tree (newick), with ancestor names.',\
                          required=True)
 
-    PARSER.add_argument('-oa', '--outdir_ali', help='Output directory for subalis', required=False,
-                        default="out_alis")
+    PARSER.add_argument('-oa', '--outdir_ali', help='Output directory for subalis',
+                        required=False, default="out_alis")
 
-    PARSER.add_argument('-ot', '--outdir_trees', help='Output directory for subtrees', required=False,
-                        default="out_trees")
+    PARSER.add_argument('-ot', '--outdir_trees', help='Output directory for subtrees',
+                        required=False, default="out_trees")
 
-    PARSER.add_argument('-sp', '--outgr_species', required=False, default=None)
+    PARSER.add_argument('-sp', '--outgr_species', required=True, nargs='+')
 
     PARSER.add_argument('-set', '--small_sp_set', required=False, default=None, nargs='+')
 
@@ -177,14 +170,14 @@ if __name__ == '__main__':
 
     GROUPS = None
     if ARGS["balance_ohno"]:
-        ancestor = ARGS["anc"]
+        ANCESTOR = ARGS["anc"]
         SP_SET = SPECIES
         if SMALL_SP_SET is not None:
             SP_SET = [i for i in SPECIES if i in SMALL_SP_SET]
-            ancestor = SPTREE.get_common_ancestor(SP_SET)
+            ANCESTOR = SPTREE.get_common_ancestor(SP_SET)
 
-        GROUP1 = [i.name for i in ancestor.children[0].get_leaves() if i.name in SP_SET]
-        GROUP2 = [i.name for i in ancestor.children[1].get_leaves() if i.name in SP_SET]
+        GROUP1 = [i.name for i in ANCESTOR.children[0].get_leaves() if i.name in SP_SET]
+        GROUP2 = [i.name for i in ANCESTOR.children[1].get_leaves() if i.name in SP_SET]
         GROUPS = [GROUP1, GROUP2]
 
     k = 0
@@ -200,4 +193,4 @@ if __name__ == '__main__':
             extract_subtrees(TREE, ALI, SPECIES2, ARGS["outgr_species"], ARGS["outdir_ali"],
                              ARGS["outdir_trees"], SMALL_SP_SET, GROUPS)
 
-            k+=1
+            k += 1

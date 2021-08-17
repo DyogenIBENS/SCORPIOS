@@ -254,7 +254,9 @@ good-names=i,
            gn,
            kl,
            cl,
-           X
+           X,
+           ax,
+           lg
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=no

@@ -15,7 +15,9 @@ import os
 import sys
 import argparse
 
-#FIXME: DRY after adding lore hunter mode... (low priority)
+#FIXME: DRY once lore hunter mode completly implemented... (low priority)
+
+ITEMS_DICT = {"ml": "1", "aore": "2", "lore":"3"}
 
 def one_file_consel(filename, alpha, item_test='1'):
 
@@ -97,7 +99,7 @@ def one_file_consel(filename, alpha, item_test='1'):
     return au_result
 
 
-def one_file_consel_3_trees(filename, alpha, item_dict={"ml": "1", "aore": "2", "lore":"3"}):
+def one_file_consel_3_trees(filename, alpha, item_dict=ITEMS_DICT):
 
     """
     
@@ -144,7 +146,7 @@ def one_file_consel_3_trees(filename, alpha, item_dict={"ml": "1", "aore": "2", 
 
             if tmp and obs != 'inf' and len(tmp) > 1:
 
-               if au_result == 'error':
+                if au_result == 'error':
 
                     au_result = 'neither lore or aore rejected'
 
@@ -247,8 +249,7 @@ def count(filenames, name_sol="", alpha=0.05, item='1', parse_name=True, wgd='')
     return a_list
 
 
-def lore_aore_summary(filenames, alpha=0.05, item_dict={"ml": "1", "aore": "2", "lore":"3"},
-                      parse_name=True, wgd=''):
+def lore_aore_summary(filenames, alpha=0.05, item_dict=ITEMS_DICT, parse_name=True, wgd=''):
 
     """
 

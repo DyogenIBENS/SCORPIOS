@@ -8,13 +8,13 @@ def load_matrix(input_file):
     matrix = pd.read_csv(input_file, index_col=0)
     return matrix
 
-def get_n_medoids(matrix, clusters, n=5):
+def get_n_medoids(matrix, clusters, number=5):
     res = {}
 
     for clust in clusters:
         tmp_mat = matrix.loc[matrix.index.intersection(clusters[clust])]
         tmp_mat["sum"] = tmp_mat.sum(axis=1)
-        medoids = tmp_mat.nsmallest(n, ["sum"], keep='first').index.tolist()
+        medoids = tmp_mat.nsmallest(number, ["sum"], keep='first').index.tolist()
         res[clust] = medoids
     return res
 
@@ -35,14 +35,15 @@ def write_medoids(dict_medoids, trees_path, outfolder, load_only=None):
     for clust in dict_medoids:
         for i, medoid in enumerate(dict_medoids[clust]):
             tree = Tree(trees_path.format(medoid))
-            if not load_only: #dirty hack, to improve
-                tree.write(outfile=f"{outfolder}/cluster_{clust}_medoid_{i+1}.nhx", format=1, features=["S", "D"])
+            if load_only is not None: #dirty hack, to improve
+                tree.write(outfile=f"{outfolder}/cluster_{clust}_medoid_{i+1}.nhx", format=1,
+                           features=["S", "D"])
             else:
                 tree.write(outfile=f"{outfolder}/medoid_{i+1}.nhx", format=1, features=["S", "D"])
 
 
 if __name__ == '__main__':
-    
+
 
     # Arguments
     PARSER = argparse.ArgumentParser(description=__doc__,

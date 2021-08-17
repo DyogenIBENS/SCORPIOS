@@ -12,15 +12,19 @@ import multiprocessing
 
 import argparse
 import random
-from ete3 import Tree
 import numpy as np
+
+from ete3 import Tree
 
 import tree_distance as td
 
+#FIXME: error handling in multiprocessing
 
+#TODO: delete and use functions defined in write_ancgenes_treeclust
 def load_incons(finput):
     with open(finput, 'r') as infile:
-        incons = {line.strip().split('\t')[0] for line in infile if line.strip().split('\t')[1]=="Inconsistent"}
+        incons = {line.strip().split('\t')[0] for line in infile\
+                  if line.strip().split('\t')[1] == "Inconsistent"}
 
     with open(finput, 'r') as infile:
         incons_all = {line.strip().split('\t')[0] for line in infile if "Inconsistent" in line}
@@ -32,35 +36,29 @@ def product(*iterables, **kwargs):
         yield ()
     else:
         iterables = iterables * kwargs.get('repeat', 1)
-        it = iterables[0]
-        for item in it() if callable(it) else iter(it):
+        myiter = iterables[0]
+        for item in myiter() if callable(myiter) else iter(myiter):
             for items in product(*iterables[1:]):
                 yield (item, ) + items
 
 
-# j = product(lambda: product(lambda: itertools.permutations(['s1', 's2']), lambda: itertools.permutations(['t1', 't2', 't3'])), lambda: product(lambda: itertools.permutations(['s1', 's2']), lambda: itertools.permutations(['t1', 't2', 't3'])))
-
 def all_trees_to_newick(tree_list):
     trees_dict = {}
 
-    g = 0
     for tree in tree_list:
-        treename = os.path.splitext(os.path.basename(tree))[0].replace("_final", "") #do smthg better for this
-        t = Tree(tree)
-        leaves = t.get_leaves()
+        #FIXME do smthg better for this
+        treename = os.path.splitext(os.path.basename(tree))[0].replace("_final", "")
+        mytree = Tree(tree)
+        leaves = mytree.get_leaves()
         species = {i.S.split("_")[0] for i in leaves}
-
-        all_trees = []
 
         if len(species) > 2:
 
-            for leaf in t.get_leaves():
+            for leaf in leaves:
 
                 leaf.name = leaf.S.replace('_', '')
 
-            trees_dict[treename] = t
-
-            g += 1
+            trees_dict[treename] = mytree
 
     return trees_dict
 
@@ -70,16 +68,16 @@ def apply_perm(tree, perm, leaves):
     perm = list(perm)
 
     d_convert = {}
-   
+
     for group in perm:
         k = 0
         for leaf in leaves:
-            sp = leaf[:-1]
+            species = leaf[:-1]
 
-            if sp in [i[:-1] for i in group]:
+            if species in [i[:-1] for i in group]:
 
                 d_convert[leaf] = group[k]
-                k+=1 
+                k += 1
 
     for leaf in tree.get_leaves():
 
@@ -92,9 +90,9 @@ def get_all_permutation(tree):
     dsp = {}
     leaves_names = [i.name for i in tree.get_leaves()]
     for leaf in leaves_names:
-        sp = leaf[:-1]
-        dsp[sp] = dsp.get(sp, [])
-        dsp[sp].append(leaf)
+        species = leaf[:-1]
+        dsp[species] = dsp.get(species, [])
+        dsp[species].append(leaf)
 
     all_permutations = []
     for leaves in dsp.values():
@@ -103,39 +101,35 @@ def get_all_permutation(tree):
     return itertools.product(*all_permutations), leaves_names
 
 def compare_trees(pair, res, dist_method="Euclid"):
-    
+
     tree1, tree2 = pair
     tree1_name, tree1_ete3 = tree1
     tree2_name, tree2_ete3 = tree2
 
 
-    t1 = tree1_ete3.copy()
-    t2 = tree2_ete3.copy()
+    mytree1 = tree1_ete3.copy()
+    mytree2 = tree2_ete3.copy()
 
     min_dist = np.inf
 
-    leaves_1 = {i.name for i in t1}
-    leaves_2 = {i.name for i in t2}
+    leaves_1 = {i.name for i in mytree1}
+    leaves_2 = {i.name for i in mytree2}
 
     intersect = leaves_1.intersection(leaves_2)
 
     if len(leaves_2) < len(leaves_1):
-        t1, t2 = t2.copy(), t1.copy()
+        mytree1, mytree2 = mytree2.copy(), mytree1.copy()
         tree1_name, tree2_name = tree2_name, tree1_name
 
-    all_permut_t1, freeze_leaves1 = get_all_permutation(t1)
+    all_permut_t1, freeze_leaves1 = get_all_permutation(mytree1)
 
 
     if len(intersect) > 2:
 
-        h = 0
-
         for perm in all_permut_t1:
 
-            h+=1
-
-            t1_perm = apply_perm(t1.copy(), perm, freeze_leaves1)
-            t2_perm = t2.copy()
+            t1_perm = apply_perm(mytree1.copy(), perm, freeze_leaves1)
+            t2_perm = mytree2.copy()
 
             leaves_1 = {i.name for i in t1_perm}
             leaves_2 = {i.name for i in t2_perm}
@@ -156,12 +150,13 @@ def compare_trees(pair, res, dist_method="Euclid"):
                                                    td.PhyloTree(t2_nwk, True), True)
 
                 elif dist_method == "RF":
-                
+
                     dist = td.getRobinsonFouldsDistance(td.PhyloTree(t1_nwk, True),\
                                                         td.PhyloTree(t2_nwk, True), True)
 
                 else:
-                    sys.stderr.write("Error: unsupported dist_method '"+dist_method+"' accepted values are 'Euclid' and 'RF'")
+                    sys.stderr.write("Error: unsupported dist_method '"+dist_method+\
+                                     "' accepted values are 'Euclid' and 'RF'\n")
                     sys.exit(1)
 
 
@@ -170,19 +165,19 @@ def compare_trees(pair, res, dist_method="Euclid"):
                     min_dist = dist
 
     if  min_dist == np.inf:
-         min_dist = np.nan
+        min_dist = np.nan
 
     res[(tree1_name, tree2_name)] = min_dist
 
 
-def grouper(n, iterable, fillvalue=None):
-    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
-    args = [iter(iterable)] * n
+def grouper(size, iterable, fillvalue=None):
+    "grouper(size, 'ABCDEFG', 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * size
     return itertools.izip_longest(fillvalue=fillvalue, *args)
 
 
 if __name__ == '__main__':
-    
+
 
     # Arguments
     PARSER = argparse.ArgumentParser(description=__doc__,
@@ -215,12 +210,14 @@ if __name__ == '__main__':
             ALL_TREES[new_key] = ALL_TREES.pop(t)
 
     incons_trees = [i for i in ALL_TREES if i in INCONS]
-    other_trees= [i for i in ALL_TREES if i not in IALL]
+    other_trees = [i for i in ALL_TREES if i not in IALL]
     print(len(incons_trees), len(other_trees))
 
-    SAMPLE_INCONS = random.sample(incons_trees, int(0.95*len(incons_trees))) #FIXME Ratio to give as a param
+    #FIXME Ratio to give as a param
+    SAMPLE_INCONS = random.sample(incons_trees, int(0.95*len(incons_trees)))
 
-    SAMPLE_OTHER = random.sample(other_trees, int(0.2*len(other_trees))) #random.sample(other_trees, int(5000-0.9*len(incons_trees)))
+     #random.sample(other_trees, int(5000-0.9*len(incons_trees)))
+    SAMPLE_OTHER = random.sample(other_trees, int(0.2*len(other_trees)))
 
     # SAMPLE_INCONS = incons_trees
     # SAMPLE_OTHER = other_trees
@@ -253,8 +250,8 @@ if __name__ == '__main__':
         POOL.close()
         POOL.join()
 
-        sys.stderr.write("Computed "+str(max(loop * GROUP_BY, TOT)) +" distances out of "+str(TOT)+" ("\
-                         +str(max(round(loop*GROUP_BY/float(TOT) * 100, 2)), 100)+" %) \n")
+        sys.stderr.write("Computed "+str(max(loop * GROUP_BY, TOT)) +" distances out of "+str(TOT)+\
+                         " ("+str(max(round(loop*GROUP_BY/float(TOT) * 100, 2)), 100)+" %) \n")
 
         with open(OUTDIR+"/dist_mat_"+str(loop)+".csv", 'w') as fw:
             for comp in RES.keys():
@@ -264,6 +261,3 @@ if __name__ == '__main__':
                 fw.write(comp[0]+','+comp[1]+','+str(min_dist)+'\n')
 
         loop += 1
-    # print(res)
-
-    #33501205

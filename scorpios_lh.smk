@@ -78,10 +78,6 @@ elif "trees" not in SCORPIOS_CONFIG and ITER == 0:
 if ITER != 0:
     INPUT_FOREST = out_name("SCORPiOs_output", JNAME, ITER) + '.nhx'
 
-print(Acc)
-print(CTREES)
-print(SUMMARY)
-
 CTREES_DIR = scorpios(CTREES+"/"+LORE_WGD+"/")
 
 
@@ -94,7 +90,11 @@ if MODE.lower() == "diagnostic":
             f"SCORPiOs-LH_{JNAME}/diagnostic/seq_synteny_conflicts_by_homeologs.svg",
             f"SCORPiOs-LH_{JNAME}/diagnostic/seq_synteny_conflicts_on_genome.svg"
 
+
 elif MODE.lower() == "clustering":
+    PLOTS = "SCORPiOs-LH_"+JNAME+"/clustering/clusters_k-"+str(config.get("k", 3))+"_on_genome.svg"
+    if config.get("fit_hmm", False):
+        PLOTS = [PLOTS, "SCORPiOs-LH_"+JNAME+"/clustering/clusters_k-"+str(config.get("k", 3))+"_hmm_fit_on_genome.svg"]
     rule Target:
         input:
             expand("SCORPiOs-LH_"+JNAME+"/clustering/medoids_clustering_k_"+str(config.get("k", 3))+"/cluster_{i}_medoid_{n}.nhx",
@@ -102,7 +102,7 @@ elif MODE.lower() == "clustering":
             expand("SCORPiOs-LH_"+JNAME+"/clustering/medoids_incons/medoid_{n}.nhx",
                    n=range(1, config.get("n", 5)+1)),
             "SCORPiOs-LH_"+JNAME+"/clustering/inconsistent_trees_vs_clusters.txt",
-            "SCORPiOs-LH_"+JNAME+"/clustering/clusters_k-"+str(config.get("k", 3))+"_on_genome.svg"
+            PLOTS
 
 else:
     rule Target:

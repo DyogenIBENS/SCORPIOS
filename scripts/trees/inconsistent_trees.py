@@ -356,7 +356,7 @@ def print_out_stats(stats_dict, wgd=''):
         multi = stats_dict.get('Inconsistent_multigenic', 0)
         cons = stats_dict.get('Consistent', 0)
         incons = stats_dict.get('Inconsistent', 0)
-        sm = stats_dict.get('Too few genes', 0)
+        i = stats_dict.get('Too few genes', 0)
         tot = cons + incons
         consp = round((cons/tot)*100, 2)
         inconsp = round((incons/tot)*100, 2)
@@ -366,7 +366,7 @@ def print_out_stats(stats_dict, wgd=''):
         print(" Whole-genome duplication: {}".format(wgd))
         print("\n")
         print(" {} total subtrees with predicted synteny constraints out of {}".format(tot,
-                                                                                    tot+multi+sm))
+                                                                                       tot+multi+i))
         print(" ({} discarded inconsistent multigenic subtrees)".format(multi))
 
         print(" {} out of {} ({} %) synteny-consistent subtrees".format(cons, tot, consp))

@@ -30,5 +30,5 @@ if __name__ == '__main__':
             incons = len([tree for tree in CLUSTERS[i] if tree in INCONS["Inconsistent"]])
             lg = len(CLUSTERS[i])
             OUT.write(f"{incons} inconsistent trees in cluster {i} (cluster of size={lg} trees)\n")
-            sys.stdout.write(f"{incons} inconsistent trees in cluster {i} (cluster of size={lg} trees)\n")
-
+            sys.stdout.write(f"{incons} inconsistent trees in cluster {i} (cluster of size={lg}"
+                             " trees)\n")

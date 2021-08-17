@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+
+"""
+    Fix RIdeogram karyotype figure by adding a legend and title to it.
+
+    Example:
+
+        $ python -m scripts.lore_hunter.fix_rideograms -i fig.svg -o out.svg [-c 2] [-t '']
+"""
+
 import argparse
 import os
 
@@ -9,11 +19,20 @@ import seaborn as sns
 
 
 def make_legend(outfilename, title, colors):
+
     """
+    Plots to file a matplotlib figure with only legend and title.
+
+    Args:
+        outfilename (str): name for the output figure file
+        title (str): title for the figure
+        colors (list): ordered list of colors for the legend
+
     """
+
     plt.figure(figsize=(8.44, 6))
-    f = lambda m,c: plt.plot([],[],marker=m, color=c, ls="none")[0]
-    handles = [f("s", colors[i]) for i in range(len(colors))]
+    func = lambda c: plt.plot([], [], marker='s', color=c, ls="none")[0]
+    handles = [func(colors[i]) for i in range(len(colors))]
     labels = ["AORe", "LORe"]
     plt.axis('off')
     plt.title(title)
@@ -26,6 +45,13 @@ def make_legend(outfilename, title, colors):
 
 def add_legend(input_svg, legend_svg, outfile):
     """
+    Create a new svg by putting one svg on top of another.
+
+    Args:
+        input_svg (str): name for first svg file
+        legend_svg (str): name for second svg file (will be drawn on top of first)
+        outfile (list): name for the output figure file
+
     """
     template = st.fromfile(input_svg)
     second_svg = st.fromfile(legend_svg)
@@ -33,7 +59,7 @@ def add_legend(input_svg, legend_svg, outfile):
     template.save(outfile)
 
 if __name__ == '__main__':
-    
+
     PARSER = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
 
@@ -52,8 +78,8 @@ if __name__ == '__main__':
 
     OUT, _ = os.path.splitext(ARGS["output"])
 
-    legend_file = OUT + '_legend.svg'
+    LEGEND_FILE = OUT + '_legend.svg'
 
-    make_legend(legend_file, ARGS["title"], COLORS)
+    make_legend(LEGEND_FILE, ARGS["title"], COLORS)
 
-    add_legend(ARGS["input"], legend_file, ARGS["output"])
+    add_legend(ARGS["input"], LEGEND_FILE, ARGS["output"])

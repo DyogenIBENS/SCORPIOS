@@ -19,8 +19,10 @@ arg_balance = config.get("balance_ohno", False)
 if arg_balance:
     arg_balance = "--balance_ohno"
 
-#TODO: compare clustering results to synteny-consistent vs synteny-inconsistent
-#TODO: fix rideogram figure (legend, colorpalette use one similar to treecl and add species label)
+N = config.get("n", 5)
+K = config.get("k", 3)
+
+
 #TODO: linting
 
 #FIXME: handle outgroup better to have correspondance with the Accepted SCORPiOs file
@@ -127,73 +129,101 @@ rule tree_distances:
         "python -m scripts.lore_hunter.trees_distances -t {params.trees} -i {input.incons} -nc {threads} -o {params.odir}; "
         "cat {OUTFOLDER}/dist_mat*.csv > {output}; rm {OUTFOLDER}/dist_mat*.csv"
 
-k = config.get("k", 3)
-
-#TODO add medoid representation of clusters and of each consistent/inconsistent group (top 10 medoids?)
 rule treeclust:
     input: f"{OUTFOLDER}/distance_matrix.csv"
     output:
-        clust = f"{OUTFOLDER}/clust_{k}.tsv",
-        mds = f"{OUTFOLDER}/mds_{k}.svg",
-        mat = f"{OUTFOLDER}/mat_{k}.svg",
+        clust = f"{OUTFOLDER}/clust_{K}.tsv",
+        mds = f"{OUTFOLDER}/mds_{K}.svg",
+        mat = f"{OUTFOLDER}/mat_{K}.svg",
         omat = f"{OUTFOLDER}/distance_matrix_converted.csv"
     conda: "envs/treecl.yaml"
-    params: k = k
+    params: k = K
     shell:
         "python -m scripts.lore_hunter.tree_clust -d {input} -o {output.clust} -om {output.mds} "
         "-od {output.mat} -k {params.k}"
 
-n = config.get("n", 5)
-
 rule medoids_clust:
-    input: dmat = f"{OUTFOLDER}/distance_matrix_converted.csv", clust = f"{OUTFOLDER}/clust_{k}.tsv"
-    output: expand(OUTFOLDER+'/medoids_clustering_k_'+str(k)+"/cluster_{i}_medoid_{n}.nhx", i=range(0, k), n=range(1, n+1))
-    params: n = n, odir = OUTFOLDER+'/medoids_clustering_k_'+str(k), trees = OUTFOLDER + "/subtrees/{}_final.nhx"
+    input: dmat = f"{OUTFOLDER}/distance_matrix_converted.csv", clust = f"{OUTFOLDER}/clust_{K}.tsv"
+    output: expand(OUTFOLDER+'/medoids_clustering_k_'+str(K)+"/cluster_{i}_medoid_{n}.nhx", i=range(0, K), n=range(1, N+1))
+    params: n = N, odir = OUTFOLDER+'/medoids_clustering_k_'+str(K), trees = OUTFOLDER + "/subtrees/{}_final.nhx"
     shell: "python -m scripts.lore_hunter.medoid_topologies -d {input.dmat} -c {input.clust} -n {params.n} -t {params.trees} -o {params.odir}"
 
 rule medoids_incons:
     input: dmat = f"{OUTFOLDER}/distance_matrix_converted.csv", incons = f"{OUTFOLDER}/trees_summary.txt"
-    output: expand(OUTFOLDER+'/medoids_incons/medoid_{n}.nhx', n=range(1, n+1))
-    params: n = n, trees = OUTFOLDER + "/subtrees/{}_final.nhx", odir = OUTFOLDER+'/medoids_incons',
+    output: expand(OUTFOLDER+'/medoids_incons/medoid_{n}.nhx', n=range(1, N+1))
+    params: n = N, trees = OUTFOLDER + "/subtrees/{}_final.nhx", odir = OUTFOLDER+'/medoids_incons',
     shell: "python -m scripts.lore_hunter.medoid_topologies -d {input.dmat} -c {input.incons} -n {params.n} -t {params.trees} -o {params.odir} -r 'Inconsistent'"
 
 rule compare_incons_clusters:
-    input: clust = f"{OUTFOLDER}/clust_{k}.tsv", incons = f"{OUTFOLDER}/trees_summary.txt"
+    input: clust = f"{OUTFOLDER}/clust_{K}.tsv", incons = f"{OUTFOLDER}/trees_summary.txt"
     output: OUTFOLDER+'/inconsistent_trees_vs_clusters.txt'
     shell: "python -m scripts.lore_hunter.compare_incons_clusters -c {input.clust} -i {input.incons} -o {output}"
 
 rule clusters_full_summary:
-    input: treedir = f"{OUTFOLDER}/subtrees/", clusters = f"{OUTFOLDER}/clust_{k}.tsv"
-    output: f"{OUTFOLDER}/clustering_summary_k-{k}.tsv"
+    input: treedir = f"{OUTFOLDER}/subtrees/", clusters = f"{OUTFOLDER}/clust_{K}.tsv"
+    output: f"{OUTFOLDER}/clustering_summary_k-{K}.tsv"
     shell: "python -m scripts.lore_hunter.write_ancgenes_treeclust -t {input.treedir} "
         "-c {input.clusters} -o {output}"
 
 rule prepare_clusters_for_rideogram:
-    input: c = f"{OUTFOLDER}/clustering_summary_k-{k}.tsv", genes = GENES
+    input: c = f"{OUTFOLDER}/clustering_summary_k-{K}.tsv", genes = GENES
     output: karyo = f"{OUTFOLDER}/karyo_ide.txt",
-            feat = f"{OUTFOLDER}/clust_k-{k}_ide.txt"        
+            feat = f"{OUTFOLDER}/clust_k-{K}_ide.txt"        
     shell:
         "python -m scripts.lore_hunter.make_rideograms_inputs -i {input.c} -g {input.genes} "
         "-k {output.karyo} -o {output.feat} -f dyogen"
 
-# #TODO: fix colors and legend
-# #TODO: add a title with sp name
 rule plot_clusters_on_genome:
     input:
         karyo = f"{OUTFOLDER}/karyo_ide.txt",
-        feat = f"{OUTFOLDER}/clust_k-{k}_ide.txt"
-    output: f"{OUTFOLDER}/clusters_k-{k}_on_genome.svg"
-    params: sp = SP, k=k
+        feat = f"{OUTFOLDER}/clust_k-{K}_ide.txt"
+    output: temp(f"{OUTFOLDER}/clusters_k-{K}_on_genome_tmp.svg")
+    params: k=K
     conda: 'envs/rideogram.yaml'
     shell:
         "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.k}"
 
-#TODO: lk test to find best fitting HMM
-# rule fit_hmm:
-#     input:
-#         clust = f"{OUTFOLDER}/clusters_on_genome_{{i}}.pkl"        
-#     output: fig = f"{OUTFOLDER}/hmm_clusters_on_genome_{{i}}clusters_{{j}}states.svg"
-#     params: sp = SP
-#     conda: "envs/hmm.yaml"
-#     shell:
-#         "python src/fit_simple_hmm.py -c {input.clust} -o {output.fig} -n {wildcards.j} --sp {params.sp}"
+rule rm_legend_rideogram:
+    input: f"{OUTFOLDER}/{{myset}}_tmp.svg"
+    output: temp(f"{OUTFOLDER}/{{myset}}_tmp2.svg")
+    shell: "sed 's/Low.*//g' {input} | sed 's/\\(.*\\)\\<text.*/\\1\\/svg\\>/' > {output}"
+
+def make_title(default_title, input_name):
+    if 'hmm' in input_name:
+        return default_title + "(hmm fit)"
+    else:
+        return default_title
+
+rule add_legend_and_title_rideogram:
+    input: f"{OUTFOLDER}/{{myset}}_tmp2.svg"
+    output: f"{OUTFOLDER}/{{myset}}.svg"
+    params:
+        k=K,
+        title=lambda input: make_title(f'Tree topologies clusters on {SP} chromosomes', input)
+    conda: "envs/plots.yaml"
+    shell:
+        "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c {params.k} "
+        "-t '{params.title}'"
+
+if config.get("fit_hmm", False):
+    #TODO: lk test to find best fitting HMM
+    rule fit_hmm:
+        input:
+            clust = f"{OUTFOLDER}/clust_k-{K}_ide.txt"       
+        output: fig = f"{OUTFOLDER}/clustering/clusters_k-{K}_hmm_fit_ide.txt"
+        params:
+            sp = SP
+        conda: "envs/hmm.yaml"
+        shell:
+            "python src/fit_simple_hmm.py -c {input.clust} -o {output.fig} -n {wildcards.j} --sp {params.sp}"
+
+
+    rule plot_hmm_on_genome:
+        input:
+            karyo = f"{OUTFOLDER}/karyo_ide.txt",
+            feat = f"{OUTFOLDER}/clust_k-{K}_hmm_fit_ide.txt"
+        output: temp(f"{OUTFOLDER}/clusters_k-{K}_hmm_fit_on_genome_tmp.svg")
+        params: k=k
+        conda: 'envs/rideogram.yaml'
+        shell:
+            "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.k}"

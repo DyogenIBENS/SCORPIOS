@@ -1,4 +1,8 @@
-import treeCl
+"""
+2.7 run in conda env
+
+"""
+
 import argparse
 import os
 
@@ -6,10 +10,13 @@ from collections import defaultdict
 import csv
 import functools
 import itertools
-import numpy as np
 
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+
+import treeCl
+
 matplotlib.use('Agg')
 
 
@@ -35,7 +42,7 @@ def load_convert_distmat(input_file, output_file):
             idx_a = name_to_id[name_a]
             idx_b = name_to_id[name_b]
 
-            if dist == np.nan or dist == "nan":
+            if dist in [np.nan, "nan"]:
                 dist = 0.0
 
             dists[(idx_a, idx_b)] = dist
@@ -44,20 +51,18 @@ def load_convert_distmat(input_file, output_file):
 
     id_to_name = dict((identifier, name) for name, identifier in name_to_id.iteritems())
 
-    with open(output_file, 'w') as fw:
-        fw.write(','.join([id_to_name[k] for k in range(len(id_to_name))])+'\n')
-        for i in range(len(id_to_name)):
-            name = id_to_name[i]
-
-            d = ','.join([str(dists[(i, k)]) for k in range(len(id_to_name))])
-            fw.write(name+','+d+'\n')
+    with open(output_file, 'w') as outfile:
+        outfile.write(','.join([id_to_name[k] for k in range(len(id_to_name))])+'\n')
+        for i, name in enumerate(id_to_name):
+            dist = ','.join([str(dists[(i, k)]) for k in range(len(id_to_name))])
+            outfile.write(name+','+dist+'\n')
 
 
 
 
 
 if __name__ == '__main__':
-    
+
 
     # Arguments
     PARSER = argparse.ArgumentParser(description=__doc__,
@@ -85,26 +90,19 @@ if __name__ == '__main__':
     OUTFIGMDS = ARGS["outmds"]
     OUTCLUST = ARGS["output"]
 
-    # for i in range(2, 5):
-    dm = treeCl.DistanceMatrix.from_csv(OUTDISTMAT)
-    # print(dm)
-    spclust = treeCl.Spectral(dm)
-    # print(spclust)
-    partitions = spclust.cluster(ARGS["k"])
-    treeCl.plotter.heatmap(dm, partition=partitions)
+    DISTMAT = treeCl.DistanceMatrix.from_csv(OUTDISTMAT)
+    SPCLUST = treeCl.Spectral(DISTMAT)
+    PARTITIONS = SPCLUST.cluster(ARGS["k"])
+    treeCl.plotter.heatmap(DISTMAT, partition=PARTITIONS)
     plt.savefig(OUTFIGDM, dpi=100)
-    # plt.show()
-    coord = spclust.spectral_embedding(3)
+    COORD = SPCLUST.spectral_embedding(3)
     # print(treeCl.Evaluation(dm).silhouette(partitions))
-    treeCl.plotter.plot_embedding(coord, partition=partitions)
+    treeCl.plotter.plot_embedding(COORD, partition=PARTITIONS)
     plt.savefig(OUTFIGMDS, dpi=100)
-    # plt.show()
 
     plt.close("all")
-    loci = dm.get_names()
-    clusters = partitions.partition_vector
-    with open(OUTCLUST, 'w') as fw:
-        for tree, clust in zip(loci, clusters):
-            fw.write(tree+'\t'+str(clust)+'\n')
-
-    #grep nan full_matrix_RF_4000sample.csv | grep -Eo ENSELUG[0-9]+ | sort | uniq -c | awk -v limit=10 '$1 > limit{print $2}' > problematic_treees
+    LOCI = DISTMAT.get_names()
+    CLUSTERS = PARTITIONS.partition_vector
+    with open(OUTCLUST, 'w') as out:
+        for tree, clust in zip(LOCI, CLUSTERS):
+            out.write(tree+'\t'+str(clust)+'\n')
