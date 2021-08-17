@@ -23,6 +23,7 @@ N = config.get("n", 5)
 K = config.get("k", 3)
 
 
+print(OUTFOLDER)
 #TODO: linting
 
 #FIXME: handle outgroup better to have correspondance with the Accepted SCORPiOs file
@@ -98,7 +99,7 @@ rule sp_tag:
         t2.write(outfile=output[0], format=1, features=['S'])
 
 
-def get_all_subtrees(wildcards):
+def get_all_subtrees(wildcards, OUTFOLDER=OUTFOLDER):
     #check that checkpoint has been executed
     co = checkpoints.extract_subtrees_subalis.get(**wildcards).output[0]
     subtrees, = glob_wildcards(co+"/{subtree}.nhx")
@@ -184,8 +185,8 @@ rule plot_clusters_on_genome:
         "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.k}"
 
 rule rm_legend_rideogram:
-    input: f"{OUTFOLDER}/{{myset}}_tmp.svg"
-    output: temp(f"{OUTFOLDER}/{{myset}}_tmp2.svg")
+    input: f"{OUTFOLDER}/clusters_k-{K}_on_genome_tmp.svg"
+    output: temp(f"{OUTFOLDER}/clusters_k-{K}_on_genome_tmp2.svg")
     shell: "sed 's/Low.*//g' {input} | sed 's/\\(.*\\)\\<text.*/\\1\\/svg\\>/' > {output}"
 
 def make_title(default_title, input_name):
@@ -195,35 +196,36 @@ def make_title(default_title, input_name):
         return default_title
 
 rule add_legend_and_title_rideogram:
-    input: f"{OUTFOLDER}/{{myset}}_tmp2.svg"
-    output: f"{OUTFOLDER}/{{myset}}.svg"
+    input: f = f"{OUTFOLDER}/clusters_k-{K}_on_genome_tmp2.svg"
+    output: f"{OUTFOLDER}/clusters_k-{K}_on_genome.svg"
     params:
         k=K,
-        title=lambda input: make_title(f'Tree topologies clusters on {SP} chromosomes', input)
+        title=f'Tree topologies clusters on {SP} chromosomes',
+        labels=expand("'cluster {i}'", i=range(0, K))
     conda: "envs/plots.yaml"
     shell:
         "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c {params.k} "
-        "-t '{params.title}'"
+        "-t '{params.title}' -l {params.labels}"
 
-if config.get("fit_hmm", False):
-    #TODO: lk test to find best fitting HMM
-    rule fit_hmm:
-        input:
-            clust = f"{OUTFOLDER}/clust_k-{K}_ide.txt"       
-        output: fig = f"{OUTFOLDER}/clustering/clusters_k-{K}_hmm_fit_ide.txt"
-        params:
-            sp = SP
-        conda: "envs/hmm.yaml"
-        shell:
-            "python src/fit_simple_hmm.py -c {input.clust} -o {output.fig} -n {wildcards.j} --sp {params.sp}"
+# if config.get("fit_hmm", False):
+#     #TODO: lk test to find best fitting HMM
+#     rule fit_hmm:
+#         input:
+#             clust = f"{OUTFOLDER}/clust_k-{K}_ide.txt"       
+#         output: fig = f"{OUTFOLDER}/clustering/clusters_k-{K}_hmm_fit_ide.txt"
+#         params:
+#             sp = SP
+#         conda: "envs/hmm.yaml"
+#         shell:
+#             "python src/fit_simple_hmm.py -c {input.clust} -o {output.fig} -n {wildcards.j} --sp {params.sp}"
 
 
-    rule plot_hmm_on_genome:
-        input:
-            karyo = f"{OUTFOLDER}/karyo_ide.txt",
-            feat = f"{OUTFOLDER}/clust_k-{K}_hmm_fit_ide.txt"
-        output: temp(f"{OUTFOLDER}/clusters_k-{K}_hmm_fit_on_genome_tmp.svg")
-        params: k=k
-        conda: 'envs/rideogram.yaml'
-        shell:
-            "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.k}"
+#     rule plot_hmm_on_genome:
+#         input:
+#             karyo = f"{OUTFOLDER}/karyo_ide.txt",
+#             feat = f"{OUTFOLDER}/clust_k-{K}_hmm_fit_ide.txt"
+#         output: temp(f"{OUTFOLDER}/clusters_k-{K}_hmm_fit_on_genome_tmp.svg")
+#         params: k=k
+#         conda: 'envs/rideogram.yaml'
+#         shell:
+#             "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.k}"

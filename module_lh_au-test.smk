@@ -121,8 +121,8 @@ rule rm_legend:
 rule add_legend_and_title:
     input: f"{OUTFOLDER}/lore_aore_on_genome_tmp2.svg"
     output: f"{OUTFOLDER}/lore_aore_on_genome.svg"
-    params: sp = SP
+    params: sp = SP, labels = 'AORe LORe'
     conda: "envs/plots.yaml"
     shell:
         "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c 2 "
-        "-t 'AORe and LORe topologies on {params.sp} chromosomes'"
+        "-t 'AORe and LORe topologies on {params.sp} chromosomes' -l {params.labels}"

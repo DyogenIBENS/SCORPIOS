@@ -92,7 +92,7 @@ rule new_legend_and_title_rideogram:
     conda: "envs/plots.yaml"
     shell:
         "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c 1 "
-        "-t 'Sequence-synteny on {params.sp} chromosomes'"
+        "-t 'Sequence-synteny conflicts on {params.sp} chromosomes' -l 'inconsistent trees'"
 
 
 #Introducing the LH extension: quick usage and 
@@ -105,3 +105,5 @@ rule new_legend_and_title_rideogram:
 #--> detail new config
 #--> make a small example which includes 1 chr in outgroup salmon with mix AORe and LORe
 #Add a documentation for the API :)
+#Add a comment on how to change only one param in config (and update job name for scorpios classic)
+#Fix my spacing issues

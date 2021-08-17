@@ -102,7 +102,7 @@ elif MODE.lower() == "clustering":
             expand("SCORPiOs-LH_"+JNAME+"/clustering/medoids_incons/medoid_{n}.nhx",
                    n=range(1, config.get("n", 5)+1)),
             "SCORPiOs-LH_"+JNAME+"/clustering/inconsistent_trees_vs_clusters.txt",
-            PLOTS
+            "SCORPiOs-LH_"+JNAME+"/clustering/clusters_k-"+str(config.get("k", 3))+"_on_genome.svg"
 
 else:
     rule Target:
