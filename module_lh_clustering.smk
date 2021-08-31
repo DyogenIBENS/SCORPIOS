@@ -23,9 +23,6 @@ N = config.get("n", 5)
 K = config.get("k", 3)
 
 
-print(OUTFOLDER)
-#TODO: linting
-
 #FIXME: handle outgroup better to have correspondance with the Accepted SCORPiOs file
 checkpoint extract_subtrees_subalis: 
     input:
@@ -112,6 +109,12 @@ rule dummy:
     input: get_all_subtrees
     output: touch(f"{OUTFOLDER}/.touch")
 
+rule get_inconsistent_summary:
+    input: ctreedir = CTREES_DIR, summary = SUMMARY, acc = Acc,
+    output: fam = f"{OUTFOLDER}/inconsistent_families.tsv"
+    shell:
+        "python -m scripts.lore_hunter.write_ancgenes_treeclust -a {input.acc} -t {input.ctreedir} "
+        "-c {input.summary} -o {output.fam}"
 
 rule prepare_summary:
     input: ctreedir = scorpios(CTREES_DIR), summary = scorpios(SUMMARY), acc = scorpios(Acc)
@@ -121,7 +124,7 @@ rule prepare_summary:
         "--summary_only -c {input.summary} -o {output.fam}"
 
 rule tree_distances:
-    input: t = OUTFOLDER+"/.touch", incons = f"{OUTFOLDER}/trees_summary.txt"
+    input: t = OUTFOLDER+"/.touch", incons = f"{OUTFOLDER}/inconsistent_families.tsv"
     output: temp(f"{OUTFOLDER}/distance_matrix.csv")
     conda: "envs/tree_dist.yaml"
     params: trees = OUTFOLDER + "/subtrees/", odir = OUTFOLDER

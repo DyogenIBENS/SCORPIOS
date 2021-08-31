@@ -20,16 +20,17 @@ import tree_distance as td
 
 #FIXME: error handling in multiprocessing
 
-#TODO: delete and use functions defined in write_ancgenes_treeclust
 def load_incons(finput):
     with open(finput, 'r') as infile:
-        incons = {line.strip().split('\t')[0] for line in infile\
-                  if line.strip().split('\t')[1] == "Inconsistent"}
-
-    with open(finput, 'r') as infile:
-        incons_all = {line.strip().split('\t')[0] for line in infile if "Inconsistent" in line}
-
-    return incons, incons_all
+        incons = []
+        incons_all = []
+        for line in infile:
+            _, genes, cat = line.strip().split('\t')
+            if "Incons" in cat:
+                incons_all += genes.split()
+            if cat == "Inconsistent":
+                incons += genes.split()
+    return set(incons), set(incons_all)
 
 def product(*iterables, **kwargs):
     if len(iterables) == 0:
@@ -191,6 +192,10 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-nc', '--ncores', required=False, default=1, type=int)
 
+    PARSER.add_argument('-r', '--ratio', required=False, default=1.3, type=int)
+
+    PARSER.add_argument('-m', '--max_incons_trees', required=False, default=2000, type=int)
+
     ARGS = vars(PARSER.parse_args())
 
     trees = sorted(glob.glob(ARGS["treesdir"]+'/*_final.nhx'))
@@ -214,10 +219,13 @@ if __name__ == '__main__':
     print(len(incons_trees), len(other_trees))
 
     #FIXME Ratio to give as a param
-    SAMPLE_INCONS = random.sample(incons_trees, int(0.95*len(incons_trees)))
+    nb_incons = min(int(0.95*len(incons_trees)), ARGS["max_incons_trees"])
+    SAMPLE_INCONS = random.sample(incons_trees, ))
 
-     #random.sample(other_trees, int(5000-0.9*len(incons_trees)))
-    SAMPLE_OTHER = random.sample(other_trees, int(0.2*len(other_trees)))
+    #random.sample(other_trees, int(5000-0.9*len(incons_trees)))
+    tmp = int(0.95*len(incons_trees))
+    size_others = min(int(tmp*ARGS["ratio"]), len(other_trees))
+    SAMPLE_OTHER = random.sample(other_trees, size_others)
 
     # SAMPLE_INCONS = incons_trees
     # SAMPLE_OTHER = other_trees
