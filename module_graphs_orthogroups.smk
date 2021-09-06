@@ -58,18 +58,17 @@ checkpoint gene_trees_to_correct:
            orthotables=expand_orthotables_outgr, alis = config['alis']
 
     output: ctrees = directory(CTREES+"/{wgd}/"), subalis = directory(SUBALIS+"/{wgd}/"),
-            subtrees = directory(SUBTREES+"/{wgd}/")
+            subtrees = directory(SUBTREES+"/{wgd}/"), tsum = TREES_SUMMARY
 
     params: graphs = lambda wildcards, input: ",".join(list(input.graph_cuts)),
             gsum = lambda wildcards, input: ",".join(list(input.graph_cuts_summaries)),
             otable = lambda wildcards, input: ",".join(list(input.orthotables)),
             outgroups = lambda wildcards: config['WGDs'][wildcards.wgd],
-            tsum = TREES_SUMMARY.replace("{{wgd}}", "{{wildcards.wgd}}"),
             outcombin = outcombin.replace("{{wgd}}", "{{wildcards.wgd}}")
 
     shell:"""
     python -m scripts.trees.inconsistent_trees -n {params.outgroups} -i {params.graphs}\
     -f {params.otable} -t {input_trees} -a {config[alis]} -oc {output.ctrees} -oa {output.subalis}\
-    -ot {output.subtrees} -gs {params.gsum} -s {params.tsum} -wgd {wildcards.wgd}\
+    -ot {output.subtrees} -gs {params.gsum} -s {output.tsum} -wgd {wildcards.wgd}\
     -fcombin {params.outcombin}
     """
