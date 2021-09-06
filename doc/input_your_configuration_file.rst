@@ -102,9 +102,6 @@ As an example, we provide `config_example.yaml <https://github.com/DyogenIBENS/S
 	# It will be restricted to the number specified via --cores (1 if --cores is not invoked).
 	ncores: 14
 
-	# Memory (--buffer_size) parameter for a bash sort. If decreased, more /tmp space will be used.
-	buffer_size: 10G
-
 	# Use a parallelization scheme specific to large jobs: yes ('y') or no ('n').
 	parallel_scheme_large_job: 'n'
 
@@ -366,15 +363,6 @@ Example:
 
 	ncores: 14
 
-Memory for bash sort
-""""""""""""""""""""
-**Required.** Memory (:code:`--buffer_size`) parameter for a bash sort. If decreased, more :code:`/tmp` space will be used.
-
-Example:
-
-.. code:: yaml
-
-	buffer_size: 10G
 
 Parallelization scheme
 """""""""""""""""""""""

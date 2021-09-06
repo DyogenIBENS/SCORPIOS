@@ -88,9 +88,6 @@ current_iter: 0
 # It will be restricted to the number specified via --cores (1 if --cores is not invoked).
 ncores: 14
 
-# Memory (--buffer_size) parameter for a bash sort. If decreased, more /tmp space will be used.
-buffer_size: 10G
-
 # Use a parallelization scheme specific to large jobs: yes ('y') or no ('n').
 parallel_scheme_large_job: 'n'
 
