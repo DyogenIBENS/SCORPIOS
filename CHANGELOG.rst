@@ -3,9 +3,16 @@ All notable changes to SCORPiOs, added after the first released version v1.0.0, 
 UNRELEASED
 -----------
 
+If I release it, SCORPiOs will need to be run with the --scheduler=greedy snakemake args (default scheduler in 6.6.1 is unstable --> the workflow gets stuck)...
+
 Added
 ^^^^^
 - New option to recompute branch-lengths with RAxML after all subtrees corrections (instead of treebest phyml).
+- Removed the deprecated buffer_size argument from the configuration file.
+
+Changed
+^^^^^^^
+- Updated SCORPiOs conda environment to snakemake version 6.6.1
 
 
 [Version 1.3.0] - 23/11/2020 - `v1.3.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.3.0>`_

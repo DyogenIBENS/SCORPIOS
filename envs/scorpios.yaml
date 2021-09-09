@@ -12,7 +12,7 @@ dependencies:
   - python=3.6.8
   - raxml=8.2.12
   - six=1.12.0
-  - snakemake=5.5.4
-  - snakemake-minimal=5.5.4
+  - snakemake=6.6.1
+  - snakemake-minimal=6.6.1
   - shyaml
   - treebest=1.9.2.post1
