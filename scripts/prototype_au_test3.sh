@@ -11,27 +11,18 @@ workingDir=$(pwd)
 
 alidir=${alifile%/*}
 
-raxmlHPC -f c --print-identical-sequences -n ${name}_lktest -m GTRGAMMA --HKY85 -s "${alifile}" -w "${workingDir}/${alidir}/" >&2
-if [ -s "${alifile}.reduced" ]; then
-    alifile="${alifile}.reduced"
-fi
 rm "${alidir}/RAxML_info.${name}_lktest"
 
+#cat the trees to a single file and remove nhx tags and remove '()' around a single leaf
+cat "${mltree}" "${aoretree}" "${loretree}" | sed -e 's/\[[^][]*\]//g' -e 's/(\([^,]*\))/\1/g' > "${alidir}/trees_${name}.nh"
 
-#if not already computed for original tree, compute sites likelihood under HKY model for both trees
-if [ ! -s "$output" ]; then
+#compute site lk
+raxmlHPC -f g -n ${name}_lktest -m GTRGAMMA --HKY85 -s "${alifile}" -z "${alidir}/trees_${name}.nh" -w "${workingDir}/${alidir}/" >&2
+rm "${alidir}/trees_${name}.nh"
+echo ${alifile}
 
-	#cat the trees to a single file and remove nhx tags and remove '()' around a single leaf
-	cat "${mltree}" "${aoretree}" "${loretree}" | sed -e 's/\[[^][]*\]//g' -e 's/(\([^,]*\))/\1/g' > "${alidir}/trees_${name}.nh"
-
-	#compute site lk
-	raxmlHPC -f g -n ${name}_lktest -m GTRGAMMA --HKY85 -s "${alifile}" -z "${alidir}/trees_${name}.nh" -w "${workingDir}/${alidir}/" >&2
-	rm "${alidir}/trees_${name}.nh"
-    echo ${alifile}
-
-	#rename output
-	mv "${alidir}/RAxML_perSiteLLs.${name}_lktest" "${alidir}/${name}.lk"
-fi
+#rename output
+mv "${alidir}/RAxML_perSiteLLs.${name}_lktest" "${alidir}/${name}.lk"
 
 #workaround since consel decides to trim filenames containing '.' (looks like extension split issue)
 namenew="${name%.*}"
