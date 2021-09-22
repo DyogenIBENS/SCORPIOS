@@ -74,7 +74,7 @@ def make_karyo(genesfile, output, fomt='bed'):
             karyo.append((int(new_chrom), len(dgenes[chrom]), chrom))
         except ValueError:
             sys.stderr.write(f"Warning: chromosome {chrom} could not be converted to an integer,"
-                             "it won't be drawn.")
+                             "it won't be drawn.\n")
             continue
 
     karyo = sorted(karyo)
