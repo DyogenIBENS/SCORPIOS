@@ -11,9 +11,6 @@ treebtree=$8
 Sptree=$9
 
 
-
-
->&2 echo $name
 alidir=${alifile%/*}
 dirtreeb=${treebtree%/*}
 

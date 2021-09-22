@@ -133,7 +133,7 @@ def is_below(node1, node2):
     return below
 
 
-def get_anc_order(tree_file, ancestors=None, tips_to_root=False):
+def get_anc_order(tree_file, ancestors=None, tips_to_root=False, prune=True):
 
     """
     Orders input ancestors with respect to their position in the species tree. Can be ordered from
@@ -152,7 +152,8 @@ def get_anc_order(tree_file, ancestors=None, tips_to_root=False):
     tree = Tree(tree_file, format=1)
     if not ancestors:
         ancestors = [i.name for i in tree.traverse() if not i.is_leaf()]
-    tree.prune([i for i in tree.get_leaves()])
+    if prune:
+        tree.prune([i for i in tree.get_leaves()])
     dist_to_root = {i:tree.get_distance(i) for i in ancestors}
     anc_order = sorted(dist_to_root, key=dist_to_root.get)
 

@@ -112,7 +112,6 @@ Command-line arguments:
 
 ```
 Required
---j=JOBNAME, specifies scorpios jobname, should be the same as in config
 --snake_args="SNAKEMAKE ARGUMENTS", should at minimum contain --configfile
 
 Optional

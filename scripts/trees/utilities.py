@@ -92,10 +92,15 @@ def delete_gaps_in_all(ali):
     """
 
     assert ali, "Empty alignment"
+    lg = None
+    for name in ali:
+        if lg == None:
+            lg = len(ali[name])
+        else:
+            assert len(ali[name]) == lg, "Different lengths in mutliple alignment"
 
     #transform string to numpy array for efficiency
     ali_array = np.array([list(ali[name]) for name in sorted(ali)])
-
 
     #define and apply a mask to remove gaps in all sequences
     mask = (ali_array == '-').all(0)
@@ -141,6 +146,9 @@ def get_subali(ali_string, genes, d_names=None):
             else:
                 if extract_seq and '//' not in line:
                     d_seq[name] += line.strip()
+
+    for name in genes:
+        assert name in d_seq, f"Gene {name} present in tree is not found in the alignment."
 
     #remove gaps in all seq
     delete_gaps_in_all(d_seq)

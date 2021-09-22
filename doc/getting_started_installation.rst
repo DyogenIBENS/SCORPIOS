@@ -1,10 +1,11 @@
+============
 Installation
 ============
 
 SCORPiOs is implemented as a `Snakemake <https://snakemake.readthedocs.io/en/stable/>`_ pipeline. Snakemake is a python-based language to build scalable and reproducible workflows. We take advantage of Snakemake's integration with the package manager `Conda <https://docs.conda.io/en/latest/>`_ to ship all SCORPiOs dependencies. The following instructions will help you get a running copy of the pipeline and set up your environnement.
 
 Installing conda
-----------------
+=================
 
 The Conda package management system manages all SCORPiOs dependencies, including python packages and other software.
 
@@ -26,7 +27,7 @@ To install Conda:
 
 
 Installing SCORPiOs
--------------------
+====================
 
 * Clone the repository:
 
@@ -57,6 +58,6 @@ Installing SCORPiOs
 .. note:: Once the conda environnment is successfully created, the installation process is complete. You can proceed to the next section and test your installation on example data. Before running SCORPiOs, remember to activate the conda environment with :code:`conda activate scorpios`.
 
 Reference
-----------
+==========
 
 - `Snakemake: <https://snakemake.readthedocs.io/en/stable/>`_ Köster and Rahmann (2012) Snakemake - A scalable bioinformatics workflow engine. Bioinformatics, 28, 2520–2522.

@@ -6,12 +6,12 @@ alifile=$3
 cortree=$4
 output=$5
 
-
 workingDir=$(pwd)
 
 alidir=${alifile%/*}
 ensdir=${enstree%/*}
 cordir=${cortree%/*}
+
 
 
 #check alignment and remove undetermined columns (if any)
@@ -53,24 +53,26 @@ fi
 
 
 #workaround since consel decides to trim filenames containing '.' (looks like extension split issue)
-namenew="${name%.*}"
+namenew="${name//./}"
+mv "${alidir}/tmp_${name}.lk" "${alidir}/tmp_${namenew}.lk"
 
 #test if difference in likelihood is signifiant with the AU-Test using consel
-makermt --puzzle "${alidir}/tmp_${name}.lk" >&2
-consel "${alidir}/tmp_${name}" >&2
+makermt --puzzle "${alidir}/tmp_${namenew}.lk" >&2
+consel "${alidir}/tmp_${namenew}" >&2
 catpv "${alidir}/tmp_$namenew.pv" > "$output"
 
 ## CLEAN ALL TEMP ##
 #clean all consel temp
-rm "${alidir}/tmp_${name}.lk"
-rm "${alidir}/tmp_${name}.rmt"
-rm "${alidir}/tmp_${name}.vt"
-rm "${alidir}/tmp_${name}"
+rm "${alidir}/tmp_${namenew}.lk"
+rm "${alidir}/tmp_${namenew}.rmt"
+rm "${alidir}/tmp_${namenew}.vt"
 rm "${alidir}/tmp_${namenew}.pv"
 rm "${alidir}/tmp_${namenew}.ci"
 
-#clean raxml temp (log, already saved above)
+#clean tmp logs
 rm "${alidir}/RAxML_info.${name}"
+
+#clean raxml tmp
 if [ -s "${alifile}.reduced" ]; then
 	rm "${alifile}.reduced"
 fi

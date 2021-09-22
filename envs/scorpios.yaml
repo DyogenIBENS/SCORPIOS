@@ -1,4 +1,4 @@
-name: scorpios_537
+name: scorpios
 channels:
   - bioconda
   - conda-forge
@@ -13,7 +13,7 @@ dependencies:
   - raxml=8.2.12
   - roman
   - six=1.12.0
-  - snakemake=6.6
-  - snakemake-minimal=6.6
+  - snakemake=6.6.1
+  - snakemake-minimal=6.6.1
   - shyaml
   - treebest=1.9.2.post1

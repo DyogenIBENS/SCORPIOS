@@ -5,6 +5,14 @@ SCORPiOs snakemake module to build test and regraft synteny aware subtrees for i
 
 RESUME = config.get("resume", "n")
 
+RAXML = config.get("brlength_tool", '')
+RAXML_ARG = ''
+if RAXML:
+    assert RAXML.lower() in ["raxml", "treebest phyml"], "Bad 'brlength_tool' parameter in config."
+    if RAXML.lower() == "raxml":
+        RAXML_ARG = '--raxml'
+
+
 rule remove_anc_in_sptree:
     """
     Removes ancestor names from the species tree, to input it to profileNJ.
@@ -140,7 +148,7 @@ rule correct_input_trees:
     python -m scripts.trees.regraft_subtrees -t {input_trees} -a {config[alis]} \
     -acc {params.input} -o {output.a} -s {config[species_tree]} \
     -n {threads} -anc {params.wgds} -ogr {params.outgroups} \
-    -tmp {outTmpTrees} -sa {config[save_tmp_trees]} {arg_brlength} -r {RESUME}
+    -tmp {outTmpTrees} -sa {config[save_tmp_trees]} {arg_brlength} -r {RESUME} {RAXML_ARG}
     """
 
 if config['save_subtrees_lktest'] == 'n':
