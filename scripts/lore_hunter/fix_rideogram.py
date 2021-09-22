@@ -94,3 +94,5 @@ if __name__ == '__main__':
     make_legend(LEGEND_FILE, ARGS["title"], COLORS, ARGS["labels"])
 
     add_legend(ARGS["input"], LEGEND_FILE, ARGS["output"])
+
+    os.remove(LEGEND_FILE)

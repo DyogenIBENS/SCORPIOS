@@ -89,7 +89,7 @@ rule plot_conflicts_on_genome:
     input:
         karyo = f"{OUTFOLDER}/karyo_ide.txt",
         feat = f"{OUTFOLDER}/incons_ide.txt",
-    output: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp.svg"
+    output: temp(f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp.svg")
     params: sp = SP
     conda: 'envs/rideogram.yaml'
     shell:

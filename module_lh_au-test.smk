@@ -85,7 +85,6 @@ rule list_lktest:
             for f in input:
                 fw1.write(f+'\n')
 
-
 rule make_summary:
     input: OUTFOLDER+"/file_list.txt"
     output: OUTFOLDER+"/lore_aore_summary.txt"
