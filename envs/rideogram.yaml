@@ -1,0 +1,6 @@
+name: rideogram
+channels:
+  - conda-forge
+dependencies:
+  - r-rideogram
+  - r-optparse

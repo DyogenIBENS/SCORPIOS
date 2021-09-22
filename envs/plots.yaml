@@ -1,0 +1,13 @@
+name: plots
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - pandas
+  - matplotlib
+  - seaborn
+  - numpy
+  - scipy
+  - statsmodels
+  - pingouin
+  - svgutils
