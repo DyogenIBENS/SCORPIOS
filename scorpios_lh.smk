@@ -61,7 +61,8 @@ if not LORE_OUTGR:
     LORE_OUTGR = LORE_OUTGR[0]
 
 #Get SCORPiOs inputs and outputs
-JNAME = SCORPIOS_CONFIG["jobname"]
+JNAME = SCORPIOS_CONFIG["jobname"] 
+
 ITER = config.get("iter", 0)
 CTREES = scorpios(out_name("Trees/ctrees", JNAME, ITER))
 Acc = scorpios(out_name("Corrections/Accepted_Trees", JNAME, ITER, LORE_WGD))
@@ -80,6 +81,8 @@ if ITER != 0:
 
 CTREES_DIR = scorpios(CTREES+"/"+LORE_WGD+"/")
 
+if "jobname" in config:
+    JNAME += '_' + config["jobname"]
 
 ### WORKFLOW
 

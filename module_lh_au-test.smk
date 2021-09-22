@@ -11,6 +11,9 @@ arg_subset = config.get("sp_to_keep", '')
 if arg_subset:
     arg_subset = "-set "+ arg_subset
 
+LORE_CLASSES = config.get("lore_groups", ["LORE"])
+LABELS = ' '.join(["AORe"] + list(LORE_CLASSES.keys()))
+
 #TODO make it possible to test different speciation points (+default is first speciation point)
 checkpoint subalis_loretrees_aoretrees:
     input:
@@ -60,7 +63,7 @@ rule lk_test:
     input:
         ali = f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa", ml = f"{OUTFOLDER}/ml_trees/{{tree}}.nh",
         aore = f"{OUTFOLDER}/aore_trees/{{tree}}.nh", lore = f"{OUTFOLDER}/lore_trees/{{tree}}.nh"
-    output: f"{OUTFOLDER}/lktest/Res_{{tree}}.txt"
+    output: f"{OUTFOLDER}/lktests/Res_{{tree}}.txt"
     shell:
         "bash scripts/prototype_au_test3.sh {wildcards.tree} {input.ml} {input.ali} {input.aore} "
         "{input.lore} {output} || touch {output};"
@@ -71,14 +74,14 @@ def get_result(wildcards):
     co = checkpoints.subalis_loretrees_aoretrees.get(**wildcards).output[0]
     subtrees, = glob_wildcards(OUTFOLDER+"/subalis/{tree}.fa")
     subtrees = [i for i in subtrees if "reduced" not in i]
-    out = expand(OUTFOLDER+"/lktest/Res_{tree}.txt", tree=subtrees)
+    out = expand(OUTFOLDER+"/lktests/Res_{tree}.txt", tree=subtrees)
     return out
 
 rule list_lktest:
     input: get_result
     output: outf = OUTFOLDER+"/file_list.txt"
     run:
-        with open(output.outf,'w') as fw1:
+        with open(output.outf, 'w') as fw1:
             for f in input:
                 fw1.write(f+'\n')
 
@@ -91,9 +94,10 @@ rule make_summary:
 
 
 rule lore_aore_full_summary:
-    input: treedir = f"{OUTFOLDER}/ml_trees/", clusters = OUTFOLDER+"/lore_aore_summary.txt"
+    input: clusters = OUTFOLDER+"/lore_aore_summary.txt"
     output: f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv"
-    shell: "python -m scripts.lore_hunter.write_ancgenes_treeclust -t {input.treedir} "
+    params: treedir = f"{OUTFOLDER}/ml_trees/" #may break stuff for reruns
+    shell: "python -m scripts.lore_hunter.write_ancgenes_treeclust -t {params.treedir} "
            "-c {input.clusters} -o {output} -r 'lore rejected' 'aore rejected'"
 
 rule prepare_lore_aore_for_rideogram:
@@ -109,9 +113,10 @@ rule plot_lore_aore_on_genome:
         karyo = f"{OUTFOLDER}/karyo_ide.txt",
         feat = f"{OUTFOLDER}/lore_aore_ide.txt"
     output: temp(f"{OUTFOLDER}/lore_aore_on_genome_tmp.svg")
+    params: nb_classes = len(LABELS.split())
     conda: 'envs/rideogram.yaml'
     shell:
-        "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c 2"
+        "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.nb_classes}"
 
 rule rm_legend:
     input: f"{OUTFOLDER}/lore_aore_on_genome_tmp.svg"
@@ -121,8 +126,8 @@ rule rm_legend:
 rule add_legend_and_title:
     input: f"{OUTFOLDER}/lore_aore_on_genome_tmp2.svg"
     output: f"{OUTFOLDER}/lore_aore_on_genome.svg"
-    params: sp = SP, labels = 'AORe LORe'
+    params: sp = SP, labels = LABELS, nb_classes = len(LABELS.split())
     conda: "envs/plots.yaml"
     shell:
-        "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c 2 "
+        "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c {params.nb_classes} "
         "-t 'AORe and LORe topologies on {params.sp} chromosomes' -l {params.labels}"

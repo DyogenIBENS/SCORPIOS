@@ -1,4 +1,4 @@
-PATTERN = config["pattern"] #TODO --> remove this somehow or have a default like 'chr*'
+OUTGR_CHR_TO_PLOT = config.get("outgr_chroms_for_plot", "")
 SP, GENES = list(config["dup_genome"].items())[0]
 assert "use_anc" in config.get("pre_dup_proxy", "") or "use_outgr" in config.get("pre_dup_proxy", "")
 
@@ -8,9 +8,23 @@ if "use_outgr" in config["pre_dup_proxy"]:
 
     REF = config["pre_dup_proxy"]["use_outgr"]
 
+    if OUTGR_CHR_TO_PLOT != '':
+        rule restrict_to_outgr_chromosomes:
+            input: fam = ORTHOTABLE
+            output: f"{OUTFOLDER}/ORTHOTABLE_FOR_PLOTS"
+            params: chr_file = OUTGR_CHR_TO_PLOT
+            shell:
+                "grep -Fwf {params.chr_file} {input.fam} > {output}"
+
+    else:
+
+        rule pass_outgr_chr_filter:
+            input: fam = ORTHOTABLE
+            output: touch(f"{OUTFOLDER}/ORTHOTABLE_FOR_PLOTS")
+
     rule prepare_homeologs_outgr:
         input:
-            fam = ORTHOTABLE,
+            fam = f"{OUTFOLDER}/ORTHOTABLE_FOR_PLOTS",
             summary = SUMMARY,
             acc = Acc,
             check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
@@ -19,8 +33,8 @@ if "use_outgr" in config["pre_dup_proxy"]:
             all_trees = f"{OUTFOLDER}/trees",
             tmp_acc = temp(f"{OUTFOLDER}/tmp_acc")
         shell:#FIXME: not sure this works with outfolder that way
-            "grep {PATTERN} {input.fam} | cut -f 1 | uniq -c > {output.all_trees}; "
-            "grep {PATTERN} {input.fam} | cut -f 1,3 > {OUTFOLDER}/tmp_genes; "
+            "cut -f 1 {input.fam} | uniq -c > {output.all_trees}; "
+            "cut -f 1,3 {input.fam} > {OUTFOLDER}/tmp_genes; "
             "grep Incons {input.summary} | cut -f 1 > {OUTFOLDER}/tmp_incons; "
             "cut -f 1 {input.acc} > {OUTFOLDER}/tmp_acc; "
             "grep -v {OUTFOLDER}/tmp_acc {OUTFOLDER}/tmp_incons > {OUTFOLDER}/tmp_uncorr; "
@@ -31,8 +45,9 @@ else:
     REF_FILE = config["pre_dup_proxy"]["use_anc"]
     REF = "Pre-duplication"
 
-    #FIXME remove the dict to re-assign pm chromosomes (fix input data)
-    rule prepare_homeologs_anc: #TODO: fam could take several orthothables (ORTHOTABLES.split())
+    #TODO: fam could take several orthothables (ORTHOTABLES.split()), if several outgroups
+    #Check that the config arg with several outgroups can work with all extentions
+    rule prepare_homeologs_anc: 
         input:
             fam = ORTHOTABLE,
             summary = SUMMARY,

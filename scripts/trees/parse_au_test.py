@@ -15,9 +15,8 @@ import os
 import sys
 import argparse
 
-#FIXME: DRY once lore hunter mode completly implemented... (low priority)
-
-ITEMS_DICT = {"ml": "1", "aore": "2", "lore":"3"}
+#FIXME: DRY once lore hunter mode completly implemented... (low priority):
+# Write only one function to parse CONSEL results, regardless of the number of trees
 
 def one_file_consel(filename, alpha, item_test='1'):
 
@@ -99,14 +98,27 @@ def one_file_consel(filename, alpha, item_test='1'):
     return au_result
 
 
-def one_file_consel_3_trees(filename, alpha, item_dict=ITEMS_DICT):
+def one_file_consel_3_trees(filename, alpha, item_dict=None):
 
     """
-    
+    Parses a CONSEL result file for a comparison of 3 trees.
+
+    Args:
+        filename (str) : name of CONSEL file to parse
+        alpha (float): alpha threshold for significance of the AU-test.
+        item_dict (dict, optional): correspondance between item in CONSEL and tree labels
+
+    Returns:
+        (str): One of 'error', 'convergence_pb', 'aore rejected', 'lore rejected' or
+               'lore and aore rejected'.
     """
 
     #if consel failed (probably because tree building failed) we return the 'error' value.
     au_result = 'error'
+
+    #correspondance between item ids in CONSEL and tree types
+    if item_dict is None:
+        item_dict = {"ml": "1", "aore": "2", "lore":"3"}
 
     if  os.stat(filename).st_size != 0:
 
@@ -127,6 +139,7 @@ def one_file_consel_3_trees(filename, alpha, item_dict=ITEMS_DICT):
                         au_value = res[4]
                         tmp.append((item, au_value))
                         obs = res[3]
+
                         if obs != 'inf':
                             if item == item_dict['ml'] and float(au_value) < alpha:
                                 au_result = 'convergence_pb'
@@ -249,9 +262,22 @@ def count(filenames, name_sol="", alpha=0.05, item='1', parse_name=True, wgd='')
     return a_list
 
 
-def lore_aore_summary(filenames, alpha=0.05, item_dict=ITEMS_DICT, parse_name=True, wgd=''):
+def lore_aore_summary(filenames, alpha=0.05, item_dict=None, parse_name=True, wgd=''):
 
     """
+    Parses all consel outputs in the input list and returns a summary, telling, for each tree, if
+    the lore or aore (or both) topologies can be rejected.
+    Also prints statistics to stdout.
+
+    Args:
+        filenames (list of str): List of consel result files.
+        alpha (float): alpha threshold for significance of the AU-test.
+        item_dict (str, optional): tested tree consel label, the other is considered the reference.
+        parse_name (bool, optional): parse filename (expects SCORPiOs naming pattern)
+        wgd (str, optional): name of the corrected wgd, to print out with the result summary
+
+    Returns:
+        dict: dictionary with the AU-tests results summary.
 
     """
 
@@ -259,7 +285,6 @@ def lore_aore_summary(filenames, alpha=0.05, item_dict=ITEMS_DICT, parse_name=Tr
     all_res = {}
 
     for filename in filenames:
-
 
         #naming parsing is specific to SCORPiOs inputs and outputs
         #parsing below allows to retrieve the outgroup gene used as name for gene families.

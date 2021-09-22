@@ -12,11 +12,11 @@
 import argparse
 import os
 
-import svgutils.transform as st
-
 import matplotlib.pyplot as plt
 
 import seaborn as sns
+
+import svgutils.transform as st
 
 
 def make_legend(outfilename, title, colors, labels):

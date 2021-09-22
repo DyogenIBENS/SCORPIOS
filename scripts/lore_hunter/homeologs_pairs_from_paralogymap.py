@@ -6,18 +6,13 @@ import sys
 from collections import Counter
 import argparse
 
-#FIXME, remove in this code and update my input data
-UPDATE_HOMEO_NAMES = {1:13, 2:12, 3:9, 4:5, 5:1, 6:3, 7:10, 8:2, 9:8, 10:4, 11:7, 12:11, 13:6}
-
-
-def load_pm(input_file, update_name=UPDATE_HOMEO_NAMES):
+def load_pm(input_file):
 
     """
     Loads predicted homeolog names for teleosts gene families.
 
     Args:
         input_file (str): path to the input file (output from the paralogy_map pipeline)
-        update_name (dict, optional): dict to transform input homeologs names
 
     Returns:
         dict: for each gene family (key, a set of teleost genes) its corresponding homoelog
@@ -30,7 +25,7 @@ def load_pm(input_file, update_name=UPDATE_HOMEO_NAMES):
             _, genes, homeo = line.strip().split('\t')
             genes = frozenset(genes.split())
             if homeo != "?":
-                fam_homeo[genes] = update_name[int(homeo[:-1])]
+                fam_homeo[genes] = int(homeo[:-1])
     return fam_homeo
 
 

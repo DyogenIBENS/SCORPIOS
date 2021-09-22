@@ -77,7 +77,8 @@ rule orthology_graphs_sort_gzip:
     input: SyntenyOrthoPred
     output: Sorted_SyntenyOrthoPred + '.gz'
     params: out = Sorted_SyntenyOrthoPred.replace("{{outgr}}", "{{wildcards.outgr}}")\
-                                                  .replace("{{wgd}}", "{{wildcards.wgd}}")
+                                                  .replace("{{wgd}}", "{{wildcards.wgd}}"),
+            tmp = "SCORPiOs_"+config["jobname"]+'/'
     shell:"""
-    sort -k 4 {input} -o {params.out} --buffer-size={config[buffer_size]}; gzip {params.out};
+    sort -k 4 {input} -o {params.out} -T {params.tmp} && gzip {params.out};
     """

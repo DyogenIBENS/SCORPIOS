@@ -122,7 +122,6 @@ def load_features(genome, features_file, to_load=None):
 
                 genes = set(descendants.split()).intersection(sp_genes)
 
-
                 if genes:
                     genes = list(genes)
                     for gene in genes:
