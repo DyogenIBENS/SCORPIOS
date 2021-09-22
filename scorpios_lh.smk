@@ -136,5 +136,4 @@ def get_ctrees(wildcards, restrict=None):
 
 #include the 3 SCORPiOs LORe Hunter modules
 include: "module_lh_diagnostic.smk"
-include: "module_lh_clustering.smk"
 include: "module_lh_au-test.smk"
