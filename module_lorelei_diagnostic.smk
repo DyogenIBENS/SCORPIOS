@@ -56,7 +56,7 @@ else:
             check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
         output: incons = f"{OUTFOLDER}/conflicts", alltrees = f"{OUTFOLDER}/trees"
         shell:
-            "python -m scripts.lore_hunter.homeologs_pairs_from_paralogymap -i {input.fam} -p {input.pm} "
+            "python -m scripts.lorelei.homeologs_pairs_from_paralogymap -i {input.fam} -p {input.pm} "
             "-s {input.summary} -oi {output.incons} -oa {output.alltrees} -a {input.acc}"
 
 rule plot_homeologs:
@@ -64,14 +64,14 @@ rule plot_homeologs:
     output: f"{OUTFOLDER}/seq_synteny_conflicts_by_homeologs.svg"
     conda: "envs/plots.yaml"
     shell:
-        "python -m scripts.lore_hunter.homeologs_tree_conflicts -i {input.incons} -g {input.all_trees} -o {output} "
+        "python -m scripts.lorelei.homeologs_tree_conflicts -i {input.incons} -g {input.all_trees} -o {output} "
         " --refname '{REF}'"
 
 rule prepare_genome_plot:
     input: ctreedir = CTREES_DIR, summary = SUMMARY, acc = Acc,
     output: fam = f"{OUTFOLDER}/inconsistent_families.tsv"
     shell:
-        "python -m scripts.lore_hunter.write_ancgenes_treeclust -a {input.acc} -t {input.ctreedir} "
+        "python -m scripts.lorelei.write_ancgenes_treeclust -a {input.acc} -t {input.ctreedir} "
         "-c {input.summary} -o {output.fam} -r 'Inconsistent'"
 
 rule prepare_input_rideogram:
@@ -82,7 +82,7 @@ rule prepare_input_rideogram:
         karyo = f"{OUTFOLDER}/karyo_ide.txt",
         feat = f"{OUTFOLDER}/incons_ide.txt"
     params: sp = SP
-    shell: "python -m scripts.lore_hunter.make_rideograms_inputs -i {input.fam} -g {input.genes} "
+    shell: "python -m scripts.lorelei.make_rideograms_inputs -i {input.fam} -g {input.genes} "
            "-k {output.karyo} -o {output.feat} -f dyogen"
 
 rule plot_conflicts_on_genome:
@@ -93,7 +93,7 @@ rule plot_conflicts_on_genome:
     params: sp = SP
     conda: 'envs/rideogram.yaml'
     shell:
-        "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output}"
+        "Rscript scripts/lorelei/plot_genome.R -k {input.karyo} -f {input.feat} -o {output}"
 
 rule remove_legend_rideogram:
     input: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp.svg"
@@ -106,7 +106,7 @@ rule new_legend_and_title_rideogram:
     params: sp = SP
     conda: "envs/plots.yaml"
     shell:
-        "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c 1 "
+        "python -m scripts.lorelei.fix_rideogram -i {input} -o {output} -c 1 "
         "-t 'Sequence-synteny conflicts on {params.sp} chromosomes' -l 'inconsistent trees'"
 
 

@@ -27,7 +27,7 @@ checkpoint subalis_loretrees_aoretrees:
         trees_aore = directory(f"{OUTFOLDER}/ctree_aore/"),
     params: anc = LORE_WGD, outgr = f"{LORE_OUTGR} Amia.calva", arg_subset = arg_subset
     shell:
-        "python -m scripts.lore_hunter.constrained_aore_lore_topologies -t {input.forest} -c {input.ctreedir} -s {input.sptree} "
+        "python -m scripts.lorelei.constrained_aore_lore_topologies -t {input.forest} -c {input.ctreedir} -s {input.sptree} "
         "--anc {params.anc} -o {output.alis} -ol {output.trees_lore} -oa {output.trees_aore} "
         "-sp {params.outgr} -a {input.ali} {params.arg_subset}"
 
@@ -99,7 +99,7 @@ rule lore_aore_full_summary:
     input: clusters = OUTFOLDER+"/lore_aore_summary.txt"
     output: f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv"
     params: treedir = f"{OUTFOLDER}/ml_trees/" #may break stuff for reruns
-    shell: "python -m scripts.lore_hunter.write_ancgenes_treeclust -t {params.treedir} "
+    shell: "python -m scripts.lorelei.write_ancgenes_treeclust -t {params.treedir} "
            "-c {input.clusters} -o {output} -r 'lore rejected' 'aore rejected'"
 
 rule prepare_lore_aore_for_rideogram:
@@ -107,7 +107,7 @@ rule prepare_lore_aore_for_rideogram:
     output: karyo = f"{OUTFOLDER}/karyo_ide.txt",
             feat = f"{OUTFOLDER}/lore_aore_ide.txt"        
     shell:
-        "python -m scripts.lore_hunter.make_rideograms_inputs -i {input.c} -g {input.genes} "
+        "python -m scripts.lorelei.make_rideograms_inputs -i {input.c} -g {input.genes} "
         "-k {output.karyo} -o {output.feat} -f dyogen"
 
 rule plot_lore_aore_on_genome:
@@ -118,7 +118,7 @@ rule plot_lore_aore_on_genome:
     params: nb_classes = len(LABELS.split())
     conda: 'envs/rideogram.yaml'
     shell:
-        "Rscript scripts/lore_hunter/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.nb_classes}"
+        "Rscript scripts/lorelei/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.nb_classes}"
 
 rule rm_legend:
     input: f"{OUTFOLDER}/lore_aore_on_genome_tmp.svg"
@@ -131,5 +131,5 @@ rule add_legend_and_title:
     params: sp = SP, labels = LABELS, nb_classes = len(LABELS.split())
     conda: "envs/plots.yaml"
     shell:
-        "python -m scripts.lore_hunter.fix_rideogram -i {input} -o {output} -c {params.nb_classes} "
+        "python -m scripts.lorelei.fix_rideogram -i {input} -o {output} -c {params.nb_classes} "
         "-t 'AORe and LORe topologies on {params.sp} chromosomes' -l {params.labels}"

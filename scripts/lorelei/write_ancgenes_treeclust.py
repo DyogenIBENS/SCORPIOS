@@ -6,7 +6,7 @@
 
     Example:
 
-        $ python -m scripts.lore_hunter.write_ancgenes_treeclust TODO
+        $ python -m scripts.lorelei.write_ancgenes_treeclust TODO
 """
 
 import os.path

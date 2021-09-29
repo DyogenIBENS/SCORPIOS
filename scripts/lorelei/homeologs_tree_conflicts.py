@@ -5,7 +5,7 @@
 
     Example:
 
-        $ python -m scripts.lore_hunter.homeologs_tree_conflicts TODO
+        $ python -m scripts.lorelei.homeologs_tree_conflicts TODO
 """
 import sys
 import argparse

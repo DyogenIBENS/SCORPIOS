@@ -5,8 +5,7 @@
 
     Example:
 
-        $ python -m scripts.lore_hunter.fix_rideograms -i fig.svg -o out.svg -l AORe LOre [-c 2]
-                                                       [-t '']
+        $ python -m scripts.lorelei.fix_rideograms -i fig.svg -o out.svg -l AORe LOre [-c 2] [-t '']
 """
 
 import argparse
