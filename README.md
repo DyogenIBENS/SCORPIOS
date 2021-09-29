@@ -65,7 +65,7 @@ To install Miniconda3:
   mamba env create -f envs/scorpios.yaml
   ```
 
-  **Alternatively,** you can use conda directly (solving dependencies may take a while, ~ up to an hour):
+  **Alternatively,** you can use conda directly:
   ```
   conda env create -f envs/scorpios.yaml
   ```
