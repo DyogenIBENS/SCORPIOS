@@ -52,7 +52,7 @@ def hypergeom_enrich_depl(data_obs, data_tot, alpha=0.05, multitest_adjust='fdr_
         data_obs (dict): for each category, observed counts
         data_tot (dict): for each category, total number of objects
         alpha (float): significance level
-        multitest_adjust (str): method to adjust pvalues for
+        multitest_adjust (str): method to adjust pvalues for multiple testing
 
     Returns:
         (tuple of lists) : categories, corresponding proportion of observed counts, enrichment or
