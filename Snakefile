@@ -94,7 +94,7 @@ config["genes_sp_mapping"] = config.get("genes_sp_mapping", "")
 config["windowSize"] = config.get("windowSize", 15)
 config["cutoff"] = config.get("cutoff", 0)
 config["ignoreSingleGeneCom"] = config.get("ignoreSingleGeneCom", 'y')
-config["save_subtrees_lktest"] = config.get("save_subtrees_lktest", 'n')
+config["save_subtrees_lktest"] = config.get("save_subtrees_lktest", 'y')
 config["save_tmp_trees"] = config.get("save_tmp_trees", "n")
 
 # Set genes file format if dyogen format is specified (otherwise bed is assumed)
