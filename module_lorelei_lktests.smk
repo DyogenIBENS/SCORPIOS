@@ -36,11 +36,11 @@ rule check_ali_lktests:
     input: f"{OUTFOLDER}/subalis/{{tree}}.fa"
     output: f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa"
     shell:
-        "rm {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree} || true &&"
+        "rm {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree} || true && "
         "raxmlHPC -f c --print-identical-sequences -n {wildcards.tree} -m GTRGAMMA "
         "-s {input} -w {PWD}/{OUTFOLDER}/subalis/ && "
-        "if [ ! -s {OUTFOLDER}/subalis/{wildcards.tree}.reduced.fa ]; "
-        "then cp {input} {output}; else mv {OUTFOLDER}/subalis/{wildcards.tree}.reduced.fa {output};fi"
+        "if [ ! -s {OUTFOLDER}/subalis/{wildcards.tree}.fa.reduced ]; "
+        "then cp {input} {output}; else mv {OUTFOLDER}/subalis/{wildcards.tree}.fa.reduced {output};fi"
 
 rule aore_lore_tree:
     input: ali = f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa", ctree = f"{OUTFOLDER}/ctree_{{class}}/{{tree}}.nh"
