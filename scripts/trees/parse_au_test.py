@@ -15,7 +15,7 @@ import os
 import sys
 import argparse
 
-#FIXME: DRY once lore hunter mode completly implemented... (low priority):
+#FIXME: DRY once lorelei mode completly implemented... (low priority):
 # Write only one function to parse CONSEL results, regardless of the number of trees
 
 def one_file_consel(filename, alpha, item_test='1'):
@@ -358,7 +358,7 @@ if __name__ == '__main__':
     PARSER.add_argument('-p', '--path', help='Path to corresponding tree',
                         required=False, default='')
 
-    PARSER.add_argument('--lh', help='Call script in LORe Hunter mode: i.e to compare ml, lore and\
+    PARSER.add_argument('--lore', help='Call script in LORelEi mode: i.e to compare ml, lore and\
                         aore trees', required=False, action='store_true')
 
     ARGS = vars(PARSER.parse_args())
