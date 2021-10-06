@@ -2,7 +2,7 @@ OUTGR_CHR_TO_PLOT = config.get("outgr_chroms_for_plot", "")
 SP, GENES = list(config["dup_genome"].items())[0]
 assert "use_anc" in config.get("pre_dup_proxy", "") or "use_outgr" in config.get("pre_dup_proxy", "")
 
-OUTFOLDER = f"SCORPiOs-LH_{JNAME}/diagnostic"
+OUTFOLDER = f"SCORPiOs-LORelEi_{JNAME}/diagnostic"
 
 if "use_outgr" in config["pre_dup_proxy"]:
 
@@ -27,7 +27,7 @@ if "use_outgr" in config["pre_dup_proxy"]:
             fam = f"{OUTFOLDER}/ORTHOTABLE_FOR_PLOTS",
             summary = SUMMARY,
             acc = Acc,
-            check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
+            check = f"SCORPiOs-LORelEi_{JNAME}/integrity_checkpoint.out"
         output:
             incons = f"{OUTFOLDER}/conflicts",
             all_trees = f"{OUTFOLDER}/trees",
@@ -53,7 +53,7 @@ else:
             summary = SUMMARY,
             acc = Acc,
             pm = REF_FILE,
-            check = f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out"
+            check = f"SCORPiOs-LORelEi_{JNAME}/integrity_checkpoint.out"
         output: incons = f"{OUTFOLDER}/conflicts", alltrees = f"{OUTFOLDER}/trees"
         shell:
             "python -m scripts.lorelei.homeologs_pairs_from_paralogymap -i {input.fam} -p {input.pm} "
@@ -110,13 +110,12 @@ rule new_legend_and_title_rideogram:
         "-t 'Sequence-synteny conflicts on {params.sp} chromosomes' -l 'inconsistent trees'"
 
 
-#Introducing the LH extension: quick usage and 
-#Extension to scorpios and can be invoked with -s scorpios_lh.smk --> will first run scorpios and then the lh extension on the output (check it runs scorpios completely)
-# --> we could make this one use rejected correction of iteration 0.
+#Introducing the LORe Extension: quick usage and 
+
 #For iterative run
-#--> first run scorpios with the wrapper and then lh extension will ensure integrity of output and use it
+#--> first run scorpios with the wrapper and then lorelei will ensure integrity of output and use it
 #input data are same as scorpios but needs an additional configuration file 
-#Detailed presentation of supported modes : diagnostic, au, treecl
+#Detailed presentation of supported modes : diagnostic, au,
 #--> detail new config
 #--> make a small example which includes 1 chr in outgroup salmon with mix AORe and LORe
 #Add a documentation for the API :)

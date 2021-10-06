@@ -30,8 +30,8 @@ def out_name(name, jobname, iteration, wcard_wgd='', wcard_outgr=''):
     name = "SCORPiOs_"+jobname+'/'+name+'_'+str(iteration)
     return name
 
-#check lh mode
-assert config.get("mode", "diagnostic").lower() in ["clustering", "likelihood_tests", "diagnostic"],\
+#check LORelEi mode
+assert config.get("mode", "diagnostic").lower() in ["likelihood_tests", "diagnostic"],\
        "Invalid `mode`, please check your config."
 
 MODE = config["mode"].lower()
@@ -90,31 +90,17 @@ print(MODE)
 if MODE.lower() == "diagnostic":
     rule Target:
         input:
-            f"SCORPiOs-LH_{JNAME}/diagnostic/seq_synteny_conflicts_by_homeologs.svg",
-            f"SCORPiOs-LH_{JNAME}/diagnostic/seq_synteny_conflicts_on_genome.svg"
-
-
-elif MODE.lower() == "clustering":
-    PLOTS = "SCORPiOs-LH_"+JNAME+"/clustering/clusters_k-"+str(config.get("k", 3))+"_on_genome.svg"
-    if config.get("fit_hmm", False):
-        PLOTS = [PLOTS, "SCORPiOs-LH_"+JNAME+"/clustering/clusters_k-"+str(config.get("k", 3))+"_hmm_fit_on_genome.svg"]
-    rule Target:
-        input:
-            expand("SCORPiOs-LH_"+JNAME+"/clustering/medoids_clustering_k_"+str(config.get("k", 3))+"/cluster_{i}_medoid_{n}.nhx",
-                   i=range(0, config.get("k", 3)), n=range(1, config.get("n", 5)+1)),
-            expand("SCORPiOs-LH_"+JNAME+"/clustering/medoids_incons/medoid_{n}.nhx",
-                   n=range(1, config.get("n", 5)+1)),
-            "SCORPiOs-LH_"+JNAME+"/clustering/inconsistent_trees_vs_clusters.txt",
-            "SCORPiOs-LH_"+JNAME+"/clustering/clusters_k-"+str(config.get("k", 3))+"_on_genome.svg"
+            f"SCORPiOs-LORelEi_{JNAME}/diagnostic/seq_synteny_conflicts_by_homeologs.svg",
+            f"SCORPiOs-LORelEi_{JNAME}/diagnostic/seq_synteny_conflicts_on_genome.svg"
 
 else:
     rule Target:
         input:
-            "SCORPiOs-LH_"+JNAME+"/lktests/lore_aore_on_genome.svg"
+            "SCORPiOs-LORelEi_"+JNAME+"/lktests/lore_aore_on_genome.svg"
 
 rule check_scorpios_output_integrity:
     input: scorpios("SCORPiOs_"+JNAME+"/.cleanup_"+str(ITER))
-    output: touch(f"SCORPiOs-LH_{JNAME}/integrity_checkpoint.out")
+    output: touch(f"SCORPiOs-LORelEi_{JNAME}/integrity_checkpoint.out")
     run: 
         ctrees_a, = glob_wildcards(CTREES+"/"+LORE_WGD+"/C_{ctrees}.nh")
         ctrees_b, = glob_wildcards(RES+"/"+LORE_WGD+"/Res_{ctrees}.txt")

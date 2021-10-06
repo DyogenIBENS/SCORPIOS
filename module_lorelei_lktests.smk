@@ -5,7 +5,7 @@ PWD = os.getcwd()
 
 ALIS = SCORPIOS_CONFIG["alis"]
 
-OUTFOLDER = f"SCORPiOs-LH_{JNAME}/lktests"
+OUTFOLDER = f"SCORPiOs-LORelEi_{JNAME}/lktests"
 
 arg_subset = config.get("sp_to_keep", '')
 if arg_subset:
@@ -92,7 +92,7 @@ rule make_summary:
     input: OUTFOLDER+"/file_list.txt"
     output: OUTFOLDER+"/lore_aore_summary.txt"
     shell:
-        "python -m scripts.trees.parse_au_test -i {input} -o {output} --lh -w {LORE_WGD}"
+        "python -m scripts.trees.parse_au_test -i {input} -o {output} --lore -w {LORE_WGD}"
 
 
 rule lore_aore_full_summary:
