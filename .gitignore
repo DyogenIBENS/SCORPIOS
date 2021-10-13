@@ -6,5 +6,5 @@ data/*
 !data/example/
 data/example/genes/*.bz2
 config*
-!config_example.yaml
+!config_example*
 doc/build/
