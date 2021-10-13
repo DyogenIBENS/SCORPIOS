@@ -1,13 +1,17 @@
+
+"""
+SCORPiOs LORelEi is an extension to the main SCORPiOs pipeline, it analyzes sequence-synteny
+conflicts in gene tree.
+"""
+
 from snakemake.io import load_configfile
 import sys
 
-#may need --scheduler greedy
 
-
-#get scorpios config,
+# Get SCORPiOs config
 SCORPIOS_CONFIGFILE = config["scorpios_config"]
 
-#SCORPiOs is an extension of SCORPiOs, and depends on SCORPiOs as a subworkflow.
+# SCORPiOs LORelEi is an extension of SCORPiOs, and depends on SCORPiOs as a subworkflow.
 subworkflow scorpios:
     workdir:
         '.'
@@ -15,10 +19,10 @@ subworkflow scorpios:
         SCORPIOS_CONFIGFILE
 
 
-#Set all output names FIXME (duplicate code from main scorpios)
-def out_name(name, jobname, iteration, wcard_wgd='', wcard_outgr=''):
+# Set all output names
+def out_name(name, JOBNAME_S, iteration, wcard_wgd='', wcard_outgr=''):
     """
-    Generates output names with jobname directory prefix and iteration suffix.
+    Generates output names with JOBNAME_S directory prefix and iteration suffix.
     Also adds required wildcards.
     """
     if wcard_wgd:
@@ -27,99 +31,95 @@ def out_name(name, jobname, iteration, wcard_wgd='', wcard_outgr=''):
     if wcard_outgr:
         name+="_"+wcard_outgr
 
-    name = "SCORPiOs_"+jobname+'/'+name+'_'+str(iteration)
+    name = "SCORPiOs_"+JOBNAME_S+'/'+name+'_'+str(iteration)
     return name
 
-#check LORelEi mode
+# Check LORelEi mode
 assert config.get("mode", "diagnostic").lower() in ["likelihood_tests", "diagnostic"],\
        "Invalid `mode`, please check your config."
 
 MODE = config["mode"].lower()
 
-REC_BR = config.get("recompute_brln", False)
-assert isinstance(REC_BR, bool)
-
-REC_ALI = config.get("recompute_msa", False)
-assert isinstance(REC_ALI, bool)
-
-# check that configs are consistent
+# Check that configs are consistent
 SCORPIOS_CONFIG = load_configfile(SCORPIOS_CONFIGFILE)
 if len(SCORPIOS_CONFIG["WGDs"]) == 1:
     LORE_WGD = list(SCORPIOS_CONFIG["WGDs"].keys())[0]
-    assert (not config.get("lore_wgd", "") or config.get("lore_wgd", "") == LORE_WGD)
+    assert (not config.get("lore_wgd", "") or config.get("lore_wgd", "") == LORE_WGD),\
+           "Invalid `lore_wgd`, please check your config."
 
 else:
     assert config.get("lore_wgd", ""), "SCORPiOs was run to correct several WGDs, you should\
                                         specify in config the one you want to run LORe analyses on."
     LORE_WGD = config["lore_wgd"]
 
-LORE_OUTGR = config.get("lore_outgr", "")
-if not LORE_OUTGR:
-    LORE_OUTGR = SCORPIOS_CONFIG["WGDs"][LORE_WGD].split(",")
-    if len(LORE_OUTGR) > 1:
-        sys.stderr.write(f"Selecting {LORE_OUTGR[0]} as outgroup.")
-    LORE_OUTGR = LORE_OUTGR[0]
 
-#Get SCORPiOs inputs and outputs
-JNAME = SCORPIOS_CONFIG["jobname"] 
+LORE_OUTGRS = SCORPIOS_CONFIG["WGDs"][LORE_WGD]
+LORE_OUTGR = LORE_OUTGRS.split(',')[0]
 
-ITER = config.get("iter", 0)
-CTREES = scorpios(out_name("Trees/ctrees", JNAME, ITER))
-Acc = scorpios(out_name("Corrections/Accepted_Trees", JNAME, ITER, LORE_WGD))
-ORTHOTABLE = scorpios(out_name("Families/Homologs", JNAME, ITER, LORE_WGD, LORE_OUTGR))
-SUMMARY = scorpios(out_name("Corrections/Trees_summary", JNAME, ITER, LORE_WGD))
-RES = scorpios(out_name("Corrections/Res_polylk", JNAME, ITER))
-SCORPIOS_CORRTREES = scorpios(out_name("SCORPiOs_output", JNAME, ITER)+'.nhx')
+if MODE == "diagnostic":
+    if len(LORE_OUTGRS.split(',')) > 1:
+        assert "use_anc" in config["pre_dup_proxy"] or "use_outgr" in config["pre_dup_proxy"]
+        if "use_outgr" in config["pre_dup_proxy"]:
+            LORE_OUTGR = config["pre_dup_proxy"]["use_outgr"]
+    else:
+        config["pre_dup_proxy"] = config.get("pre_dup_proxy", {})
+        config["pre_dup_proxy"]["use_outgr"] = config.get("use_outgr", LORE_OUTGR)
+    
+
+# Get SCORPiOs outputs
+JOBNAME_S = SCORPIOS_CONFIG["jobname"] 
+
+ITERATION = config.get("iter", 0)
+CONSTREES = scorpios(out_name("Trees/ctrees", JOBNAME_S, ITERATION))
+ACCEPTED = scorpios(out_name("Corrections/Accepted_Trees", JOBNAME_S, ITERATION, LORE_WGD))
+ORTHOTABLE = scorpios(out_name("Families/Homologs", JOBNAME_S, ITERATION, LORE_WGD, LORE_OUTGRS))
+
+ORTHOTABLES = []
+for OUTGROUP in LORE_OUTGRS.split(','):
+    ORTHOTABLES.append(scorpios(out_name("Families/Homologs", JOBNAME_S, ITERATION, LORE_WGD, OUTGROUP)))
+SUMMARY = scorpios(out_name("Corrections/Trees_summary", JOBNAME_S, ITERATION, LORE_WGD))
+RES = scorpios(out_name("Corrections/Res_polylk", JOBNAME_S, ITERATION))
+SCORPIOS_CORRTREES = scorpios(out_name("SCORPiOs_output", JOBNAME_S, ITERATION)+'.nhx')
+COMBIN = out_name("Graphs/outcombin", JOBNAME_S, ITERATION, LORE_WGD)
 
 SPTREE = SCORPIOS_CONFIG["species_tree"]
-if "trees" in SCORPIOS_CONFIG and ITER == 0:
-    INPUT_FOREST = SCORPIOS_CONFIG["trees"]
-elif "trees" not in SCORPIOS_CONFIG and ITER == 0:
-    INPUT_FOREST = out_name("input_forest", JNAME, ITER)+'.nhx'
-if ITER != 0:
-    INPUT_FOREST = out_name("SCORPiOs_output", JNAME, ITER) + '.nhx'
 
-CTREES_DIR = scorpios(CTREES+"/"+LORE_WGD+"/")
+CTREES_DIR = scorpios(CONSTREES+"/"+LORE_WGD+"/")
 
-if "jobname" in config:
-    JNAME += '_' + config["jobname"]
+JOBNAME_L = JOBNAME_S
+if "jname" in config:
+    JOBNAME_L += '_' + config["jname"]
 
-### WORKFLOW
 
-print(MODE)
+# Set LORelEi WORKFLOW Targets
+
 if MODE.lower() == "diagnostic":
     rule Target:
         input:
-            f"SCORPiOs-LORelEi_{JNAME}/diagnostic/seq_synteny_conflicts_by_homeologs.svg",
-            f"SCORPiOs-LORelEi_{JNAME}/diagnostic/seq_synteny_conflicts_on_genome.svg"
+            f"SCORPiOs-LORelEi_{JOBNAME_L}/diagnostic/seq_synteny_conflicts_by_homeologs.svg",
+            f"SCORPiOs-LORelEi_{JOBNAME_L}/diagnostic/seq_synteny_conflicts_on_genome.svg"
 
 else:
     rule Target:
         input:
-            "SCORPiOs-LORelEi_"+JNAME+"/lktests/lore_aore_on_genome.svg"
+            "SCORPiOs-LORelEi_"+JOBNAME_L+"/lktests/lore_aore_on_genome.svg"
 
 rule check_scorpios_output_integrity:
-    input: scorpios("SCORPiOs_"+JNAME+"/.cleanup_"+str(ITER))
-    output: touch(f"SCORPiOs-LORelEi_{JNAME}/integrity_checkpoint.out")
+    """
+    Explicitly verifies that intermediary outputs from SCORPiOs are complete.
+    """
+    input: scorpios("SCORPiOs_"+JOBNAME_S+"/.cleanup_"+str(ITERATION))
+    output: touch(f"SCORPiOs-LORelEi_{JOBNAME_L}/integrity_checkpoint.out")
     run: 
-        ctrees_a, = glob_wildcards(CTREES+"/"+LORE_WGD+"/C_{ctrees}.nh")
+        ctrees_a, = glob_wildcards(CONSTREES+"/"+LORE_WGD+"/C_{ctrees}.nh")
         ctrees_b, = glob_wildcards(RES+"/"+LORE_WGD+"/Res_{ctrees}.txt")
+        sys.stdout.write(f"SCORPiOs LORelEi: {MODE} mode\n")
         sys.stderr.write('Checking SCORPiOs output integrity...\n')
-        if not set(ctrees_a) and set(ctrees_a) == set(ctrees_b):
-            print("Please re-run scorpios, output of the checkpoint rule appears to be incomplete.")
+        if not set(ctrees_a) or set(ctrees_a) != set(ctrees_b):
+            print("Please re-run SCORPiOs, output of the checkpoint rule appears to be incomplete.")
             sys.exit(1)
 
-def get_ctrees(wildcards, restrict=None):
-    Ctrees, = glob_wildcards(CTREES+"/"+LORE_WGD+"/C_{ctrees}.nh")
-    Ctrees = [i.split('/')[-1] for i in Ctrees]
-    if restrict:
-        Ctrees = [i for i in Ctrees if restrict in i]
 
-    out = expand(CTREES+"/"+LORE_WGD+"/C_{ctrees}.nh", ctrees=Ctrees)
-    # out = expand('test_lore/{ctrees}_test.txt', ctrees=Ctrees)
-    return out
-
-
-#include the 2 SCORPiOs LORelEi modules
+#include SCORPiOs LORelEi modules
 include: "module_lorelei_diagnostic.smk"
 include: "module_lorelei_lktests.smk"

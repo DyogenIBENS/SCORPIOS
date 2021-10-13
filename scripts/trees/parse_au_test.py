@@ -381,7 +381,7 @@ if __name__ == '__main__':
             print("false")
 
     #if the script is called on all results
-    elif not ARGS["lh"]:
+    elif not ARGS["lore"]:
         TREE_PATHS = ARGS["path"].split(',')
         with open(ARGS['input'], 'r') as INFILE:
             INPUTS = [LINE.strip() for LINE in INFILE]

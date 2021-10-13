@@ -201,6 +201,10 @@ if __name__ == '__main__':
     OBS = load_counts(ARGS["inc"])
     ALL = load_counts(ARGS["nb_genes"])
 
+    for key in ALL:
+        if key not in OBS:
+            OBS[key] = 0
+
     RES = hypergeom_enrich_depl(OBS, ALL, alpha=ARGS["alpha"], multitest_adjust='fdr_bh')
 
     AVG_PROP = sum(OBS.values())  / sum(ALL.values()) * 100

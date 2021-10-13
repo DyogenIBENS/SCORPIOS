@@ -38,7 +38,7 @@ def strip_chr_name(chr_name):
         chr_name = chr_name.replace("group", "")
 
     elif isinstance(chr_name, str) and "LG" in chr_name:
-        chr_name = chr_name.replace("group", "")
+        chr_name = chr_name.replace("LG", "")
 
     return chr_name
 

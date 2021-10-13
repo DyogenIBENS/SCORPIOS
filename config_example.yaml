@@ -11,8 +11,11 @@ trees: data/example/forest.nhx
 alis: data/example/ali.fa.gz
 
 # INPUT3 - The genes coordinates for all duplicated species and outgroup(s).
-#one file per species, in BED (.bed) format.
+#one file per species, in BED (.bed) format. Can also be in 'dyogen' format.
 genes: data/example/genes/genes.%s.bed
+
+# Uncomment if genes coordinates are in dyogen format, otherwise .bed is assumed.
+#genes_format: dyogen
 
 # INPUT4 - The species tree in Newick format with labelled internal nodes (ancestor names).
 species_tree: data/example/species_tree.nwk
@@ -30,6 +33,7 @@ jobname: 'example'
 #---------------------------------------- PARAMETERS ----------------------------------------#
 
 # Whole-genome duplication(s) and outgroup(s)
+# Outgroups, if multiple, should be monophyletic if you intent to run LORelEi.
 WGDs:
         Clupeocephala: 'Lepisosteus.oculatus,Amia.calva'
         Salmonidae: 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes'
@@ -72,6 +76,7 @@ save_tmp_trees: 'y'
 # - constrained tree topologies
 # - profileNJ and TreeBeST synteny-aware trees
 # - AU-tests outputs
+# Should be set to 'y' if you intent to run LORelEi.
 save_subtrees_lktest: 'y'
 
 # Optionally, use spectral clustering instead of Girvan-Newman for graph community detection.

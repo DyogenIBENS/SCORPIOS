@@ -1,77 +1,70 @@
-OUTGR_CHR_TO_PLOT = config.get("outgr_chroms_for_plot", "")
-SP, GENES = list(config["dup_genome"].items())[0]
-assert "use_anc" in config.get("pre_dup_proxy", "") or "use_outgr" in config.get("pre_dup_proxy", "")
 
-OUTFOLDER = f"SCORPiOs-LORelEi_{JNAME}/diagnostic"
+"""
+SCORPiOs LORelEi module to analyze the genomic location of sequence-synteny conflicted families?
+"""
+
+OUTFOLDER = f"SCORPiOs-LORelEi_{JOBNAME_L}/diagnostic"
+
+SP = config["dup_genome"]
+GENES = SCORPIOS_CONFIG["genes"] % SP
+OUTGR_GENES = SCORPIOS_CONFIG["genes"] % LORE_OUTGR
+
+COMBIN_ARG = ''
+if len(LORE_OUTGRS.split(',')) > 1:
+    COMBIN_ARG += '-c '+ COMBIN
 
 if "use_outgr" in config["pre_dup_proxy"]:
 
     REF = config["pre_dup_proxy"]["use_outgr"]
 
-    if OUTGR_CHR_TO_PLOT != '':
-        rule restrict_to_outgr_chromosomes:
-            input: fam = ORTHOTABLE
-            output: f"{OUTFOLDER}/ORTHOTABLE_FOR_PLOTS"
-            params: chr_file = OUTGR_CHR_TO_PLOT
-            shell:
-                "grep -Fwf {params.chr_file} {input.fam} > {output}"
-
-    else:
-
-        rule pass_outgr_chr_filter:
-            input: fam = ORTHOTABLE
-            output: touch(f"{OUTFOLDER}/ORTHOTABLE_FOR_PLOTS")
-
     rule prepare_homeologs_outgr:
         input:
-            fam = f"{OUTFOLDER}/ORTHOTABLE_FOR_PLOTS",
+            fam = ORTHOTABLE,
             summary = SUMMARY,
-            acc = Acc,
-            check = f"SCORPiOs-LORelEi_{JNAME}/integrity_checkpoint.out"
+            acc = ACCEPTED,
+            check = f"SCORPiOs-LORelEi_{JOBNAME_L}/integrity_checkpoint.out",
         output:
             incons = f"{OUTFOLDER}/conflicts",
-            all_trees = f"{OUTFOLDER}/trees",
-            tmp_acc = temp(f"{OUTFOLDER}/tmp_acc")
-        shell:#FIXME: not sure this works with outfolder that way
-            "cut -f 1 {input.fam} | uniq -c > {output.all_trees}; "
-            "cut -f 1,3 {input.fam} > {OUTFOLDER}/tmp_genes; "
-            "grep Incons {input.summary} | cut -f 1 > {OUTFOLDER}/tmp_incons; "
-            "cut -f 1 {input.acc} > {OUTFOLDER}/tmp_acc; "
-            "grep -v {OUTFOLDER}/tmp_acc {OUTFOLDER}/tmp_incons > {OUTFOLDER}/tmp_uncorr; "
-            "grep -f {OUTFOLDER}/tmp_incons {OUTFOLDER}/tmp_genes | cut -f 1 | uniq -c > {output.incons}"
+            alltrees = f"{OUTFOLDER}/trees",
+        params:
+            genes = OUTGR_GENES,
+            fomt = SCORPIOS_CONFIG.get("genes_format", "bed"),
+            combin_args = COMBIN_ARG
+        shell:
+            "python -m scripts.lorelei.homeologs_pairs_from_ancestor -i {input.fam} --is_outgroup "
+            "-homeo {params.genes} -s {input.summary} -oi {output.incons} -oa {output.alltrees} "
+            "-a {input.acc} {params.combin_args} -f {params.fomt}"
 
 else:
 
     REF_FILE = config["pre_dup_proxy"]["use_anc"]
     REF = "Pre-duplication"
 
-    #TODO: fam could take several orthothables (ORTHOTABLES.split()), if several outgroups
-    #Check that the config arg with several outgroups can work with all extentions
     rule prepare_homeologs_anc: 
         input:
-            fam = ORTHOTABLE,
+            fam = ORTHOTABLES,
             summary = SUMMARY,
-            acc = Acc,
+            acc = ACCEPTED,
             pm = REF_FILE,
-            check = f"SCORPiOs-LORelEi_{JNAME}/integrity_checkpoint.out"
+            check = f"SCORPiOs-LORelEi_{JOBNAME_L}/integrity_checkpoint.out"
         output: incons = f"{OUTFOLDER}/conflicts", alltrees = f"{OUTFOLDER}/trees"
         shell:
-            "python -m scripts.lorelei.homeologs_pairs_from_paralogymap -i {input.fam} -p {input.pm} "
-            "-s {input.summary} -oi {output.incons} -oa {output.alltrees} -a {input.acc}"
+            "python -m scripts.lorelei.homeologs_pairs_from_ancestor -i {input.fam} -a {input.acc} "
+            "-homeo {input.pm} -s {input.summary} -oi {output.incons} -oa {output.alltrees}"
 
 rule plot_homeologs:
     input: incons = f"{OUTFOLDER}/conflicts", all_trees = f"{OUTFOLDER}/trees"
     output: f"{OUTFOLDER}/seq_synteny_conflicts_by_homeologs.svg"
     conda: "envs/plots.yaml"
     shell:
-        "python -m scripts.lorelei.homeologs_tree_conflicts -i {input.incons} -g {input.all_trees} -o {output} "
-        " --refname '{REF}'"
+        "python -m scripts.lorelei.homeologs_tree_conflicts -i {input.incons} -g {input.all_trees} "
+        "-o {output} --refname '{REF}'"
 
 rule prepare_genome_plot:
-    input: ctreedir = CTREES_DIR, summary = SUMMARY, acc = Acc,
+    input: ctreedir = CTREES_DIR, summary = SUMMARY, acc = ACCEPTED,
     output: fam = f"{OUTFOLDER}/inconsistent_families.tsv"
     shell:
-        "python -m scripts.lorelei.write_ancgenes_treeclust -a {input.acc} -t {input.ctreedir} "
+        "python -m scripts.lorelei.write_ancgenes_treeclass -a {input.acc} -t {input.ctreedir} "
         "-c {input.summary} -o {output.fam} -r 'Inconsistent'"
 
 rule prepare_input_rideogram:
@@ -88,7 +81,7 @@ rule prepare_input_rideogram:
 rule plot_conflicts_on_genome:
     input:
         karyo = f"{OUTFOLDER}/karyo_ide.txt",
-        feat = f"{OUTFOLDER}/incons_ide.txt",
+        feat = f"{OUTFOLDER}/incons_ide.txt"
     output: temp(f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp.svg")
     params: sp = SP
     conda: 'envs/rideogram.yaml'
@@ -109,15 +102,3 @@ rule new_legend_and_title_rideogram:
         "python -m scripts.lorelei.fix_rideogram -i {input} -o {output} -c 1 "
         "-t 'Sequence-synteny conflicts on {params.sp} chromosomes' -l 'inconsistent trees'"
 
-
-#Introducing the LORe Extension: quick usage and 
-
-#For iterative run
-#--> first run scorpios with the wrapper and then lorelei will ensure integrity of output and use it
-#input data are same as scorpios but needs an additional configuration file 
-#Detailed presentation of supported modes : diagnostic, au,
-#--> detail new config
-#--> make a small example which includes 1 chr in outgroup salmon with mix AORe and LORe
-#Add a documentation for the API :)
-#Add a comment on how to change only one param in config (and update job name for scorpios classic)
-#Fix my spacing issues

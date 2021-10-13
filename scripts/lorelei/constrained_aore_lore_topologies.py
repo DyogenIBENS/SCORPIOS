@@ -1,7 +1,6 @@
 
 
 """
-It would have been nice if my past self had left some minimal documentation here but, y'know...
 """
 
 import sys
@@ -375,7 +374,7 @@ if __name__ == '__main__':
     PARSER.add_argument('--anc', help='Name of the ancestor of duplicated species.',
                         required=True)
 
-    PARSER.add_argument('-sp', '--outgr_species', required=True, nargs='*')
+    PARSER.add_argument('-sp', '--outgr_species', required=True, nargs='+')
 
     PARSER.add_argument('-o', '--outdir_ali', help='Output directory for subalis', required=False,
                         default="out_alis")

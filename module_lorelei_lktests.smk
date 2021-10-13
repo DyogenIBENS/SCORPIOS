@@ -1,21 +1,25 @@
 import glob
 import os
+
 PWD = os.getcwd()
-
-
 ALIS = SCORPIOS_CONFIG["alis"]
-
-OUTFOLDER = f"SCORPiOs-LORelEi_{JNAME}/lktests"
+OUTFOLDER = f"SCORPiOs-LORelEi_{JOBNAME_L}/lktests"
 
 arg_subset = config.get("sp_to_keep", '')
 if arg_subset:
     arg_subset = "-set "+ arg_subset
 
-LORE_CLASSES = config.get("lore_groups", ["LORE"])
+LORE_CLASSES = config.get("lore_groups", {"LORE": 'default'})
 LABELS = ' '.join(["AORe"] + list(LORE_CLASSES.keys()))
 
-#TODO make it possible to test different speciation points (+default is first speciation point)
+RAXML_SEED = config.get("raxml_seed", 1234)
+
+
 checkpoint subalis_loretrees_aoretrees:
+    """
+    Extract WGD gene families and gene alignments from SCORPiOs corrected forest and builds
+    corresponding constrained AORe and LORe gene tree topologies.
+    """
     input:
         forest = SCORPIOS_CORRTREES,
         sptree = SPTREE,
@@ -25,7 +29,7 @@ checkpoint subalis_loretrees_aoretrees:
         alis = directory(f"{OUTFOLDER}/subalis/"),
         trees_lore = directory(f"{OUTFOLDER}/ctree_lore/"),
         trees_aore = directory(f"{OUTFOLDER}/ctree_aore/"),
-    params: anc = LORE_WGD, outgr = f"{LORE_OUTGR} Amia.calva", arg_subset = arg_subset
+    params: anc = LORE_WGD, outgr = LORE_OUTGRS.replace(',', ' '), arg_subset = arg_subset
     shell:
         "python -m scripts.lorelei.constrained_aore_lore_topologies -t {input.forest} -c {input.ctreedir} -s {input.sptree} "
         "--anc {params.anc} -o {output.alis} -ol {output.trees_lore} -oa {output.trees_aore} "
@@ -33,6 +37,9 @@ checkpoint subalis_loretrees_aoretrees:
 
 
 rule check_ali_lktests:
+    """
+    Checks the input alignment with RAxML.
+    """
     input: f"{OUTFOLDER}/subalis/{{tree}}.fa"
     output: f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa"
     shell:
@@ -42,10 +49,14 @@ rule check_ali_lktests:
         "if [ ! -s {OUTFOLDER}/subalis/{wildcards.tree}.fa.reduced ]; "
         "then cp {input} {output}; else mv {OUTFOLDER}/subalis/{wildcards.tree}.fa.reduced {output};fi"
 
+
 rule aore_lore_tree:
+    """
+    Builds the LORe and AORe (depending on the `class` wildcard) tree with RAxML.
+    """
     input: ali = f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa", ctree = f"{OUTFOLDER}/ctree_{{class}}/{{tree}}.nh"
     output: subtree = f"{OUTFOLDER}/{{class}}_trees/{{tree}}.nh"
-    params: raxml_seed = config.get("raxml_seed", 1234)
+    params: raxml_seed = RAXML_SEED
     shell:
         "rm {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree}_{wildcards.class} || true &&"
         "raxmlHPC -g {input.ctree} -n {wildcards.tree}_{wildcards.class} -m GTRGAMMA -p {params.raxml_seed} "
@@ -53,9 +64,12 @@ rule aore_lore_tree:
         "mv {OUTFOLDER}/subalis/RAxML_bestTree.{wildcards.tree}_{wildcards.class} {output}"
 
 rule ml_tree:
+    """
+    Builds the Maximum Likelihood (ML) tree with RAxML.
+    """
     input: ali = f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa"
     output: subtree = f"{OUTFOLDER}/ml_trees/{{tree}}.nh"
-    params: raxml_seed = config.get("raxml_seed", 1234)
+    params: raxml_seed = RAXML_SEED
     shell:
         "rm {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree}_ml || true &&"
         "raxmlHPC -p {params.raxml_seed} -n {wildcards.tree}_ml -m GTRGAMMA -s {input.ali} -w {PWD}/{OUTFOLDER}/subalis/ && "
@@ -63,6 +77,9 @@ rule ml_tree:
 
 
 rule lk_test:
+    """
+    Runs the likelihood AU test to compare likelihoods of the AORe, LORe and ML trees. 
+    """
     input:
         ali = f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa", ml = f"{OUTFOLDER}/ml_trees/{{tree}}.nh",
         aore = f"{OUTFOLDER}/aore_trees/{{tree}}.nh", lore = f"{OUTFOLDER}/lore_trees/{{tree}}.nh"
@@ -73,14 +90,23 @@ rule lk_test:
 
 
 def get_result(wildcards):
-    #check that checkpoint has been executed
+
+    # Check that checkpoint has been executed
     co = checkpoints.subalis_loretrees_aoretrees.get(**wildcards).output[0]
+
+    # Ouputs from the checkpoint
     subtrees, = glob_wildcards(OUTFOLDER+"/subalis/{tree}.fa")
     subtrees = [i for i in subtrees if ".reduced" not in i]
+
+    # Expand expected outputs 
     out = expand(OUTFOLDER+"/lktests/Res_{tree}.txt", tree=subtrees)
+
     return out
 
 rule list_lktest:
+    """
+    Lists all of the CONSEL Likelihood-tests result files (files to parse in later steps). 
+    """
     input: get_result
     output: outf = OUTFOLDER+"/file_list.txt"
     run:
@@ -89,6 +115,10 @@ rule list_lktest:
                 fw1.write(f+'\n')
 
 rule make_summary:
+    """
+    Writes a short summary of likelihood-tests results confronting the LORe and AORe hypotheses.
+    Lists the family IDs (outgroup gene name) of AORe and LORe gene trees.
+    """
     input: OUTFOLDER+"/file_list.txt"
     output: OUTFOLDER+"/lore_aore_summary.txt"
     shell:
@@ -96,13 +126,21 @@ rule make_summary:
 
 
 rule lore_aore_full_summary:
+    """
+    Writes a full summary of likelihood-tests results confronting the LORe and AORe hypotheses.
+    Lists all genes in the AORe and LORe gene trees.
+    """
     input: clusters = OUTFOLDER+"/lore_aore_summary.txt"
     output: f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv"
-    params: treedir = f"{OUTFOLDER}/ml_trees/" #may break stuff for reruns
-    shell: "python -m scripts.lorelei.write_ancgenes_treeclust -t {params.treedir} "
+    params: treedir = f"{OUTFOLDER}/ml_trees/" #FIXME: may break stuff for reruns (explicit input?)
+    shell: "python -m scripts.lorelei.write_ancgenes_treeclass -t {params.treedir} "
            "-c {input.clusters} -o {output} -r 'lore rejected' 'aore rejected'"
 
+
 rule prepare_lore_aore_for_rideogram:
+    """
+    Prepares input files for the RIdeogram karyotype plot.
+    """
     input: c = f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv", genes = GENES
     output: karyo = f"{OUTFOLDER}/karyo_ide.txt",
             feat = f"{OUTFOLDER}/lore_aore_ide.txt"        
@@ -110,7 +148,11 @@ rule prepare_lore_aore_for_rideogram:
         "python -m scripts.lorelei.make_rideograms_inputs -i {input.c} -g {input.genes} "
         "-k {output.karyo} -o {output.feat} -f dyogen"
 
+
 rule plot_lore_aore_on_genome:
+    """
+    Uses RIdeograms to plot aore and lore gene families on the karyotype of a duplicated genome.
+    """
     input:
         karyo = f"{OUTFOLDER}/karyo_ide.txt",
         feat = f"{OUTFOLDER}/lore_aore_ide.txt"
@@ -120,12 +162,20 @@ rule plot_lore_aore_on_genome:
     shell:
         "Rscript scripts/lorelei/plot_genome.R -k {input.karyo} -f {input.feat} -o {output} -c {params.nb_classes}"
 
+
 rule rm_legend:
+    """
+    Removes automatically generated legend from RIdeogram (because it assumes a continuous variable)
+    """
     input: f"{OUTFOLDER}/lore_aore_on_genome_tmp.svg"
     output: temp(f"{OUTFOLDER}/lore_aore_on_genome_tmp2.svg")
     shell: "sed 's/Low.*//g' {input} | sed 's/\\(.*\\)\\<text.*/\\1\\/svg\\>/' > {output}"
 
+
 rule add_legend_and_title:
+    """
+    Adds a correct legend and a title for the RIdeogram plot.
+    """
     input: f"{OUTFOLDER}/lore_aore_on_genome_tmp2.svg"
     output: f"{OUTFOLDER}/lore_aore_on_genome.svg"
     params: sp = SP, labels = LABELS, nb_classes = len(LABELS.split())
