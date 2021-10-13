@@ -72,7 +72,7 @@ JOBNAME_S = SCORPIOS_CONFIG["jobname"]
 ITERATION = config.get("iter", 0)
 CONSTREES = scorpios(out_name("Trees/ctrees", JOBNAME_S, ITERATION))
 ACCEPTED = scorpios(out_name("Corrections/Accepted_Trees", JOBNAME_S, ITERATION, LORE_WGD))
-ORTHOTABLE = scorpios(out_name("Families/Homologs", JOBNAME_S, ITERATION, LORE_WGD, LORE_OUTGRS))
+ORTHOTABLE = scorpios(out_name("Families/Homologs", JOBNAME_S, ITERATION, LORE_WGD, LORE_OUTGR))
 
 ORTHOTABLES = []
 for OUTGROUP in LORE_OUTGRS.split(','):

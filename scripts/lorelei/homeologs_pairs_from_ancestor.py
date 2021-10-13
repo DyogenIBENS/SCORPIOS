@@ -159,15 +159,16 @@ def load_combin(input_file, genes):
             genes_all, best_graph = line[:-1], line[-1]
 
             if i == 1:
-                for j, genes in enumerate(genes_all):
-                    if genes.intersection(set(genes.split(','))):
+                for j, genes_ref in enumerate(genes_all):
+                    if genes.intersection(set(genes_ref.split(','))):
                         ind = j
                         break
 
             if genes.isdisjoint(set(best_graph.split(','))):
                 genes_ref = genes_all[j].split(',')
-                for gene in genes_ref:
-                    combin[gene] = best_graph.split(',')
+                if genes_ref != []:
+                    for gene in genes_ref:
+                        combin[gene] = best_graph.split(',')
     return combin
 
 
@@ -270,10 +271,10 @@ if __name__ == '__main__':
                 gene = gene.names[0]
                 if gene in CTREES:
                     HOMEOLOGS[gene] = chrom
-                elif COMBIN is not None:
+                elif COMBIN is not None and gene in COMBIN:
                     for g in COMBIN[gene]:
                         if g in CTREES:
-                            HOMEOLOGS[gene] = chrom
+                            HOMEOLOGS[g] = chrom
 
     write_output(HOMEOLOGS, CTREES, ARGS["out_all"], ARGS["out_incons"])
 
