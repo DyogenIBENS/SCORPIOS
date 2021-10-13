@@ -1,0 +1,48 @@
+#======================== SCORPiOs LORelEi EXAMPLE CONFIGURATION FILE =========================#
+## For a full description of supported settings, please take a look at SCORPiOs documentation.##
+
+#------------------------------------ REQUIRED PARAMETERS -------------------------------------#
+#                                          (all modes)                                         #
+
+#Configuration file for SCORPiOs correction run.
+scorpios_config: "config_example2.yaml"
+
+#SCORPiOs LORelEi mode, can be 'diagnostic', 'likelihood_tests'.
+mode: "diagnostic"
+
+
+#------------------------------------ OPTIONAL PARAMETERS -------------------------------------#
+#                                          (all modes)                                         #
+
+# Optional, SCORPiOs iteration to use (0 for a simple run, 1 recommended in iterative SCORPiOs).
+# Default is 0, so you can omit it in normal mode.
+#iter: 0
+
+# Optional, WGD to consider, you can omit it if you ran SCORPiOs on this WGD only.
+#lore_wgd: "Osteoglossocephalai"
+
+# Optional, to append a lorelei jobname to the scorpios jobname,
+# (useful to run different lorelei jobs on the same SCORPiOs main job).
+#jobname: "myrun1"
+
+
+#----------------------------------- Diagnostic PARAMETERS ------------------------------------#
+
+# Duplicated genome to plot conflicted gene families on.
+# The corresponding gene coordinates file will be found using the path given in scorpios config.
+dup_genome: "Oryzias.latipes"
+
+# Optional, outgroup OR ancestral reconstruction to use as a proxy to the pre-WGD karyotype.
+# You can omit it if you used only 1 outgroup for SCORPiOs correction and want to use it here.
+pre_dup_proxy:
+  use_outgr: "Amia.calva"
+  # use_anc:  "data/example2/preduplication_ancgenes.tsv"
+
+
+#------------------------------------ LK-TESTS PARAMETERS -------------------------------------#
+
+# Optional, set raxml random seed (for reproducibility)
+#raxml_seed: 1234
+
+# Optional, to prune gene trees and retain only a subset of the duplicated species
+#sp_to_keep: "Arapaima.gigas Danio.rerio Scleropages.formosus Oryzias.latipes"

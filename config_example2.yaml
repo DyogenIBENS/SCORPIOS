@@ -1,0 +1,60 @@
+#=========================== SCORPiOs EXAMPLE CONFIGURATION FILE ============================#
+##For a full description of supported settings, please take a look at SCORPiOs documentation.#
+
+
+#----------------------------------------- INPUTS -------------------------------------------#
+
+# INPUT1 - The gene trees to correct, as a single file in New Hampshire Extended (.nhx) format.
+trees: data/example2/trees.nhx
+
+# INPUT2 - The multiple sequence alignments used to build the trees, as a single fasta file.
+alis: data/example2/ali.fa.gz
+
+# INPUT3 - The genes coordinates for all duplicated species and outgroup(s).
+#one file per species, in BED (.bed) format. Can also be in 'dyogen' format.
+genes: data/example2/genes/genes.%s.list
+genes_format: 'dyogen'
+
+# INPUT4 - The species tree in Newick format with labelled internal nodes (ancestor names).
+species_tree: data/example2/species_tree.nwk
+
+
+#----------------------------------------- OUTPUTS ------------------------------------------#
+
+# Provide a job name, which will be appended to the output folder name.
+jobname: 'example2'
+
+
+#---------------------------------------- PARAMETERS ----------------------------------------#
+
+# Whole-genome duplication(s) and outgroup(s)
+# Outgroups, if multiple, should be monophyletic if you intent to run LORelEi.
+WGDs:
+    Osteoglossocephalai: 'Amia.calva'
+
+# Whether the average number of syntenic orthologs to include genes in the Orthology Table
+# should be optimized: yes ('y') or no ('n'). Default threshold value if not optimized: 2.0.
+optimize_synteny_support_threshold: 'n'
+
+# Whether branch-lengths should be recomputed after corrections: yes ('y') or no ('n').
+brlength: 'n'
+
+# Whether more detailed intermediary outputs should be saved: yes ('y') or no ('n').
+# Setting `save_subtrees_lktest` to 'y' saves, in addition to default outputs:
+# - constrained tree topologies
+# - profileNJ and TreeBeST synteny-aware trees
+# - AU-tests outputs
+# Should be set to 'y' if you intent to run LORelEi.
+save_subtrees_lktest: 'y'
+
+# Iterative-correction related option, automatically updated by the wrapper iterate_scorpios.sh.
+## DO NOT MODIFY MANUALLY even if using iterative mode.##
+current_iter: 0
+
+
+#---------------------------------------- RESSOURCES ----------------------------------------#
+
+# Maximum number of threads (will never use more than this number).
+# It will be restricted to the number specified via --cores (1 if --cores is not invoked).
+ncores: 14
+
