@@ -22,7 +22,7 @@ if "use_outgr" in config["pre_dup_proxy"]:
             fam = ORTHOTABLE,
             summary = SUMMARY,
             acc = ACCEPTED,
-            check = f"SCORPiOs-LORelEi_{JOBNAME_L}/integrity_checkpoint.out",
+            check = f"SCORPiOs-LORelEi_{JOBNAME_L}/integrity_checkpoint.out"
         output:
             incons = f"{OUTFOLDER}/conflicts",
             alltrees = f"{OUTFOLDER}/trees",
