@@ -93,7 +93,7 @@ def delete_gaps_in_all(ali):
     assert ali, "Empty alignment"
     lg = None
     for name in ali:
-        if lg == None:
+        if lg is None:
             lg = len(ali[name])
         else:
             assert len(ali[name]) == lg, "Different lengths in mutliple alignment"

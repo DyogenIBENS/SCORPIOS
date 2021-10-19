@@ -143,7 +143,7 @@ def find_best_threading(dup_seg_sp1, dup_seg_sp2, tree_orthos):
 
         tuple: a tuple containing:
             best (tuple): most parsimonious threading scenario for sp1 and for sp2
-            
+
             s_max (float): corresponding synteny similarity score (delta score)
     """
 

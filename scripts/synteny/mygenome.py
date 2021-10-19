@@ -114,7 +114,7 @@ def contig_type(chr_name):
 class Genome:
 
     """
-    Object representing genomic position of genes in a species, as loaded from a .bed (or 
+    Object representing genomic position of genes in a species, as loaded from a .bed (or
     in DYOGEN format) gene file. Can load bzipped (.bz2) files.
 
     Attributes:

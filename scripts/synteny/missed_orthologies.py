@@ -35,8 +35,8 @@ def load_genes(genes, outgr=False):
             dict_genes (dict): for each species (key), genes in the entry (value) as a
             `GeneSpeciesPosition` namedtuple
 
-            unplaced_genes (dict): stores genes with no gene position entry in the .bed file in a dict
-            of similar structure as dict_genes
+            unplaced_genes (dict): stores genes with no gene position entry in the .bed file in a
+            dict of similar structure as dict_genes
     """
 
     dict_genes = {}
@@ -293,9 +293,9 @@ def print_out_stats(stats_dict, wgd='', file_fam_nograph='out_nog'):
 
     Args:
         stats_dict (dict): a dict counting number of families and genes in the families
-        
+
         wgd (str, optional): the wgd for which the Orhtology Table was built
-        
+
         file_fam_nograph (str, optional): file to write families that can't result in a graph (won't
                           be in a large enough window or has too few genes)
 

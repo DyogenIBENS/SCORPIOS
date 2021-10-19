@@ -135,7 +135,7 @@ def outgroup_genes_to_homeologs(fam_outgr, fam_homeo):
         for fam2, homeo in fam_homeo.items():
 
             #ideally should check bijectivity but in practice rare that it's not, so this is faster
-            if not fam1.isdisjoint(fam2): 
+            if not fam1.isdisjoint(fam2):
                 d_homeo[outgr] = homeo
                 break
         i += 1
@@ -144,7 +144,7 @@ def outgroup_genes_to_homeologs(fam_outgr, fam_homeo):
 
 
 def load_combin(input_file, genes):
-    
+
     """
     Loads family SCORPiOs family combination file (get family correspondance across multiple outgr)
 
@@ -168,7 +168,6 @@ def load_combin(input_file, genes):
             if i == 1:
                 for j, genes_ref in enumerate(genes_all):
                     if genes.intersection(set(genes_ref.split(','))):
-                        ind = j
                         break
 
             if genes.isdisjoint(set(best_graph.split(','))):
@@ -274,14 +273,13 @@ if __name__ == '__main__':
         HOMEOLOGS = {}
         GENOME = GENOME.genes_list
         for chrom in GENOME:
-            for gene in GENOME[chrom]:
-                gene = gene.names[0]
-                if gene in CTREES:
-                    HOMEOLOGS[gene] = chrom
-                elif COMBIN is not None and gene in COMBIN:
-                    for g in COMBIN[gene]:
+            for GENE in GENOME[chrom]:
+                GENE = GENE.names[0]
+                if GENE in CTREES:
+                    HOMEOLOGS[GENE] = chrom
+                elif COMBIN is not None and GENE in COMBIN:
+                    for g in COMBIN[GENE]:
                         if g in CTREES:
                             HOMEOLOGS[g] = chrom
 
     write_output(HOMEOLOGS, CTREES, ARGS["out_all"], ARGS["out_incons"])
-

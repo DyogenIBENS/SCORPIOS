@@ -57,7 +57,7 @@ def make_karyo(genesfile, output, fomt='bed'):
         tuple: a tuple containing:
             genome (scripts.synteny.mygenome.Genome): genome of the species for which to extract
             classes
-        
+
             karyo (list): ordered set of chromosomes.
 
     """

@@ -60,7 +60,7 @@ def get_genes_to_keep(orthotable, modified_fam, windowsize):
 
         tuple: a tuple containing:
             dict: for each chromosome, families with updated synteny information
-            
+
             list: flat list of updated families (outgroup gene name)
     """
 
@@ -246,7 +246,7 @@ def read_authorized_regions(region_file, chrom, windowsize):
         tuple: a tuple containing:
             regions (list of tuple): list of regions, as tuples (start_index, stop_index),
             corresponding to index in the OrthologyTable.
-        
+
             genes (list of str): list of genes with updated synteny information
 
     Note:

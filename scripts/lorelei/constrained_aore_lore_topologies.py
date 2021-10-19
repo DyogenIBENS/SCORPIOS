@@ -1,6 +1,11 @@
 
 
 """
+Script that browses scorpios corrected tree forest to build constrained AORe and LORe tree
+topologies.
+
+    Example::
+        $ python -m scripts.lorelei.constrained_aore_lore_topologies TODO
 """
 
 import sys
@@ -178,7 +183,7 @@ def check_aore_consistent_tree(subtree, outgroups, dup_sp):
 
         tuple: a tuple containing:
             tree (ete3.Tree): resulting gene tree, None if the tree is fishy
-            
+
             outgr_gene (str) : one outgroup gene name, to identify the tree, None if the tree is
             fishy
     """

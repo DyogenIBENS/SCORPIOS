@@ -53,7 +53,7 @@ def map_families_across_outgr(graphs):
     Returns:
         tuple: a tuple containing:
             combin (list of list): for all graphs, lists of all graphs_ids in all outgroups.
-            
+
             mapped_ids (dict): for each graph_id, its position in the combin list and the name of
             the outgroup species.
     """
