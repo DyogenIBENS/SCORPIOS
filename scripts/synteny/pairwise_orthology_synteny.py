@@ -4,12 +4,11 @@
     This script uses synteny conservation patterns to predict orthologous gene pairs in 2
     wgd-duplicated species.
 
-    Example:
+    Example::
+
         $ python -m scripts.synteny.pairwise_orthology_synteny -i OrthoTable.txt
-                                                               -p Oryzias.latipes_Danio.rerio
-                                                               -chr LG1 -ortho TreesOrthologies/
-                                                               [-o out] [-w 15] [-cutoff 0]
-                                                               [-filter None]
+        -p Oryzias.latipes_Danio.rerio -chr LG1 -ortho TreesOrthologies/ [-o out] [-w 15]
+        [-cutoff 0] [-filter None]
 """
 
 
@@ -33,7 +32,7 @@ def load_tree_orthologies(orthology_file, rev=False):
                                (i.e use sp2 genes as dict keys)
 
     Returns:
-        dict: For each gene in sp1 (keys), a list of orthologous genes in sp2 (values), resp. sp2
+        dict: for each gene in sp1 (keys), a list of orthologous genes in sp2 (values), resp. sp2
         and sp1 if rev is True.
     """
 
@@ -141,8 +140,11 @@ def find_best_threading(dup_seg_sp1, dup_seg_sp2, tree_orthos):
         tree_orthos (dict): Orthologous gene pairs in sp1 and sp2, defined from molecular evolution
 
     Returns:
-        best (tuple): most parsimonious threading scenario for sp1 and for sp2
-        s_max (float): corresponding synteny similarity score (delta score)
+
+        tuple: a tuple containing:
+            best (tuple): most parsimonious threading scenario for sp1 and for sp2
+            
+            s_max (float): corresponding synteny similarity score (delta score)
     """
 
     #Compute all possible threading from minor segments
@@ -183,7 +185,7 @@ def write_orthologies(out, all_orthologies, sp1, sp2, filter_genes=None):
         all_orthologies (dict): Synteny-predicted orthologous gene pairs
         sp1, sp2 (str): Name of compared duplicated species
         filter_genes (list of str, optional): Restricted list of gene families to write (restrict
-                                               the orthology prediction to some families)
+                      the orthology prediction to some families)
     """
 
 

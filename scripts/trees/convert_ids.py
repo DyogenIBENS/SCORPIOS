@@ -4,9 +4,10 @@
     Script to convert gene IDs in the trees and alignment files to shorter IDs.
     This will allow the alignment to be converted to the phylip format so that phyml can be run
     with correct input formats (trees and ali).
-    Converted output filenames are input filenames prefixed with 'tmp_'.
+    Converted output filenames are input filenames prefixed with `tmp_`.
 
-    Example:
+    Example::
+
         $ python -m scripts.trees.convert_ids -t gene_tree1.nh gene_tree2.nh -a ali.fa
 """
 

@@ -2,10 +2,11 @@
 This scripts allows to recover correction tags for trees that have been corrected multiple times
 during iterative correction (currently .nhx tags are wiped out if a same tree is corrected again)
 Optionally also adds tag to internal corrected nodes that are corrected subtrees.
-Example:
+
+Example::
+
     $ python -m scripts.trees.iteration_nhx_tags -i 5
-                                                 -c SCORPiOs_example/corrected_forest_%d.nhx
-                                                 [-o out.nhx] [--internal]
+    -c SCORPiOs_example/corrected_forest_%d.nhx [-o out.nhx] [--internal]
 """
 
 import sys
@@ -27,7 +28,7 @@ def corr_tag_below_node(node, tags_corr):
         tags_corr (list of str): list of tags to search for
 
     Returns:
-        (bool): True if at least one of the input `tags_corr` is in leaves below `node`
+        bool: True if at least one of the input `tags_corr` is in leaves below `node`
     """
 
     has_tag = False
@@ -71,7 +72,6 @@ if __name__ == '__main__':
     COR_TAGS_INT = []
 
     COR_TAGS = []
-
 
 
     for itera in range(1, ARGS["iter"] + 1):

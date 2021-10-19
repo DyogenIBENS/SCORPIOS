@@ -4,11 +4,10 @@
     Script to build starting gene trees with TreeBeST best, from CDS back translated nucleotide
     alignments, given a species tree and a gene species mapping file.
 
-    Example:
+    Example::
 
         $ python -m build_treebest_trees -a alis_v89.fa.gz -sp species_tree_v89.nwk
-                                         -m genesp_v89.txt [-o treebest_forest_v89.nhx]
-                                         [-nc 1] [-tmp tmp]
+       -m genesp_v89.txt [-o treebest_forest_v89.nhx] [-nc 1] [-tmp tmp]
 """
 
 import os

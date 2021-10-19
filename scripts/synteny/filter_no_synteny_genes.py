@@ -1,12 +1,15 @@
+#!/usr/bin/env python
+
 """
     This script identifies genes in the orthology table that never, in any of their sliding
     windows, have genes on the same chromosome in the orthology table.
     A new orthology table is written as output, where genomic posistion of these genes is omitted,
     which forces SCORPiOs other scripts to not use them in the synteny analysis.
 
-    Example:
+    Example::
+
         $ python -m scripts.synteny.filter_no_synteny_genes -i OrthoTable.txt -chr Chr_outgr_file
-                                                            [-o out] [-w 15]
+        [-o out] [-w 15]
 """
 
 

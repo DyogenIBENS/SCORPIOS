@@ -38,7 +38,7 @@ def color_internal_node(node, is_corrected_wgd=False):
     Colors an internal node with convention colors: red for duplication, blue for speciation, cyan
     for dubious duplication.
 
-    Arg:
+    Args:
         node (ete3.TreeNode): node to color
         is_corrected_wgd (bool, optional): set special style if node is corrected wgd node
     """

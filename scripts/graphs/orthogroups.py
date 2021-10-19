@@ -5,11 +5,10 @@
     For each gene family, the script searches for two orthologous gene communities that split from
     a whole genome duplication.
 
-    Example:
-        $ python -m scripts.graphs.orthogroups -i orthology_file.gz [-o out] [-w n] [-n 1]
-                                                                    [-s Summary] [-ignSg y]
-                                                                    [-wgd '']  [--spectral]
-                                                                    [--verbose]
+    Example::
+
+            $ python -m scripts.graphs.orthogroups -i orthology_file.gz [-o out] [-w n] [-n 1]
+            [-s Summary] [-ignSg y] [-wgd ''] [--spectral] [--verbose]
 """
 
 import sys
@@ -34,7 +33,6 @@ def species_name(gene):
 
     Returns:
         str: Species name
-
     """
 
     species = gene.split('_')[-1]
@@ -51,9 +49,12 @@ def load_line(line, use_weights=False):
         line (str): a single line of the orthology file.
 
     Returns:
-        edges (list of tuples): list of orthology pairs.
-        weights (list): list of corresponding weights.
-        fam_id (str): Unique id of the gene family
+        tuple: a tuple containing:
+            edges (list of tuples): list of orthology pairs
+
+            weights (list): list of corresponding weights
+
+            fam_id (str): Unique id of the gene family
     """
 
     edges = []
@@ -76,7 +77,7 @@ def load_line(line, use_weights=False):
 def lazy_load_pairwise_file(file_object, use_weights=False):
 
     """
-    Loads orthologies for a gene family and build the graph, one gene family at a time.
+    Loads orthologies for a gene family and builds the graph, one gene family at a time.
     The input should be a tab-delimited file, with the following columns:
     ortho_gene1, ortho_gene2, orthology confidence, gene family ID.
 
@@ -85,8 +86,12 @@ def lazy_load_pairwise_file(file_object, use_weights=False):
         use_weights (bool, optional): whether weights should be used in the graphs
 
     Yields:
-        fam (networkx graph): Orthology graph of the gene family
-        prev_id (str): Unique id of the gene family
+
+        tuple: a tuple containing:
+
+            fam (networkx graph): orthology graph of the gene family
+
+            prev_id (str): unique id of the gene family
     """
 
     prev_id = ''
@@ -164,12 +169,12 @@ def contracted_nodes(graph, u, v):
     returned graph.
 
     Args:
-        graph (networkx.Graph): Orthology graph
+        graph (networkx.Graph): orthology graph
         u, v (str, str) : name of nodes to contract, must be in `graph`.
 
     Note:
         Adapted from https://www.bountysource.com/issues/46183711-contracted_nodes-with-weights-\
-                     giving-different-answers-according-to-order-of-inputs
+        giving-different-answers-according-to-order-of-inputs
 
     """
 
@@ -209,7 +214,7 @@ def collapse_nodes(graph):
     having the same edges in the graph.
 
     Args:
-        graph (networkx.Graph): Orthology graph
+        graph (networkx.Graph): orthology graph
     """
 
     #identify nodes with same neighbors in graph (tandem duplicates)
@@ -245,11 +250,10 @@ def are_species_sep(partitions):
     two communities.
 
     Args:
-        partitions (tuple): Genes in each graph community in tuples of tuple
+        partitions (tuple): genes in each graph community in tuples of tuple
 
     Returns:
-        bool: The return value, True if genes of the same species are in two communities, False
-              otherwise.
+        bool: True if genes of the same species are in two communities, False otherwise.
 
     """
 
@@ -277,8 +281,8 @@ def min_cut(graph, spectral=False):
     Detects two orthologous communities in the graph.
 
     Args:
-        graph (networkx.Graph): Orthology graph
-        spectral (bool, optional): Use spectral clustering instead of default Girvan-Newman
+        graph (networkx.Graph): orthology graph
+        spectral (bool, optional): use spectral clustering instead of default Girvan-Newman
                                    (faster)
     """
 
@@ -366,10 +370,10 @@ def worker_cut_graph(family, fam, res, spectral=False, g_id=0, verbose=False):
     the graph and store results and statistics about the cuts in the `res` dictionary.
 
     Args:
-        family (networkx.Graph): Orthology graph of the gene family
-        fam (str): Unique id of the gene family
-        res (dict): Dictionary storing the results, shared between processes
-        spectral (bool, optional): Use spectral clustering instead of default Girvan-Newman
+        family (networkx.Graph): orthology graph of the gene family
+        fam (str): unique id of the gene family
+        res (dict): dictionary storing the results, shared between processes
+        spectral (bool, optional): use spectral clustering instead of default Girvan-Newman
                                    (faster)
         g_id (int, optional): unique id for the cut graph
         verbose (bool, optional): print progress

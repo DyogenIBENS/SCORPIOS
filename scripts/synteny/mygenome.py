@@ -18,7 +18,7 @@ def is_bz2(filename):
 
     """
     Checks if file extension is bz2 (looks at file extension only, not its encoding,
-    (could be improved).
+    could be improved).
 
     Arg:
         filename (str): input file name
@@ -114,8 +114,8 @@ def contig_type(chr_name):
 class Genome:
 
     """
-    Object representing genomic position of genes in a species, as loaded from a .bed (or a .bz2
-    in DYOGEN format) gene file.
+    Object representing genomic position of genes in a species, as loaded from a .bed (or 
+    in DYOGEN format) gene file. Can load bzipped (.bz2) files.
 
     Attributes:
         name (str): name of the input gene file

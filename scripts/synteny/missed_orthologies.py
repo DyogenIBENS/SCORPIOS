@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-
 """
     This script finds potential orthologs between an outgroup and duplicated species based
     on synteny, for genes without obvious orthologs in trees.
 
-    Example:
+    Example::
+
         $ python -m scripts.synteny.missed_orthologies -i Orthotable -u UncertainGenes -c Chroms
-                                                       [-o output] [-wgd ''] [-w 0] [-f out]
+        [-o output] [-wgd ''] [-w 0] [-f out]
 """
 
 import collections
@@ -30,10 +30,13 @@ def load_genes(genes, outgr=False):
         outgr (bool): Whether entry of ingroups (True) or outgroup should be parsed (False)
 
     Returns:
-        dict_genes (dict): For each species (key), genes in the entry (value) as a
-                           `GeneSpeciesPosition` namedtuple
-        unplaced_genes (dict): Stores genes with no gene position entry in the .bed file in a dict
-                               of similar structure as dict_genes
+
+        tuple: a tuple containing:
+            dict_genes (dict): for each species (key), genes in the entry (value) as a
+            `GeneSpeciesPosition` namedtuple
+
+            unplaced_genes (dict): stores genes with no gene position entry in the .bed file in a dict
+            of similar structure as dict_genes
     """
 
     dict_genes = {}
@@ -94,14 +97,16 @@ def search_closest_neighbours(ingroup_genes, dup_sp, all_genefam, all_outgroup_c
                                          `GeneSpeciesPosition` tuples.
 
     Returns:
-        ortho_neighbours (list): a list of orthologs of ingroup genes neighbours in the outgroup,
-                                in a tuple (chromosome, gene index)
 
-        skip (bool): If True, we should not use `dup_sp` to search for syntenic neighbours because
-                     one neighbour is orthologous to another outgroup gene in th same tree (i.e
-                     history of tandem duplication which will artefactually inflate the number
-                     of syntenic neighbours). Conservation of synteny in the case of tandem
-                     duplication is not a proof for orthology.
+        tuple: a tuple containing:
+            ortho_neighbours (list): a list of orthologs of ingroup genes in the outgroup,
+            in a tuple (chromosome, gene index)
+
+            skip (bool): If True, we should not use `dup_sp` to search for syntenic neighbours
+            because one neighbour is orthologous to another outgroup gene in the same tree (i.e
+            history of tandem duplication which will artefactually inflate the number
+            of syntenic neighbours). Conservation of synteny in the case of tandem
+            duplication is not a proof for orthology.
     """
 
     ortho_neighbours = []
@@ -141,9 +146,9 @@ def neighbour_outgr_ortholog(ortho_neighbours, all_outgroup_candidates):
 
     Returns:
         list: list of outgroup genes in the same tree with at least one syntenic neighbour, with
-              repetitions. The number of repetitions indicates the number of syntenic neighbours.
-              For instance, [gene_a, gene_a, gene_b, gene_a, gene_a] indicates that gene a has
-              four syntenic neighbours with ingroup genes and gene_b one.
+        repetitions. The number of repetitions indicates the number of syntenic neighbours.
+        For instance, [gene_a, gene_a, gene_b, gene_a, gene_a] indicates that gene a has
+        four syntenic neighbours with ingroup genes and gene_b one.
 
     """
     outgroup_genes = []
@@ -161,18 +166,21 @@ def find_synteny_orthologs(input_file, optimize=False, threshold=2.0, opt_fam=No
     Browses ingroup genes without phylogenetic orthologs in the outgroup and attempts to find
     synteny-supported orthologs
 
-    Arg:
+    Args:
         input_file (str): name of the input file storing genes without orthologs in ingroups
+
         optimize (bool, optional): option to use if the script is called to optimize the threshold
+
         threshold (float, optional): synteny support threshold
+
         opt_fam (list, optional): if defined, restricts fmailies to use for optimization to the
                                   ones in this list
 
     Returns:
-        dict: Identified synteny-supported orthologies, stored in nested dict with, for each
-              outgroup gene with newly identified ortholog(s) (`GeneSpeciesPosition` tuple, key1)
-              and for each duplicated species with such ortholog(s) (str, key2), orthologous gene
-              as `GeneSpeciesPosition` tuple(s).
+        dict: identified synteny-supported orthologies, stored in nested dict with, for each
+        outgroup gene with newly identified ortholog(s) (`GeneSpeciesPosition` tuple, key1)
+        and for each duplicated species with such ortholog(s) (str, key2), orthologous gene
+        as `GeneSpeciesPosition` tuple(s).
     """
 
     with open(input_file, 'r') as infile:
@@ -285,10 +293,12 @@ def print_out_stats(stats_dict, wgd='', file_fam_nograph='out_nog'):
 
     Args:
         stats_dict (dict): a dict counting number of families and genes in the families
+        
         wgd (str, optional): the wgd for which the Orhtology Table was built
-        file_fam_nograph (str, optional): file to write families that can't result in a graph
-                                          (because it won't be in a large enough window or has too
-                                           few genes)
+        
+        file_fam_nograph (str, optional): file to write families that can't result in a graph (won't
+                          be in a large enough window or has too few genes)
+
     """
 
     empty_table = True

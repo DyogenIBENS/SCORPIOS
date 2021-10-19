@@ -3,7 +3,7 @@
 """
     Fix RIdeogram karyotype figure by adding a legend and title to it.
 
-    Example:
+    Example::
 
         $ python -m scripts.lorelei.fix_rideograms -i fig.svg -o out.svg -l AORe LOre [-c 2] [-t '']
 """

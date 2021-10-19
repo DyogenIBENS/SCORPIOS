@@ -50,15 +50,18 @@ def get_genes_to_keep(orthotable, modified_fam, windowsize):
 
     """
     Extracts all families with updated synteny information after a SCORPiOs iteration, i.e. all
-    families within the same windows as a modified family.
+    families within the same window as a modified family.
 
     Args:
         orthotable (dict): gene families at iteration n
         modified_fam (dict): modified gene families
 
     Returns:
-        dict: for each chromosome, families with updated synteny information
-        list: flat list of updated families (outgroup gene name)
+
+        tuple: a tuple containing:
+            dict: for each chromosome, families with updated synteny information
+            
+            list: flat list of updated families (outgroup gene name)
     """
 
     to_save = {}
@@ -124,7 +127,7 @@ def read_combin_file(file_combin_graphs):
 
     Returns:
         dict: for each gene in the current outgroup, the corresponding selected graph if from
-              another outgroup
+        another outgroup
     """
 
     mapping = {}
@@ -239,9 +242,12 @@ def read_authorized_regions(region_file, chrom, windowsize):
         windowsize (int): size of the sliding window
 
     Returns:
-        regions (list of tuple): list of regions, as tuples (start_index, stop_index),
-                                 corresponding to index in the OrthologyTable.
-        genes (list of str): list of genes with updated synteny information
+
+        tuple: a tuple containing:
+            regions (list of tuple): list of regions, as tuples (start_index, stop_index),
+            corresponding to index in the OrthologyTable.
+        
+            genes (list of str): list of genes with updated synteny information
 
     Note:
         If the region_file is empty, regions is set to None (and we don't filter regions in

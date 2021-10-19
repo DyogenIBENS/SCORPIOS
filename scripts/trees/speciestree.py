@@ -120,7 +120,8 @@ def is_below(node1, node2):
     Checks if node2 is below node1 in the tree topology.
 
     Args:
-        node1, node2 (ete3 TreeNode)
+        node1 (ete3 TreeNode): node1
+        node2 (ete3 TreeNode): node2
 
     Returns:
         bool: True if node2 is below node1, False otherwise.
@@ -142,7 +143,7 @@ def get_anc_order(tree_file, ancestors=None, tips_to_root=False, prune=True):
     Args:
         tree_file (str): Path to the input newick formatted tree.
         ancestors (optional, list of str): List of ancestor names. If unspecified, all the ancestors
-        in the trees will be returned.
+                   in the trees will be returned.
 
     Returns:
         OrderedDict: ancestor names in the requested order (keys) and list of ancestors in the

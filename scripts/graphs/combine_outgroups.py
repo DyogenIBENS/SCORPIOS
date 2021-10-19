@@ -51,9 +51,11 @@ def map_families_across_outgr(graphs):
                                       represented by a FamilyOrthologies object.
 
     Returns:
-        combin (list of list): For all graphs, lists of all graphs_ids in all outgroups.
-        mapped_ids (dict): For each graph_id, store its position in the combin list and the name of
-                           the outgroup species.
+        tuple: a tuple containing:
+            combin (list of list): for all graphs, lists of all graphs_ids in all outgroups.
+            
+            mapped_ids (dict): for each graph_id, its position in the combin list and the name of
+            the outgroup species.
     """
 
     combin = []
@@ -122,8 +124,10 @@ def choose_best_graph(m_fam, mapped_ids, all_graphs, final_graphs, summ):
         summ (dict): For each graph (key), the number of cuts (value).
 
     Returns:
-        graphs (dict): for each outgroup, the gene id(s) of the combined family
-        selected_graph (list): list of selected gene id(s) (family outgroup with best prediciton)
+        tuple: a tuple containing:
+            graphs (dict): for each outgroup, the gene id(s) of the combined family
+
+            selected_graph (list): list of selected gene id(s) (outgroup with best prediction)
     """
 
     graphs = {}
@@ -172,18 +176,18 @@ def combine_outgroups(all_graphs, summ_files, out='out'):
     Combines orthogroups predictions across all outgroups using best graphs.
 
     Args:
-        all_graphs (OrderedDict of dict): For each outgroup (key level1), orthogroups in graphs of
+        all_graphs (OrderedDict of dict): for each outgroup (key level1), orthogroups in graphs of
                                           each families (key level 2),
                                           represented by a FamilyOrthologies object.
 
-        summ_files (str): Comma-separated file names summarizing graphs cuts for each outgroup,
+        summ_files (str): comma-separated file names summarizing graphs cuts for each outgroup,
                           outgroups should be in the same order as in all_graphs.
 
-        outfile (str, optional): File to write a summary of outgroup graphs selected
+        outfile (str, optional): file to write a summary of outgroup graphs selected
 
     Returns:
-        final_graphs (dict): For each family, orthogroup predictions of chosen graph represented
-                             by a FamilyOrthologies object.
+        dict: for each family, orthogroup predictions of chosen graph represented
+        by a FamilyOrthologies object.
     """
 
     final_graphs = {}

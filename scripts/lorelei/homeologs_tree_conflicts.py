@@ -3,7 +3,7 @@
 """
     Barplots and hypergeomtric tests.
 
-    Example:
+    Example::
 
         $ python -m scripts.lorelei.homeologs_tree_conflicts TODO
 """
@@ -27,7 +27,7 @@ def load_counts(input_file):
         input_file (str) : path to the input file
 
     Returns:
-        (dict) : for each category (chromosomes), as keys, the count (value)
+        dict: for each category (chromosomes), as keys, the count (value)
     """
 
     data = {}
@@ -55,8 +55,8 @@ def hypergeom_enrich_depl(data_obs, data_tot, alpha=0.05, multitest_adjust='fdr_
         multitest_adjust (str): method to adjust pvalues for multiple testing
 
     Returns:
-        (tuple of lists) : categories, corresponding proportion of observed counts, enrichment or
-                           depletion, whether null hyp. is rejected, and adjusted p-values.
+        tuple of lists: categories, corresponding proportion of observed counts, enrichment or
+        depletion, whether null hyp. is rejected, and adjusted p-values.
     """
 
     values = []
@@ -112,12 +112,15 @@ def barplot(data, output, title='', xlabel='', ylabel='', avg=None, avg_lab='', 
                                hyp. is rejected, and adjusted p-values.
         output (str): output file name for the figure
         title (str, optional): title for the plot
-        xlabel, ylabel (str, optional); label for the x (resp. y) axis
-        avg (float, optional): average over bars, plot as a dashed-line if given.
+        xlabel  (str, optional): label for the x axis
+        ylabel (str, optional): label for the y axis
+        avg (float, optional): average over bars, plot as a dashed-line if given
         avg_lab (str, optional): label to give to the average line
-        highlight_under, highlight_over (str, optional): color for bars under (resp. over) average
-        sign_all, sign_up_only, sign_down_only (bool, optional): highlight significant enrichment
-                                                                 and/or depletion with stars
+        highlight_under (str, optional): color for bars under average
+        highlight_over (str, optional): color for bars over average
+        sign_all (bool, optional): highlight significant enrichment & depletion with stars
+        sign_up_only (bool, optional): highlight significant enrichment with stars
+        sign_down_only (bool, optional): highlight significant depletion with stars
 
     """
 

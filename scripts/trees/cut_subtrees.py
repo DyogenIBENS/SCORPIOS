@@ -4,9 +4,10 @@
     From a synteny-derived constrained tree topology, extract genes together in an orthogroup and
     their sequence alignment, for treebest phyml independent resolution of each orthogroup.
 
-    Example:
+    Example::
+
         $ python -m scripts.trees.cut_subtrees -t ctree.nh -a ali.fa -og outgr_gene_name
-                                               -oa outali -ot outtree
+        -oa outali -ot outtree
 """
 
 import os

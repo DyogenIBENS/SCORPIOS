@@ -4,7 +4,7 @@
     Writes a 3-columns file for gene families, giving family_id, genes in the family and its class.
     Class can be for instance LORe or AORe, tree clustering, synteny consistency etc...
 
-    Example:
+    Example::
 
         $ python -m scripts.lorelei.write_ancgenes_treeclust TODO
 """
@@ -72,7 +72,7 @@ def write_ancgenes(clustered_genes, treedir, out_ancgenes, clusters_to_load=None
 def load_gene_list(input_summary, input_acc=None):
 
     """
-    Reads in a tab-delimited summary of tree classes.
+    Loads a tab-delimited summary of tree classes.
 
     Args:
         input_summary(str): path to the two-columns tab-delimited input file, giving a family_id to
@@ -84,6 +84,9 @@ def load_gene_list(input_summary, input_acc=None):
                                   Indeed, gene trees that were initially found to be
                                   synteny-inconsistent but were later corrected should be defined as
                                   consistent.
+
+    Returns:
+        dict: for each gene family, the corresponding gene tree class
 
     """
 

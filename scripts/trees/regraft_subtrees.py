@@ -4,12 +4,11 @@
     Script to re-graft corrected subtrees in their original tree and write the corrected
     gene trees forest.
 
-    Example:
+    Example::
+
         $ python -m scripts.trees.regraft_subtrees -t trees.nhx -a alis.fa -s species_tree.nwk
-                                                   -acc Accepted_trees.txt -o outtrees.nhx
-                                                   -anc Clupeocephala,Salmonidae
-                                                   -ogr Lepisosteus.oculatus,Amia.calva_Esox.lucius
-                                                   [-n 1] [-tmp path/tmp] [-sa n] [-br y]
+        -acc Accepted_trees.txt -o outtrees.nhx -anc Clupeocephala,Salmonidae
+        -ogr Lepisosteus.oculatus,Amia.calva_Esox.lucius [-n 1] [-tmp path/tmp] [-sa n] [-br y]
 """
 
 import multiprocessing

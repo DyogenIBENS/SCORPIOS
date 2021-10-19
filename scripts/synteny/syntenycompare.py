@@ -212,7 +212,7 @@ class DupSegments:
         """
         Updates the discard attribute.
 
-        Arg:
+        Args:
             threading (nested list): threading scenario.
         """
 
@@ -310,11 +310,11 @@ class DupSegments:
             dup_seg_sp2 (DupSegments): Corresponding duplicated segments in species 2
             tree_orthos (dict): Orthologous gene pairs in sp1 and sp2, defined from molecular
                                 evolution
-            threadingsp1, threadingsp2 (nested list): duplicated segment threading for each species
-
+            threadingsp1 (nested list): duplicated segment threading for species 1
+            threadingsp2 (nested list): duplicated segment threading for each species 2
         Returns:
             tuple: tuple of 2 floats, delta score based on the 'pattern of retentions and losses'
-                   and delta score based on 'syntenic neighbours'
+            and delta score based on 'syntenic neighbours'
 
         """
 

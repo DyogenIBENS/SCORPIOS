@@ -18,7 +18,7 @@ def outgr_chromosomes(chr_file):
     """
     Reads a simple file with a single entry on each line (for instance chrom names) on each line.
 
-    Arg:
+    Args:
         chr_file (str): input file name
 
     Returns:
@@ -38,7 +38,7 @@ def complete_load_orthotable(table_file, chrom_outgr, species, load_no_position_
     Loads entries for one duplicated species `species` in the orthologytable, corresponding to
     chromosome `chrom_outgr`in the outgroup, as a list of `GeneFamily` objects.
 
-    Arg:
+    Args:
         table_file (str): Name of the orthologytable file
         chrom_outgr (str): Name of the considered outgroup chromosome
         species (str): Name of the considered duplicated species
@@ -100,7 +100,7 @@ def load_orthotable(table_file):
     Simplified loading function for the orthologytable, in order to get outgroup genes in the
     orthology table and all duplicated species gene copies in the corresponding family.
 
-    Arg:
+    Args:
         table_file (str): Input file name.
 
     Returns:
@@ -172,9 +172,9 @@ class GeneFamily:
         outgr_chr (str): name of the chromosome of the outgroup gene
         outgr_position (int): index of the outgroup gene on its chromosome
         all_duplicate_genes (list of `GeneSpeciesPosition`): gene copies in the duplicated
-                                                             species and their genomic location
+                            species and their genomic location
         involved_chromosomes (list of str): list of chromosomes in the duplicated species with a
-                                            gene copy
+                             gene copy
 
     Note:
         No public method, used as a structure to store data. `GeneFamily` objects are manipulated
@@ -200,7 +200,7 @@ def get_all_chromosomes_involved(list_of_genefam):
     """
     Gets all chromosome with a gene copy in a list of `GeneFamily` objects.
 
-    Arg:
+    Args:
         list_of_genefam (list of `GeneFamily`): input list of `GeneFamily`
 
     Returns:
@@ -218,7 +218,7 @@ def get_all_outgr_pos(list_of_genefam):
     """
     Gets chromosomal location index of all outgroup genes in a list of `GeneFamily` objects.
 
-    Arg:
+    Args:
         list_of_genefam (list of `GeneFamily`): input list of `GeneFamily`
 
     Returns:
@@ -233,7 +233,7 @@ def get_all_outgr_names(list_of_genefam):
     """
     Gets gene names of all outgroup genes in a list of `GeneFamily` objects.
 
-    Arg:
+    Args:
         list_of_genefam (list of `GeneFamily`): input list of `GeneFamily`
 
     Returns:
@@ -248,7 +248,7 @@ def get_all_chromosome_and_position(list_of_genefam):
     Gets chromosome and chromosomal location index of all the duplicated species genes in a list
     of `GeneFamily` objects.
 
-    Arg:
+    Args:
         list_of_genefam (list of `GeneFamily`): input list of `GeneFamily`
 
     Returns:
@@ -270,7 +270,7 @@ def split_chr_with_ohnologs(list_of_genefam):
     the same chromosome but more than 100 genes apart. This can potentially be the result of
     different duplicated chromosomes that fused together.
 
-    Arg:
+    Args:
         list_of_genefam (list of `GeneFamily`): input list of `GeneFamily`
 
     Returns:
@@ -353,7 +353,7 @@ def add_gene(list_of_genefam, ind, gene):
 
     """
     Adds a gene copy member of the duplicated species in the orthology table (i.e in the
-        corresponding `GeneFamily`).
+    corresponding `GeneFamily`).
 
     Args:
         list_of_genefam (list of `GeneFamily`): input list of `GeneFamily`
@@ -519,9 +519,9 @@ def find_closest(number, number_list, index=False):
     Assumes the list is sorted. If two values are equally close to number, gives the smallest.
 
     Args:
-    number (int): the input number to search
-    number_list (list): the list of int to mine
-    index (bool, optional): Whether the index of the closest element should be returned instead
+        number (int): the input number to search
+        number_list (list): the list of int to mine
+        index (bool, optional): Whether the index of the closest element should be returned instead
                              of its value.
 
     Returns:

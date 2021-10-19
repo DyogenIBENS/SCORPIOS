@@ -4,11 +4,11 @@
     Script to find all orthology relationships between a group of WGD duplicated species and a non
     duplicated outgroup. These ortholog groups define gene families.
 
-    Example:
+    Example::
+
         $ python -m scripts.synteny.duplicated_families -t forest_v89.nhx -n Lepisosteus.oculatus
-                                                        -d Clupeocephala -s Species_tree_v89.nwk
-                                                        -g genes89/genesST.%s.list.bed [-o out]
-                                                        [-ow anc1,anc2] [-u ufile]
+        -d Clupeocephala -s Species_tree_v89.nwk -g genes89/genesST.%s.list.bed [-o out]
+        [-ow anc1,anc2] [-u ufile]
 """
 
 import sys
@@ -26,11 +26,11 @@ from . import utilities as syu
 def tag_duplicated_species(leaves, duplicated):
 
     """
-    Adds a tag to genes of duplicated species in an ete3 Tree instance, in-place.
+    Adds a tag to genes of duplicated species in an ete3.Tree instance, in-place.
 
     Args:
-        leaves (list of ete3 TreeNode): Leaves of the tree.
-        duplicated (list of str): List of the names of all duplicated species
+        leaves (list of ete3.TreeNode): leaves of the tree
+        duplicated (list of str): list of the names of all duplicated species
     """
 
     for leaf in leaves:
@@ -48,12 +48,12 @@ def get_genes_positions(genes, species, dict_genes):
     Gets genomic position of given `genes` of a species.
 
     Args:
-        sp (str): Input species name.
-        genes (list of str): List of the genes to search.
-        dict_genes (dict of str:GeneSpeciesPosition tuples): Genes location.
+        sp (str): input species name
+        genes (list of str): list of the genes to search
+        dict_genes (dict of str to GeneSpeciesPosition tuples): genes location
 
     Returns:
-        list: Genes and their position as a list of GeneSpeciesPosition tuples
+        list: genes and their position as a list of GeneSpeciesPosition tuples
     """
 
     ortho_genes = []
@@ -77,17 +77,18 @@ def orthologies_with_outgroup(forest, duplicated_sp, outgroup, dict_genes, out):
     support threshold to call orthology.
 
     Args:
-        forest (str): Name of the gene trees forest file
-        duplicated_sp (list of str): List of all duplicated species for the considered WGD
-        outgroup (str): Non-duplicated outgroup
-        dict_genes (dict of GeneSpeciesPosition tuples): All gene positions for each species
-        out (str): Output file to write genes without phylogenetic orthologs
+        forest (str): name of the gene trees forest file
+        duplicated_sp (list of str): list of all duplicated species for the considered WGD
+        outgroup (str): non-duplicated outgroup
+        dict_genes (dict of GeneSpeciesPosition tuples): all gene positions for each species
+        out (str): output file to write genes without phylogenetic orthologs
 
     Returns:
-        dict: Orthologs of outgroup genes in each duplicated species
+        dict: orthologs of outgroup genes in each duplicated species
 
-    Note (FIXME): Written to work within scorpios as orthologs and paralogs file names are derived
-                  from output file patterns, assuming it contains an '_'.
+    Note:
+        #FIXME Written to work within scorpios as orthologs and paralogs file names are derived
+        from output file patterns, assuming it contains an '_'.
 
     """
 
@@ -251,15 +252,15 @@ def write_orthologs(orthos, dicgenomes, dict_genes, outgroup, duplicated_sp, out
     ordered along the outgroup genome in the output.
 
     Args:
-        orthos (dict of str:str:GeneSpeciesPosition tuples): orthologs of outgroup genes in each
-                                                             duplicated species.
-        dicgenomes (dict of str:mygenome.Genome): Genomes.
-        dict_genes (dict of str:GeneSpeciesPosition tuples): Genes location.
+        orthos (dict of str to str to GeneSpeciesPosition tuples): orthologs of outgroup genes in
+                                                                   each duplicated species
+        dicgenomes (dict of str to mygenome.Genome): genomes
+        dict_genes (dict of str to GeneSpeciesPosition tuples): genes location
         outgroup (str): non-duplicated outgroup
-        duplicated_sp (list of str): List of duplicated species to include in the results.
-        out (str): Output file name for genes without orthologs
-        min_length (int, optional): Minimum length for a chromosome in the outgroup, gene families
-                                    mapping to smaller chromosomes won't be included.
+        duplicated_sp (list of str): list of duplicated species to include in the results
+        out (str): output file name for genes without orthologs
+        min_length (int, optional): minimum length for a chromosome in the outgroup, gene families
+                                    mapping to smaller chromosomes won't be included
     """
 
     sys.stderr.write("Writing phylogenetic orthologies with the outgroup...\n")

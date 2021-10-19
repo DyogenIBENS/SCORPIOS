@@ -23,7 +23,7 @@ def read_multiple_objects(file_object, sep="//"):
         sep (str, optional): the separator between entries
 
     Yields:
-        data (string) : the next tree (or alignment).
+        str : the next tree (or alignment).
     """
 
     data = ""
@@ -55,7 +55,7 @@ def write_fasta(ali, outfile, d_names=None):
         ali (dict): dictionary storing the alignment {name1: seq1, name2: seq2}.
         outfile (str): name of the file to write.
         d_names (dict, optional): dictionary to transform names, for instance to add species. If
-        used, all genes have to be in this dictionary.
+                used, all genes have to be in this dictionary.
     """
 
     #write to file
@@ -84,11 +84,10 @@ def delete_gaps_in_all(ali):
 
     Args:
         ali (dict): dictionary storing the alignment with gene names as keys and aligned sequences
-        as values.
+            as values.
 
     Note:
         Throws an assertion error if the alignment is empty
-
     """
 
     assert ali, "Empty alignment"
@@ -122,11 +121,11 @@ def get_subali(ali_string, genes, d_names=None):
         ali_string (str): alignment string in fasta format.
         genes (list): list of genes to extract.
         d_names (dict, optional): dictionary to add suffix to gene names, for instance to add
-        species. If used, all genes have to be in this mapping dictionary.
+                 species. If used, all genes have to be in this mapping dictionary.
 
 
     Returns:
-        d_seq (dict): sequences sub-alignment gene names as keys and aligned sequences as values.
+        dict: sequences sub-alignment gene names as keys and aligned sequences as values.
     """
 
     d_seq = {}

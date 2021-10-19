@@ -3,7 +3,7 @@
 """
     Writes files that can be read by RIdeograms to draw karyotype with overlaid features.
 
-    Example:
+    Example::
 
         $ python -m scripts.make_rideograms_inputs TODO
 """
@@ -25,7 +25,7 @@ def strip_chr_name(chr_name):
         chr_name (str): chr name
 
     Returns:
-        (str): stripped chr name
+        str: stripped chr name
     """
 
     if isinstance(chr_name, str) and "HiC" in chr_name:
@@ -53,8 +53,12 @@ def make_karyo(genesfile, output, fomt='bed'):
         fomt (str, optional): input format .bed or dyogen format
 
     Returns:
-        (scripts.synteny.mygenome.Genome): genome of the species for which to extract classes
-        (list): ordered set of chromosomes.
+
+        tuple: a tuple containing:
+            genome (scripts.synteny.mygenome.Genome): genome of the species for which to extract
+            classes
+        
+            karyo (list): ordered set of chromosomes.
 
     """
 

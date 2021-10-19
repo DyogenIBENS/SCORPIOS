@@ -5,12 +5,13 @@
     separate distributions based on the F1-score, assuming true positives to recover are in the
     distribution of higher scores.
 
-    Inputs are python lists pickled in files, output is written to file with the --support prefix
-    allowing to call the script missed_orthologies.py in snakemake with the --support arg.
+    Inputs are python lists pickled in files, output is written to file with the :code:`--support`
+    prefix, to call the script missed_orthologies.py in snakemake with the :code:`--support` arg.
 
-    Example:
+    Example::
+
         $ python -m scripts.synteny.f1_score_optimization -i1 scores_1.pkl -i2 scores_2.pkl
-                                                         [-out out]
+        [-out out]
 """
 
 
@@ -25,10 +26,14 @@ def load_scores(input1, input2):
     Unpickles the lists of scores.
 
     Args:
-        input1, input2 (str) : paths to the pickled objects
+        input1 (str) : paths to the pickled object 1
+        input2 (str) : paths to the pickled object 2
 
     Returns:
-        lists: the unpickled lists
+
+        tuple: a tuple containing:
+
+            scores1, scores2: the unpickled lists
     """
 
     with open(input1, 'rb') as infile1, open(input2, 'rb') as infile2:
@@ -47,7 +52,8 @@ def compute_f1(scores1, scores2, threshold):
     Computes the F1-score for a given threshold.
 
     Args:
-        scores1, scores2 (list): list of scores
+        scores1 (list): list of scores 1
+        scores2 (list): list of scores 2
         threshold (float): threshold value
 
     Returns:
@@ -76,7 +82,7 @@ def get_discriminant_threshold(input1, input2, test_range=[j for j in range(30)]
         test_range (list, optional): list of thresholds to test
 
     Returns:
-        (int): optimized threshold based on F1-score
+        int: optimized threshold based on F1-score
     """
 
     scores1, scores2 = load_scores(input1, input2)

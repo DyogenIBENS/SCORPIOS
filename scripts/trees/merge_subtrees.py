@@ -4,9 +4,10 @@
     Script to merge together independently resolved orthogroups of the same family into a single
     tree.
 
-    Example:
+    Example::
+
         $ python -m scripts.trees.merge_subtrees -t orthogroup_tree1.nh orthogroup_tree2.nh
-                                                 -outgr gene_name [-o out]
+        -outgr gene_name [-o out]
 """
 
 

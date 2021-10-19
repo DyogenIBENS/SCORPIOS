@@ -1,5 +1,12 @@
 """
-TODO
+Loads gene tree classes and group them by ancestrally duplicated chromsome pairs.
+
+An ancestral karyotype or a non-duplicated outgroup can be used as a proxy to the ancestral
+pre-duplication genome.
+
+    Example::
+
+        $ python -m scripts.lorelei.homeologs_pairs_from_ancestor.py TODO
 """
 
 import sys
@@ -19,7 +26,7 @@ def load_pm(input_file):
 
     Returns:
         dict: for each gene family (key, a set of teleost genes) its corresponding homoelog
-              chromosome (value).
+        chromosome (value).
     """
 
     fam_homeo = {}
@@ -43,7 +50,7 @@ def load_summary(input_file, accepted):
 
     Returns:
         dict: for each outgroup gene family identifier (key, str) wheter trees and synteny
-              predictions are consistent or inconsistent (value, str).
+        predictions are consistent or inconsistent (value, str).
     """
 
     d_summary = {}
@@ -71,7 +78,7 @@ def load_outgr_fam(input_file, ctrees=None):
 
     Returns:
         dict: for each family, identified by the outgroup gene (key, str), teleost genes
-              (value, set)
+        (value, set)
     """
 
     d_fam = {}

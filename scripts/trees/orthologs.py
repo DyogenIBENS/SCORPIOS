@@ -5,9 +5,10 @@
     Script to extract orthologous genes within a gene tree forest amongst a given list of species.
     All pairwise orthologies will be stored in the output folder (one file for each species pair).
 
-    Example:
+    Example::
+
         $ python -m scripts.trees.orthologs -t gene_trees.nhx -d Clupeocephala -s sptree.nwk
-                                            [-o out] [-ow Salmonids] [-l lowcov_sp1,lowcov_sp2]
+        [-o out] [-ow Salmonids] [-l lowcov_sp1,lowcov_sp2]
 """
 
 import itertools

@@ -6,14 +6,11 @@
     saved to file, along with the corresponding original subtree and sub-alignment for later
     correction purposes.
 
-    Example:
+    Example::
 
         $ python -m scripts.trees.inconsistent_trees -i GraphsOrthogroups -t forest_v89.nhx
-                                                     -a alis_v89.fa -n Lepisosteus.oculatus
-                                                     -f OrthoTable [-oc ctrees] [-oa subalis]
-                                                     [-ot subtrees] [-gs GraphsCutSummary]
-                                                     [-s outsummary] [-wgd '']
-                                                     [-fcombin out]
+        -a alis_v89.fa -n Lepisosteus.oculatus -f OrthoTable [-oc ctrees] [-oa subalis]
+        [-ot subtrees] [-gs GraphsCutSummary] [-s outsummary] [-wgd ''] [-fcombin out]
 """
 
 import os
@@ -111,8 +108,8 @@ class FamilyOrthologies():
     def to_constrained_tree(self):
 
         """
-        Transforms the orthogroups + outgroup into a constrained topology, represented by an ete3
-        Tree object.
+        Transforms the orthogroups + outgroup into a constrained topology, represented by an
+        ete3.Tree object.
         """
 
         #put outgroup gene as outgroup

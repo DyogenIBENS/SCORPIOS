@@ -3,12 +3,12 @@
 
 """
     Script to parse results of gene trees likelihood AU-test (here for comparison of 2 trees only),
-    as outputted by consel (Shimodaira, 2002).
+    as written by CONSEL (Shimodaira, 2002).
 
-    Example:
+    Example::
+
         $ python -m scripts.trees.parse_au_test -i inputs_polyS.txt [-o Accepted_Trees]
-                                                [-it inputs_treeB.txt] [-one n]
-                                                [-wgd Clupeocephala] [-p path/tree.nh]
+        [-it inputs_treeB.txt] [-one n] [-wgd Clupeocephala] [-p path/tree.nh] [--lore]
 """
 
 import os
@@ -33,8 +33,8 @@ def one_file_consel(filename, alpha, item_test='1'):
         item (str, optional): tested tree consel label, the other is considered the reference.
 
     Returns:
-        (str): One of 'error', 'rejected', 'equivalent lower lk', 'equivalent higher lk' or
-               'better sign. higher lk'.
+        str: One of 'error', 'rejected', 'equivalent lower lk', 'equivalent higher lk' or
+        'better sign. higher lk'.
 
     Note:
 
@@ -43,11 +43,8 @@ def one_file_consel(filename, alpha, item_test='1'):
         - the input file is empty, in SCORPiOs workflow this happens when the synteny aware tree
           could not be built with ProfileNJ due to fastdist failing to build the distance matrix.
 
-        - CONSEL failed to compute the log-likelihoods from the phyml site likelihood file, because
-          one or several sites have likelihood 0 (usually bad alignment). This never happened in any
-          of my WGD datasets, I only observed it with more distant species and genes. Thus, I did
-          not include a cleaning step for the phyml site likelihood file, nor the alignment. If the
-          problem arises in the future (check logs), we might need to consider it.
+        - CONSEL failed to compute the log-likelihoods from the phyml or raxml site likelihood file
+          --> logs should be checked.
     """
 
     #if consel failed (probably because tree building failed) we return the 'error' value.
@@ -109,8 +106,8 @@ def one_file_consel_3_trees(filename, alpha, item_dict=None):
         item_dict (dict, optional): correspondance between item in CONSEL and tree labels
 
     Returns:
-        (str): One of 'error', 'convergence_pb', 'aore rejected', 'lore rejected' or
-               'lore and aore rejected'.
+        str: One of 'error', 'convergence_pb', 'aore rejected', 'lore rejected' or
+        'lore and aore rejected'.
     """
 
     #if consel failed (probably because tree building failed) we return the 'error' value.

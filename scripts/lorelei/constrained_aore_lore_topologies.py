@@ -175,8 +175,12 @@ def check_aore_consistent_tree(subtree, outgroups, dup_sp):
         dup_sp (list of str): list of duplicated species
 
     Returns:
-        ete3.Tree : resulting gene tree, None if the tree is fishy
-        str : one outgroup gene name, to identify the tree, None if the tree is fishy
+
+        tuple: a tuple containing:
+            tree (ete3.Tree): resulting gene tree, None if the tree is fishy
+            
+            outgr_gene (str) : one outgroup gene name, to identify the tree, None if the tree is
+            fishy
     """
 
     outgr_node, node_3r = subtree.get_children()
@@ -220,7 +224,7 @@ def check_copy_number(tree, ref_species, sp_min=3, copy_max=2, sp_min_2copies=0,
 
     Args:
         tree (ete3.Tree): input tree
-        ref_species (list of str):
+        ref_species (list of str): list of outgroup species
         sp_min (int): minimal number of species in the tree
         copy_max (int): maximal number of gene copies for any species in tree
         sp_min_2copies (int): minimal number of species with 2 gene copies

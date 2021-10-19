@@ -17,12 +17,12 @@ def load_corrections(files):
     """
     Gets the name and path of SCORPiOs corrected subtrees (i.e accepted by AU-tests).
 
-    Arg:
+    Args:
         files (str): Comma-delimited list of files with accepted corrections.
 
     Returns:
-        dict: For each corrected subtree, the path to the tree file and the name of the corrected
-              WGD.
+        dict: for each corrected subtree, the path to the tree file and the name of the corrected
+        WGD.
     """
 
     cor_subtrees = {}
@@ -83,10 +83,11 @@ def save_nhx_tags(attribute_names, groups_of_leaves):
         dict: For each node, the attribute name and its associated value.
 
     Example:
+
         if `attribute_names` is ['a', 'b'] and `groups_of_leaves` is
         [[['gene1', 'gene2'], ['gene3']], ['gene4']], the function returns:
         features = { 'gene1': [('a', 1)], 'gene2': [('a', 1)], 'gene3': [('a', 2)],
-                     'gene4': [('b', 1)] }
+        'gene4': [('b', 1)] }
     """
 
     features = {}
@@ -155,7 +156,7 @@ def branch_length_closest(tree, gene, group_of_genes):
         group_of_genes (list of str): list of candidate neighbour genes
 
     Returns:
-        (str): name of the closest neighbour, in terms of branch lengths
+        str: name of the closest neighbour, in terms of branch lengths
     """
 
     dist_min = np.inf
@@ -196,7 +197,7 @@ def closest_gene_in_tree(tree, node, group_of_genes, attr='name'):
 
 
     Returns:
-        (str): name of closest neighbour
+        str: name of closest neighbour
     """
 
     sp_gene = ''
@@ -301,18 +302,18 @@ def keep_sis_genes_together(duplicated_sp_subtree, outgr, sister_outgroup_genes,
     duplicated species.
 
     Args:
-        duplicated_sp_subtree (ete3.Tree) : Synteny-corrected subtree
-        outgr (str) : name of the non-duplicated outgroup gene
-        sister_outgroup_genes (list of str) : genes that are grouped with the outgroup gene in the
+        duplicated_sp_subtree (ete3.Tree): Synteny-corrected subtree
+        outgr (str): name of the non-duplicated outgroup gene
+        sister_outgroup_genes (list of str): genes that are grouped with the outgroup gene in the
                                               original tree and in related species
-        outgroup_subtree (ete3.Tree) : subtree with only outgroup and related genes
-        node_max (str, optional) : internal node name in the outgroup subtree where to paste the
+        outgroup_subtree (ete3.Tree): subtree with only outgroup and related genes
+        node_max (str, optional): internal node name in the outgroup subtree where to paste the
                                    duplicated species subtree. If empty a new tree combining both
                                    is created.
 
     Returns:
-        ete3.Tree : a new tree where the outgroup gene in the synteny-corrected is replaced by the
-                    subtree of all outgroup genes
+        ete3.Tree: a new tree where the outgroup gene in the synteny-corrected is replaced by the
+        subtree of all outgroup genes
     """
 
     outgr_subtree_leaves = [i.name for i in outgroup_subtree.get_leaves() if i.name in\
@@ -355,7 +356,8 @@ def keep_subsequent_wgd_species(stree, ensembl_tree, missing_leaves_keep, sp_cur
             missing_leaves_keep (list of ete3.TreeNode): Genes of subsequently duplicated species
             sp_current_wgd (list of str): List of WGD1 duplicated species
             authorized_sp (dict): Dict used to keep the tree consistent with the species tree. For
-            a 'WGD1' species, a list of WGD1 species that are closer to it than are 4R species.
+                          a 'WGD1' species, a list of WGD1 species that are closer to it than are
+                          4R species.
     """
 
     #genes in the WGD1 corrected tree
@@ -446,8 +448,8 @@ def copy_nhx_tags(tree_ref_tags, tree_target):
     Copies nhx tags stored in leaves of tree1 to leaves of tree2. tree2 is modified in-place
 
     Args:
-        tree_ref_tags (ete3.Tree) : tree with nhx tags to copy
-        tree_target (ete3.Tree) : tree to copy tags to
+        tree_ref_tags (ete3.Tree): tree with nhx tags to copy
+        tree_target (ete3.Tree): tree to copy tags to
 
     """
 
