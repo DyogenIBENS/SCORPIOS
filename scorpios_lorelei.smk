@@ -11,6 +11,24 @@ import sys
 # Get SCORPiOs config
 SCORPIOS_CONFIGFILE = config["scorpios_config"]
 
+# Update main SCOPRiOs current_iter if necessary
+ITERATION = config.get("iter", 0)
+
+if ITERATION != 0:
+    SCORPIOS_CONFIGFILE_COPY = '.'.join(SCORPIOS_CONFIGFILE.split(".")[:-1]) + '.copy.yaml'
+    with open(SCORPIOS_CONFIGFILE, 'r') as infile, open(SCORPIOS_CONFIGFILE_COPY, 'w') as outfile:
+        iter_updated = False
+        for line in infile:
+            if 'current_iter' in line:
+                outfile.write(f"current_iter: {ITERATION}\n")
+                iter_updated = True
+            else:
+                outfile.write(line)
+        if not iter_updated:
+            outfile.write(f"current_iter: {ITERATION}\n")
+
+    SCORPIOS_CONFIGFILE = SCORPIOS_CONFIGFILE_COPY
+
 # SCORPiOs LORelEi is an extension of SCORPiOs, and depends on SCORPiOs as a subworkflow.
 subworkflow scorpios:
     workdir:
@@ -42,6 +60,7 @@ MODE = config["mode"].lower()
 
 # Check that configs are consistent
 SCORPIOS_CONFIG = load_configfile(SCORPIOS_CONFIGFILE)
+
 if len(SCORPIOS_CONFIG["WGDs"]) == 1:
     LORE_WGD = list(SCORPIOS_CONFIG["WGDs"].keys())[0]
     assert (not config.get("lore_wgd", "") or config.get("lore_wgd", "") == LORE_WGD),\
@@ -67,9 +86,8 @@ if MODE == "diagnostic":
     
 
 # Get SCORPiOs outputs
-JOBNAME_S = SCORPIOS_CONFIG["jobname"] 
+JOBNAME_S = SCORPIOS_CONFIG["jobname"]
 
-ITERATION = config.get("iter", 0)
 CONSTREES = scorpios(out_name("Trees/ctrees", JOBNAME_S, ITERATION))
 ACCEPTED = scorpios(out_name("Corrections/Accepted_Trees", JOBNAME_S, ITERATION, LORE_WGD))
 ORTHOTABLE = scorpios(out_name("Families/Homologs", JOBNAME_S, ITERATION, LORE_WGD, LORE_OUTGR))
@@ -89,6 +107,8 @@ CTREES_DIR = scorpios(CONSTREES+"/"+LORE_WGD+"/")
 JOBNAME_L = JOBNAME_S
 if "jname" in config:
     JOBNAME_L += '_' + config["jname"]
+
+
 
 
 # Set LORelEi WORKFLOW Targets
