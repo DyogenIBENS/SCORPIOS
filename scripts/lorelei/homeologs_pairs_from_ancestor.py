@@ -13,8 +13,10 @@ import sys
 from collections import Counter
 import argparse
 
-from scripts.synteny.mygenome import Genome
+import roman
 
+from scripts.synteny.mygenome import Genome
+from .make_rideograms_inputs import strip_chr_name
 
 def load_pm(input_file):
 
@@ -273,13 +275,28 @@ if __name__ == '__main__':
         HOMEOLOGS = {}
         GENOME = GENOME.genes_list
         for chrom in GENOME:
+
+            new_chrom = strip_chr_name(chrom)
+
+            try:
+                new_chrom = roman.fromRoman(new_chrom)
+            except (TypeError, roman.InvalidRomanNumeralError):
+                pass
+
+            try:
+                nchrom = int(new_chrom)
+            except ValueError:
+                sys.stderr.write(f"Warning: chromosome {chrom} could not be converted to integer, "
+                                  "it won't be drawn.\n")
+                continue
+
             for GENE in GENOME[chrom]:
                 GENE = GENE.names[0]
                 if GENE in CTREES:
-                    HOMEOLOGS[GENE] = chrom
+                    HOMEOLOGS[GENE] = nchrom
                 elif COMBIN is not None and GENE in COMBIN:
                     for g in COMBIN[GENE]:
                         if g in CTREES:
-                            HOMEOLOGS[g] = chrom
+                            HOMEOLOGS[g] = nchrom
 
     write_output(HOMEOLOGS, CTREES, ARGS["out_all"], ARGS["out_incons"])
