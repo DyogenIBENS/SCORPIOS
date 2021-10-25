@@ -5,14 +5,14 @@ specifically designed to visualize SCORPiOs subtree corrections. Therefore, it a
 are SCORPiOs-generated files, with SCORPiOs file naming and format conventions.
 
 Leaves of each SCORPiOs-corrected wgd subtree are printed with the same color in both original and
-corrected tree. Optionally, `--show_moved` also assigns a matching lighter color to leaves of
+corrected tree. Optionally, :code:`--show_moved` also assigns a matching lighter color to leaves of
 non-wgd species that have been rearranged to reinsert the wgd subtree.
 
 Input can either be a list of files, in any order, containing any number of corrected/uncorrected
 tree pairs, or a directory. The name of the corrected wgd and of the outgroups used should also be
 provided.
 
-Examples:
+Examples::
 
     $ python scripts/trees/make_tree_images.py \
 -i SCORPiOs_example/Corrections/tmp_whole_trees_0/cor_27 \
