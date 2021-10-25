@@ -40,6 +40,9 @@ def strip_chr_name(chr_name):
     elif isinstance(chr_name, str) and "LG" in chr_name:
         chr_name = chr_name.replace("LG", "")
 
+    elif isinstance(chr_name, str) and "Aca_scaf_" in chr_name:
+        chr_name = chr_name.replace("Aca_scaf_", "")
+
     return chr_name
 
 def make_karyo(genesfile, output, fomt='bed'):
