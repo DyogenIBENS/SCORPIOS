@@ -5,8 +5,7 @@ SCORPiOs LORelEi module to analyze the genomic location of sequence-synteny conf
 
 OUTFOLDER = f"SCORPiOs-LORelEi_{JOBNAME_L}/diagnostic"
 
-SP = config["dup_genome"]
-GENES = SCORPIOS_CONFIG["genes"] % SP
+
 OUTGR_GENES = SCORPIOS_CONFIG["genes"] % LORE_OUTGR
 
 COMBIN_ARG = ''

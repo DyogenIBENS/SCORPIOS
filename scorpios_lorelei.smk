@@ -109,6 +109,10 @@ if "jname" in config:
     JOBNAME_L += '_' + config["jname"]
 
 
+# LORELEI CONFIG (ALL modes)
+
+SP = config["dup_genome"]
+GENES = SCORPIOS_CONFIG["genes"] % SP
 
 
 # Set LORelEi WORKFLOW Targets
