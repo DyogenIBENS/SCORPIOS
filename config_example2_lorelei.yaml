@@ -10,6 +10,9 @@ scorpios_config: "config_example2.yaml"
 #SCORPiOs LORelEi mode, can be 'diagnostic', 'likelihood_tests'.
 mode: "diagnostic"
 
+# Duplicated genome to plot conflicted gene families or LORe/AORe families on.
+# The corresponding gene coordinates file will be found using the path given in scorpios config.
+dup_genome: "Oryzias.latipes"
 
 #------------------------------------ OPTIONAL PARAMETERS -------------------------------------#
 #                                          (all modes)                                         #
@@ -27,10 +30,6 @@ mode: "diagnostic"
 
 
 #----------------------------------- Diagnostic PARAMETERS ------------------------------------#
-
-# Duplicated genome to plot conflicted gene families on.
-# The corresponding gene coordinates file will be found using the path given in scorpios config.
-dup_genome: "Oryzias.latipes"
 
 # Optional, outgroup OR ancestral reconstruction to use as a proxy to the pre-WGD karyotype.
 # You can omit it if you used only 1 outgroup for SCORPiOs correction and want to use it here.
