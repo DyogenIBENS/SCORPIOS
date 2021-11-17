@@ -83,10 +83,21 @@ SCORPiOs uses the following tools to build and test gene trees:
 
 
 .. toctree::
+   :caption: LORelEi (LORe Extension)
+   :name: lorelei
+   :hidden:
+   :maxdepth: 1
+
+   lorelei_introduction.rst
+   lorelei_usage.rst
+   lorelei_configuration_file.rst
+
+.. toctree::
    :caption: Project Information
    :name: project_information
    :hidden:
    :maxdepth: 1
 
+   scripts.rst
    project_changelog.rst
    project_info.rst

@@ -1,15 +1,18 @@
 # SCORPiOs - Synteny-guided CORrection of Paralogies and Orthologies
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3727519.svg)](https://doi.org/10.5281/zenodo.3727519) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Snakemake](https://img.shields.io/badge/snakemake-≥5.5.4-brightgreen.svg)](https://snakemake.bitbucket.io) [![Documentation Status](https://readthedocs.org/projects/scorpios/badge/?version=latest)](https://scorpios.readthedocs.io/en/latest/?badge=latest)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3727519.svg)](https://doi.org/10.5281/zenodo.3727519) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Snakemake](https://img.shields.io/badge/snakemake-≥6.6.1-brightgreen.svg)](https://snakemake.bitbucket.io) [![Documentation Status](https://readthedocs.org/projects/scorpios/badge/?version=latest)](https://scorpios.readthedocs.io/en/latest/?badge=latest)
 
  SCORPiOs is a **synteny-guided gene tree correction pipeline** for clades that have undergone a whole-genome duplication event. SCORPiOs identifies gene trees where the whole-genome duplication is **missing** or **incorrectly placed**, based on the genomic locations of the duplicated genes across the different species. SCORPiOs then builds an **optimized gene tree** consistent with the known WGD event, the species tree, local synteny context, as well as gene sequence evolution.
 
  SCORPiOs is implemented as a [Snakemake](https://snakemake.readthedocs.io/en/stable/) pipeline. SCORPiOs takes as input either gene trees or multiple alignments, and outputs the corresponding optimized gene trees.
 
- **To learn how to use SCORPiOs, take a look at [SCORPiOs documentation](https://scorpios.readthedocs.io/en/latest/)!**
 
  ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/scorpios_illustrated.png)
 
+
+| :sparkles:  New in SCORPiOs 2.0.0: LORelEi (Lineage-specific Ohnolog Resolution Extension)|
+|:---------------------------|
+| SCORPiOs LORelEi analyzes sequence-synteny conflicts in gene trees and diagnose cases of delayed rediploidisation following WGD. To learn how to use SCORPiOs and SCORPiOs LORelEi, take a look at [SCORPiOs documentation](https://scorpios.readthedocs.io/en/latest/)!     |
 
 If you use SCORPiOs, please cite:
 
@@ -65,9 +68,13 @@ To install Miniconda3:
   mamba env create -f envs/scorpios.yaml
   ```
 
-  **Alternatively,** you can use conda directly:
+### Updating SCORPiOs conda environment
+
+- As of SCORPiOs v2.0.0, the conda environment was updated and needs to be reinstalled for users who have a previous version:
+
   ```
-  conda env create -f envs/scorpios.yaml
+  conda env remove --name scorpios
+  mamba env create -f envs/scorpios.yaml
   ```
 
 ## Usage
@@ -87,12 +94,12 @@ Before using SCORPiOs on your data, we recommend running a test with our example
 SCORPiOs uses a YAML configuration file to specify inputs and parameters for each run.
 An example configuration file is provided: [config_example.yaml](config_example.yaml). This configuration file executes SCORPiOs on toy example data located in [data/example/](data/example/), that you can use as reference for input formats.
 
-The only required snakemake arguments to run SCORPiOs are `--configfile` and the `--use-conda` flag. Optionally, you can specify the number of threads via the `--cores` option. For more advanced options, you can look at the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/).
+The only required snakemake arguments to run SCORPiOs are `--configfile`, the `--use-conda` flag abd the `--scheduler=greedy` option. You also need to specify the number of threads via `--cores`. For more advanced options, you can look at the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/).
 
 To run SCORPiOs on example data:
 
 ```
-snakemake --configfile config_example.yaml --use-conda --cores 4
+snakemake --configfile config_example.yaml --use-conda --cores 4 --scheduler=greedy
 ```
 
 The following output should be generated:
@@ -105,7 +112,7 @@ SCORPiOs can run in iterative mode: SCORPiOs improves the gene trees a first tim
 To run SCORPiOs in iterative mode on example data, execute the wrapper bash script `iterate_scorpios.sh`:
 
 ```
-bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml"
+bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml --cores 4 --scheduler=greedy"
 ```
 
 Command-line arguments:
@@ -138,13 +145,13 @@ snakemake --configfile config.yaml --use-conda -n
 Finally, you can run SCORPiOs as described above:
 
 ```
-snakemake --configfile config.yaml --use-conda
+snakemake --configfile config.yaml --use-conda --cores 4 --scheduler=greedy
 ```
 
 or in iterative mode:
 
 ```
-bash iterate_scorpios.sh --snake_args="--configfile config.yaml"
+bash iterate_scorpios.sh --snake_args="--configfile config.yaml --cores 4 --scheduler=greedy"
 ```
 
 ## Authors

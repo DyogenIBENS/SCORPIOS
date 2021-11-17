@@ -30,7 +30,7 @@ SCORPiOs requires four input files, which are:
 
     <br />
 
-3. Gene coordinates files for each species in BED format (see `example <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/genes/genes.Danio.rerio.bed>`_ and :ref:`description<Gene coordinates files>`).
+3. Gene coordinates files for each species in BED format (see `example <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/genes/genes.Danio.rerio.bed>`_) or dyogen format (see `example <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example2/genes/genes.Danio.rerio.list>`_). See also :ref:`description<Gene coordinates files>`.
 
 .. |br| raw:: html
 
@@ -45,8 +45,8 @@ For a detailed description of expected formats please refer to the :ref:`Data fi
 	If starting from gene trees, SCORPiOS uses the NHX :code:`S` (species name) tag to build the gene-species mapping. Otherwise, it uses the gene-to-species mapping file.
 
 
-Parameters
-----------
+SCORPiOs parameters
+--------------------
 
 All parameters for a SCORPiOs run have to be indicated in the YAML configuration file, as shown in `config_example.yaml <https://github.com/DyogenIBENS/SCORPIOS/blob/master/config_example.yaml>`_.
 
@@ -60,7 +60,7 @@ For instance, consider the species tree below:
 
 .. image:: https://raw.githubusercontent.com/DyogenIBENS/SCORPIOS/master/doc/img/basic_sptree.png
 
-The fish WGD occurred in the "Clupeocephala" ancestor, and we wish to use the spotted_gar as outgroup. This should be specified in the configuration file as:
+The fish WGD occurred in the branch leading to the "Clupeocephala" ancestor, and we wish to use the spotted_gar as outgroup. This should be specified in the configuration file as:
 
 .. code-block:: yaml
 

@@ -38,13 +38,13 @@ In addition, SCORPiOs writes statistics on key steps of the workflow to the stan
 
 .. prompt:: bash
 
-	snakemake --configfile config_example.yaml --use-conda >out 2>err
+	snakemake --configfile config_example.yaml --use-conda --cores 4 --scheduler=greedy >out 2>err
 
 or
 
 .. prompt:: bash
 
-	bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml" >out 2>err
+	bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml --cores 4 --scheduler=greedy"  >out 2>err
 
 
 

@@ -25,8 +25,12 @@ As an example, we provide `config_example.yaml <https://github.com/DyogenIBENS/S
 	alis: data/example/ali.fa.gz
 
 	# INPUT3 - The genes coordinates for all duplicated species and outgroup(s).
-	#one file per species, in BED (.bed) format.
+	#one file per species, in BED (.bed) format. Can also be in 'dyogen' format.
 	genes: data/example/genes/genes.%s.bed
+
+	# Uncomment if genes coordinates are in dyogen format, otherwise .bed is assumed.
+	#genes_format: dyogen
+
 
 	# INPUT4 - The species tree in Newick format with labelled internal nodes (ancestor names).
 	species_tree: data/example/species_tree.nwk
@@ -44,6 +48,7 @@ As an example, we provide `config_example.yaml <https://github.com/DyogenIBENS/S
 	#---------------------------------------- PARAMETERS ----------------------------------------#
 
 	# Whole-genome duplication(s) and outgroup(s)
+	# Outgroups, if multiple, should be monophyletic if you intent to run LORelEi.
 	WGDs:
   		Clupeocephala: 'Lepisosteus.oculatus,Amia.calva'
   		Salmonidae: 'Esox.lucius,Gasterosteus.aculeatus,Oryzias.latipes'
@@ -86,7 +91,8 @@ As an example, we provide `config_example.yaml <https://github.com/DyogenIBENS/S
 	# - constrained tree topologies
 	# - profileNJ and TreeBeST synteny-aware trees
 	# - AU-tests outputs
-	save_subtrees_lktest: 'n'
+	# Should be set to 'y' if you intent to run LORelEi.
+	save_subtrees_lktest: 'y'
 
 	# Optionally, use spectral clustering instead of Girvan-Newman for graph community detection.
 	spectral: 'n'
@@ -105,7 +111,7 @@ As an example, we provide `config_example.yaml <https://github.com/DyogenIBENS/S
 	# Use a parallelization scheme specific to large jobs: yes ('y') or no ('n').
 	parallel_scheme_large_job: 'n'
 
-We detail each of the settings in the next section.
+We detail each of the settings below.
 
 Supported settings
 ------------------
@@ -138,13 +144,19 @@ Example:
 
 The genes coordinates (INPUT3)
 """""""""""""""""""""""""""""""
-**Required.** The genes coordinates for all duplicated species and outgroup(s), one file per species, in BED (.bed) format. Files can be bzipped2 (.bz2). Please refer to the :ref:`Data file formats` section for file format details.
+**Required.** The genes coordinates for all duplicated species and outgroup(s), one file per species, in BED (.bed) or 'dyogen' format. Files can be bzipped2 (.bz2). Please refer to the :ref:`Data file formats` section for file format details.
 
 Example:
 
 .. code:: yaml
 
 	genes: data/example/genes/genes.%s.bed
+
+If files are in 'dyogen' format, the :code:`genes_format` parameter has to be specified as follows:
+
+.. code:: yaml
+
+	genes_format: dyogen
 
 The species tree (INPUT4)
 """"""""""""""""""""""""""
@@ -193,7 +205,7 @@ Parameters
 Whole-genome duplication(s) and outgroup(s)
 """""""""""""""""""""""""""""""""""""""""""
 
-**Required.** Each WGD event in the species tree, that you wish to correct gene trees for, should be indicated via the name of the ancestor of all duplicated species. Then, for each WGD, provide one or several outgroup species to use as reference in the synteny analysis. Any non-duplicated species can be used as outgroup, but phylogenetically close outgroup should be preferred as synteny with duplicated species will be more conserved. Multiple reference outgroups can be provided as a comma-separated list. For an illustrated explanation on how to specify the duplicated ancestor, please see the "Data preparation and formatting" section.
+**Required.** Each WGD event in the species tree, that you wish to correct gene trees for, should be indicated via the name of the ancestor of all duplicated species. Then, for each WGD, provide one or several outgroup species to use as reference in the synteny analysis. Any non-duplicated species can be used as outgroup, but phylogenetically close outgroup should be preferred as synteny with duplicated species will be more conserved. Multiple reference outgroups can be provided as a comma-separated list. For an illustrated explanation on how to specify the duplicated ancestor, please see the :ref:`Data preparation section<SCORPiOs parameters>`.
 
 Example:
 
@@ -297,7 +309,7 @@ Save individual correction tree files
 
 ..  tip::
 
-	This facilitates direct inspection of corrections.
+	This facilitates direct inspection of corrections. Should be set to 'y' to use the tree correction vizualisation script.
 
 Example:
 
@@ -307,23 +319,23 @@ Example:
 
 Save additional intermediary outputs
 """""""""""""""""""""""""""""""""""""
-**Optional (default='n').** Whether more detailed intermediary outputs should be saved: yes ('y') or no ('n'). Setting :code:`save_subtrees_lktest` to 'y' saves, in addition to default outputs:
+**Optional (default='y').** Whether more detailed intermediary outputs should be saved: yes ('y') or no ('n'). Setting :code:`save_subtrees_lktest` to 'y' saves, in addition to default outputs:
 
 	- constrained tree topologies
 
 	- profileNJ and TreeBeST synteny-aware trees
 
-	- AU-tests outputs
+	- Likelihood AU-tests outputs
 
-.. note::
+.. tip::
 
-	A description of all intermediary outputs can be found in the "Outputs description" chapter.
+	Should be set to 'y' to run LORelEi (LORe Extension, see the :ref:`LORelEi chapter <Introducing SCORPiOs LORelEi>`). A description of all intermediary outputs can be found in the :ref:`Outputs description chapter <Intermediary outputs>`.
 
 Example:
 
 .. code:: yaml
 
-	save_subtrees_lktest: 'n'
+	save_subtrees_lktest: 'y'
 
 Spectral clustering
 """""""""""""""""""""
@@ -355,7 +367,7 @@ Computational ressources
 
 Threads
 """""""
-**Required.** Maximum number of threads. SCORPiOs will never, in any case, use more than this number, nor more than the number of threads specified via :code:`--cores` (1 if :code:`--cores` is not invoked). In other words, the number of threads will always be min(:code:`ncores`, :code:`--cores`).
+**Required.** Maximum number of threads. SCORPiOs will never, in any case, use more than this number, nor more than the number of threads specified via :code:`--cores`. In other words, the number of threads will always be min(:code:`ncores`, :code:`--cores`).
 
 Example:
 

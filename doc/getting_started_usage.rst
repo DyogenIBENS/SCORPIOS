@@ -16,13 +16,13 @@ Here, we present the main commands to run SCORPiOs.
 Example 1: Simple SCORPiOs run
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
-The only required Snakemake arguments to run SCORPiOs are :code:`--configfile` and the :code:`--use-conda` flag. Optionally, you can specify the number of threads via the :code:`--cores` option. For more advanced options, you can look at the `Snakemake documentation <https://snakemake.readthedocs.io/en/stable/>`_.
+The only required Snakemake arguments to run SCORPiOs are :code:`--configfile`, the :code:`--use-conda` flag and the :code:`--scheduler=greedy` option. You also need to specify the number of threads via :code:`--cores`. For more advanced options, you can look at the `Snakemake documentation <https://snakemake.readthedocs.io/en/stable/>`_.
 
 To run SCORPiOs on example data, go to the SCORPiOs root folder and run:
 
 .. prompt:: bash
 
-	 snakemake --configfile config_example.yaml --use-conda --cores 4
+	 snakemake --configfile config_example.yaml --use-conda --cores 4 --scheduler=greedy
 
 The following output should be generated: :code:`SCORPiOs_example/SCORPiOs_output_0.nhx`.
 
@@ -30,7 +30,7 @@ To separate stdout and stderr (recommended, as SCORPiOs writes statistics on key
 
 .. prompt:: bash
 
-     snakemake --configfile config_example.yaml --use-conda --cores 4  >out 2>err
+     snakemake --configfile config_example.yaml --use-conda --cores 4 --scheduler=greedy >out 2>err
 
 Example 2: Iterative SCORPiOs run
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -41,7 +41,7 @@ To run SCORPiOs in iterative mode on example data, execute the wrapper bash scri
 
 .. prompt:: bash
 
-	 bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml"
+	 bash iterate_scorpios.sh --snake_args="--configfile config_example.yaml --cores 4 --scheduler=greedy" > out 2>err
 
 
 The following output should be generated: :code:`SCORPiOs_example/SCORPiOs_output_2_with_tags.nhx`.
@@ -51,7 +51,7 @@ Command-line arguments for :code:`iterate_scorpios.sh`
 
 **Required:**
 
---snake_args=snakemake_arguments  Snakemake arguments, should at minimum contain :code:`--configfile`.
+--snake_args=snakemake_arguments  Snakemake arguments, should at minimum contain :code:`--configfile`, :code:`--cores` and :code:`--scheduler=greedy`.
 
 **Optional:**
 
@@ -80,10 +80,10 @@ Finally, you can run SCORPiOs as described above:
 
 .. prompt:: bash
 
-	 snakemake --configfile config.yaml --use-conda
+	 snakemake --configfile config.yaml --use-conda --cores 4 --scheduler=greedy
 
 or in iterative mode:
 
 .. prompt:: bash
 
-	 bash iterate_scorpios.sh --snake_args="--configfile config.yaml"
+	 bash iterate_scorpios.sh --snake_args="--configfile config.yaml --cores 4 --scheduler=greedy" 

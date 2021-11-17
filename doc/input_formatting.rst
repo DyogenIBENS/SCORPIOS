@@ -74,6 +74,9 @@ All file names should follow similar conventions, to be retrieved with a regular
 
 See an example gene coordinates file `here <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example/genes/genes.Danio.rerio.bed>`_.
 
+Alternatively, genes coordinate file can be provided in 'dyogen' format: a tab-separated file with 5 columns (chromosome; start; end; strand; gene_name).
+
+See an example gene coordinates file in 'dyogen' format `here <https://github.com/DyogenIBENS/SCORPIOS/blob/master/data/example2/genes/genes.Danio.rerio.list>`_.
 
 Genes-to-species mapping file
 -----------------------------

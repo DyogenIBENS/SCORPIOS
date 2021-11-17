@@ -1,18 +1,20 @@
 All notable changes to SCORPiOs, added after the first released version v1.0.0, will be documented here.
 
-UNRELEASED
------------
+[Version 2.0.0] UNRELEASED
+----------------------------
 
-If I release it, SCORPiOs will need to be run with the --scheduler=greedy snakemake args (default scheduler in 6.6.1 is unstable --> the workflow gets stuck)...
+Introducing SCORPiOs LORelEi (Lineage-specific Ohnolog Resolution Extension), an extension to SCORPiOs to detect LORe. Note that the scorpios environment has to be updated and that additional snakemake arguments are required to run scorpios (--scheduler=greedy and --cores, see the docs for updated usage instructions).
 
 Added
 ^^^^^
-- New option to recompute branch-lengths with RAxML after all subtrees corrections (instead of treebest phyml).
-- Removed the deprecated buffer_size argument from the configuration file.
+- SCORPiOs LORelEi (LORe Extension): an extension to diagnose potential cases of lineage-specific rediploidisation.
+- New experimental option to recompute branch-lengths with RAxML after all subtrees corrections (instead of treebest phyml).
+- Removed the deprecated :code:`--buffer_size` argument from the configuration file.
+- Sphinx autodoc for the API.
 
 Changed
 ^^^^^^^
-- Updated SCORPiOs conda environment to snakemake version 6.6.1
+- Updated SCORPiOs conda environment to snakemake version 6.6.1 and added dependency to the roman python package.
 
 
 [Version 1.3.0] - 23/11/2020 - `v1.3.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v1.3.0>`_
