@@ -18,7 +18,7 @@ import roman
 from scripts.synteny.mygenome import Genome
 from .make_rideograms_inputs import strip_chr_name
 
-def load_pm(input_file):
+def load_pm(input_file, is_post_dup=False):
 
     """
     Loads predicted homeolog names for teleosts gene families.
@@ -37,7 +37,10 @@ def load_pm(input_file):
             _, genes, homeo = line.strip().split('\t')
             genes = frozenset(genes.split())
             if homeo != "?":
-                fam_homeo[genes] = int(homeo[:-1])
+                if is_post_dup:
+                    fam_homeo[genes] = int(homeo[:-1])
+                else:
+                    fam_homeo[genes] = int(homeo)
     return fam_homeo
 
 def load_summary(input_file, accepted):
@@ -245,6 +248,10 @@ if __name__ == '__main__':
     PARSER.add_argument('-c', '--combin', help="SCORPiOs family combination across outgroups.",
                         required=False, default=None)
 
+    PARSER.add_argument('--post_dup', help="Use if provided ancestral chromosome annotations are\
+                        post-dup, to indicate that a and b should be parsed out.",
+                        action='store_true')
+
     ARGS = vars(PARSER.parse_args())
 
     ACC = load_acc(ARGS["accepted"])
@@ -258,7 +265,7 @@ if __name__ == '__main__':
 
     if not ARGS["is_outgroup"]:
         sys.stderr.write('Loading ancestral karyotype...')
-        PM = load_pm(ARGS["homeologs"])
+        PM = load_pm(ARGS["homeologs"], ARGS["post-dup"])
         sys.stderr.write('ok\n')
 
         sys.stderr.write("Transferring homeologs from the ancestral karyotype to SCORPiOs families "

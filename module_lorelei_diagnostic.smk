@@ -7,6 +7,11 @@ OUTFOLDER = f"SCORPiOs-LORelEi_{JOBNAME_L}/diagnostic"
 
 
 OUTGR_GENES = SCORPIOS_CONFIG["genes"] % LORE_OUTGR
+POST_DUP = config.get("is_post_dup", False)
+if POST_DUP:
+    POST_DUP = '--post_dup'
+else:
+    POST_DUP = ''
 
 COMBIN_ARG = ''
 if len(LORE_OUTGRS.split(',')) > 1:
@@ -47,9 +52,11 @@ else:
             pm = REF_FILE,
             check = f"SCORPiOs-LORelEi_{JOBNAME_L}/integrity_checkpoint.out"
         output: incons = f"{OUTFOLDER}/conflicts", alltrees = f"{OUTFOLDER}/trees"
+        params: postdup = POST_DUP
         shell:
             "python -m scripts.lorelei.homeologs_pairs_from_ancestor -i {input.fam} -a {input.acc} "
-            "-homeo {input.pm} -s {input.summary} -oi {output.incons} -oa {output.alltrees}"
+            "-homeo {input.pm} -s {input.summary} -oi {output.incons} -oa {output.alltrees} "
+            "{params.postdup}"
 
 rule plot_homeologs:
     input: incons = f"{OUTFOLDER}/conflicts", all_trees = f"{OUTFOLDER}/trees"
