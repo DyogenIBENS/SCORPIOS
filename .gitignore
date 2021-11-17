@@ -4,6 +4,7 @@ SCORPiOs_*/
 *.pyc
 data/*
 !data/example/
+!data/example2/
 data/example/genes/*.bz2
 config*
 !config_example*
