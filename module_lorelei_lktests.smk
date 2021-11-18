@@ -169,7 +169,7 @@ rule rm_legend:
     """
     input: f"{OUTFOLDER}/lore_aore_on_genome_tmp.svg"
     output: temp(f"{OUTFOLDER}/lore_aore_on_genome_tmp2.svg")
-    shell: "sed 's/Low.*//g' {input} | sed 's/\\(.*\\)\\<text.*/\\1\\/svg\\>/' > {output}"
+    shell: "sed 's/Low.*//g' {input} > {output} && echo '</text></svg>' >> {output}"
 
 
 rule add_legend_and_title:

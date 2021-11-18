@@ -97,7 +97,7 @@ rule plot_conflicts_on_genome:
 rule remove_legend_rideogram:
     input: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp.svg"
     output: temp(f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp2.svg")
-    shell: "sed 's/Low.*//g' {input} | sed 's/\\(.*\\)\\<text.*/\\1\\/svg\\>/' > {output}"
+    shell: "sed 's/Low.*//g' {input} > {output} && echo '</text></svg>' >> {output}"
 
 rule new_legend_and_title_rideogram:
     input: f"{OUTFOLDER}/seq_synteny_conflicts_on_genome_tmp2.svg"
