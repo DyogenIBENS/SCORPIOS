@@ -132,11 +132,19 @@ if __name__ == '__main__':
     PARSER.add_argument('-l', '--lowcov', type=str, help='Species to exclude (Comma-delimited).',
                         required=False, default='')
 
+    PARSER.add_argument('-sp', '--species', help='Use the given species list (Comma-delimited)\
+                        instead of species below ancestor', required=False, default=None)
+
     ARGS = vars(PARSER.parse_args())
 
-    #Get all pairs of duplicated species
-    SPECIES = spt.get_species(ARGS["speciesTree"], ARGS["dupSp"], ARGS["other_wgds"],
+    if ARGS["species"] is None:
+
+        #Get all pairs of duplicated species
+        SPECIES = spt.get_species(ARGS["speciesTree"], ARGS["dupSp"], ARGS["other_wgds"],
                               ARGS["lowcov"])
+
+    else:
+        SPECIES = ARGS["species"].split(',')
 
     SPECIES = list(itertools.combinations(SPECIES, 2))
 
