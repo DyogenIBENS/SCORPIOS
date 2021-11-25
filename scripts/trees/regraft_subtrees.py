@@ -448,7 +448,7 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, spt
         open_f = gzip.open
 
     async_res = []
-    pool = multiprocessing.Pool(ncores, maxtasksperchild=20)
+    pool = multiprocessing.Pool(ncores, maxtasksperchild=200)
 
     if brlengths:
         with open(trees, "r") as infile_t, open_f(alis, "rt") as infile_a:
