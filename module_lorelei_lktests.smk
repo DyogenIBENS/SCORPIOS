@@ -152,7 +152,7 @@ rule prepare_lore_aore_for_rideogram:
     input: c = f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv", genes = GENES
     output: karyo = f"{OUTFOLDER}/karyo_ide.txt",
             feat = f"{OUTFOLDER}/lore_aore_ide.txt"
-    params: arg_min = ARG_MIN   
+    params: arg_min = ARG_MIN
     shell:
         "python -m scripts.lorelei.make_rideograms_inputs -i {input.c} -g {input.genes} "
         "-k {output.karyo} -o {output.feat} -f dyogen {params.arg_min}"
