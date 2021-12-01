@@ -45,7 +45,7 @@ def strip_chr_name(chr_name):
 
     return chr_name
 
-def make_karyo(genesfile, output, fomt='bed'):
+def make_karyo(genesfile, output, fomt='bed', min_size=None):
 
     """
     Makes a karyotype file for drawing with RIdeograms from a bed file with genes coordinates.
@@ -68,20 +68,35 @@ def make_karyo(genesfile, output, fomt='bed'):
     genome = Genome(genesfile, fomt)
     dgenes = genome.genes_list
     karyo = []
+
+    if min_size is not None:
+        ok_chr = {chrom:len(dgenes[chrom]) for chrom in dgenes if len(dgenes[chrom]) > min_size}
+        ok_chr = [i[0] for i in sorted(ok_chr.items(), key=lambda item: item[1], reverse=True)]
+        with open(output+'_chr_order', 'w') as outfile:
+            for i, chrom in enumerate(ok_chr):
+                outfile.write(f"{chrom}\t{i+1}\n")
+
     for chrom in dgenes:
 
         new_chrom = strip_chr_name(chrom)
 
-        try:
-            new_chrom = roman.fromRoman(new_chrom)
-        except (TypeError, roman.InvalidRomanNumeralError):
-            pass
+        if min_size is not None:
+            if chrom not in ok_chr:
+                continue
+            else:
+                karyo.append((ok_chr.index(chrom)+1, len(dgenes[chrom]), chrom))
+        else:
 
-        try:
-            karyo.append((int(new_chrom), len(dgenes[chrom]), chrom))
-        except ValueError:
-            sys.stderr.write(f"Warning: chromosome {chrom} could not be converted to an integer,"
-                             "it won't be drawn.\n")
+            try:
+                new_chrom = roman.fromRoman(new_chrom)
+            except (TypeError, roman.InvalidRomanNumeralError):
+                pass
+
+            try:
+                karyo.append((int(new_chrom), len(dgenes[chrom]), chrom))
+            except ValueError:
+                sys.stderr.write(f"Warning: chromosome {chrom} could not be converted to an integer,"
+                                 "it won't be drawn.\n")
             continue
 
     karyo = sorted(karyo)
@@ -191,8 +206,11 @@ if __name__ == '__main__':
 
     PARSER.add_argument('-t', '--to_load', nargs='*', required=False, default=None)
 
+    PARSER.add_argument('--min_size', default=None, type=int)
+
     ARGS = vars(PARSER.parse_args())
 
-    GENOME, KARYO = make_karyo(ARGS["genesfile"], ARGS["outfile_karyo"], fomt=ARGS["format"])
+    GENOME, KARYO = make_karyo(ARGS["genesfile"], ARGS["outfile_karyo"], fomt=ARGS["format"],
+                               min_size=ARGS["min_size"])
 
     features_to_ide(GENOME, ARGS["input_incons"], KARYO, ARGS["outfile_features"], ARGS["to_load"])

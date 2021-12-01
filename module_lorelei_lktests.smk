@@ -10,10 +10,18 @@ if arg_subset:
     arg_subset = "-set "+ arg_subset
 
 LORE_CLASSES = config.get("lore_groups", {"LORE": 'default'})
+arg_groups = ''
+if LORE_CLASSES["LORE"] != 'default':
+    arg_groups = '-gr '+ LORE_CLASSES["LORE"]
 LABELS = ' '.join(["AORe"] + list(LORE_CLASSES.keys()))
 
 RAXML_SEED = config.get("raxml_seed", 1234)
 
+MIN_SIZE = config.get("min_size", None)
+
+ARG_MIN = ""
+if MIN_SIZE is not None:
+    ARG_MIN = f"--min_size {MIN_SIZE}"
 
 checkpoint subalis_loretrees_aoretrees:
     """
@@ -29,11 +37,11 @@ checkpoint subalis_loretrees_aoretrees:
         alis = directory(f"{OUTFOLDER}/subalis/"),
         trees_lore = directory(f"{OUTFOLDER}/ctree_lore/"),
         trees_aore = directory(f"{OUTFOLDER}/ctree_aore/"),
-    params: anc = LORE_WGD, outgr = LORE_OUTGRS.replace(',', ' '), arg_subset = arg_subset
+    params: anc = LORE_WGD, outgr = LORE_OUTGRS.replace(',', ' '), arg_subset = arg_subset, gr = arg_groups
     shell:
         "python -m scripts.lorelei.constrained_aore_lore_topologies -t {input.forest} -c {input.ctreedir} -s {input.sptree} "
         "--anc {params.anc} -o {output.alis} -ol {output.trees_lore} -oa {output.trees_aore} "
-        "-sp {params.outgr} -a {input.ali} {params.arg_subset}"
+        "-sp {params.outgr} -a {input.ali} {params.arg_subset} {params.gr}"
 
 
 rule check_ali_lktests:
@@ -143,10 +151,11 @@ rule prepare_lore_aore_for_rideogram:
     """
     input: c = f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv", genes = GENES
     output: karyo = f"{OUTFOLDER}/karyo_ide.txt",
-            feat = f"{OUTFOLDER}/lore_aore_ide.txt"        
+            feat = f"{OUTFOLDER}/lore_aore_ide.txt"
+    params: arg_min = ARG_MIN   
     shell:
         "python -m scripts.lorelei.make_rideograms_inputs -i {input.c} -g {input.genes} "
-        "-k {output.karyo} -o {output.feat} -f dyogen"
+        "-k {output.karyo} -o {output.feat} -f dyogen {params.arg_min}"
 
 
 rule plot_lore_aore_on_genome:
@@ -177,7 +186,7 @@ rule add_legend_and_title:
     Adds a correct legend and a title for the RIdeogram plot.
     """
     input: f"{OUTFOLDER}/lore_aore_on_genome_tmp2.svg"
-    output: f"{OUTFOLDER}/lore_aore_on_genome.svg"
+    output: f"{OUTFOLDER}/lore_aore_on_genome_hiodon.svg"
     params: sp = SP, labels = LABELS, nb_classes = len(LABELS.split())
     conda: "envs/plots.yaml"
     shell:
