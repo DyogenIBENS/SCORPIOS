@@ -152,7 +152,7 @@ rule clean_subalis_folder:
     run:
         if params.clean:
             try:
-                shutil.rmtree(mydir)
+                shutil.rmtree(f"{OUTFOLDER}/subalis/")
             except OSError as e:
                 print(f"Error: {e.filename} - {e.strerror}.")
 
