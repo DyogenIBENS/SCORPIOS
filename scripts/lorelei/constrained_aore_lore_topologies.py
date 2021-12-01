@@ -61,9 +61,9 @@ def get_species_groups(speciestree, dup_anc, outgroups, restrict_sp=None, groups
         node1 = tree.search_nodes(name=anc1)[0]
         node2 = tree.search_nodes(name=anc2)[0]
         groups = [outgroups,\
-         [i.name for i in node1.children[0].get_leaves()\
+         [i.name for i in node1.get_leaves()\
           if restrict_sp is None or i.name in restrict_sp],\
-         [i.name for i in node2.children[1].get_leaves()\
+         [i.name for i in node2.get_leaves()\
           if restrict_sp is None or i.name in restrict_sp]]
     return groups
 
@@ -399,7 +399,7 @@ if __name__ == '__main__':
                         default=None, nargs='+')
 
     PARSER.add_argument('-gr', '--sp_groups', help="LORe groups", required=False,
-                        default=None, nargs='+')
+                        default=None)
 
     ARGS = vars(PARSER.parse_args())
 
@@ -411,22 +411,26 @@ if __name__ == '__main__':
     #Dup species
     SPECIES = get_species(ARGS["speciesTree"], ARGS["anc"])
 
-    SPTREE = Tree(ARGS["speciesTree"], format=1)
-    ANC = SPTREE.get_common_ancestor(SPECIES + ARGS["outgr_species"])
-    SPECIES2 = {i.name for i in ANC.get_leaves()}
-
-    if ARGS["sp_groups"] is None:
-        SP_GROUPS = get_species_groups(ARGS["speciesTree"], ARGS["anc"], ARGS["outgr_species"])
-
-    os.makedirs(ARGS["outdir_ali"], exist_ok=True)
-    os.makedirs(ARGS["outdir_aore"], exist_ok=True)
-    os.makedirs(ARGS["outdir_lore"], exist_ok=True)
 
     SMALL_SP_SET = ARGS.get("small_sp_set", None)
     if SMALL_SP_SET is None:
         SMALL_SP_SET = SPECIES + ARGS["outgr_species"]
     else:
         SMALL_SP_SET += ARGS["outgr_species"]
+
+    SPTREE = Tree(ARGS["speciesTree"], format=1)
+    ANC = SPTREE.get_common_ancestor(SPECIES + ARGS["outgr_species"])
+    SPECIES2 = {i.name for i in ANC.get_leaves()}
+
+    if ARGS["sp_groups"] is None:
+        SP_GROUPS = get_species_groups(ARGS["speciesTree"], ARGS["anc"], ARGS["outgr_species"])
+    else:
+        SP_GROUPS = get_species_groups(ARGS["speciesTree"], ARGS["anc"], ARGS["outgr_species"], groups_by_anc=ARGS["sp_groups"])
+
+    os.makedirs(ARGS["outdir_ali"], exist_ok=True)
+    os.makedirs(ARGS["outdir_aore"], exist_ok=True)
+    os.makedirs(ARGS["outdir_lore"], exist_ok=True)
+
 
 
     k = 0
