@@ -16,12 +16,17 @@ import argparse
 import traceback
 import multiprocessing
 import operator
+import signal
 
 from collections import Counter
 import gzip
 
 import networkx as nx
 from sklearn.cluster import SpectralClustering
+
+
+def init_worker():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 def species_name(gene):
 
@@ -552,23 +557,30 @@ if __name__ == '__main__':
     MANAGER = multiprocessing.Manager()
     RES = MANAGER.dict()
 
-    POOL = multiprocessing.Pool(ARGS["ncores"])
-    ASYNC_RESULTS = []
-    with gzip.open(ARGS["input"], 'rt') as infile:
-        k = 0
-        for FAM, FAM_ID in lazy_load_pairwise_file(infile, use_weights=ARGS['weight']):
-            JOB = POOL.apply_async(worker_cut_graph, args=(FAM, FAM_ID, RES, ARGS["spectral"], k,
-                                                           ARGS["verbose"]))
-            ASYNC_RESULTS += [JOB]
-            k += 1
+    try:
+        POOL = multiprocessing.Pool(ARGS["ncores"], init_worker)
+        ASYNC_RESULTS = []
+        with gzip.open(ARGS["input"], 'rt') as infile:
+            k = 0
+            for FAM, FAM_ID in lazy_load_pairwise_file(infile, use_weights=ARGS['weight']):
+                JOB = POOL.apply_async(worker_cut_graph, args=(FAM, FAM_ID, RES, ARGS["spectral"], k,
+                                                               ARGS["verbose"]))
+                ASYNC_RESULTS += [JOB]
+                k += 1
 
-        POOL.close()
-        POOL.join()
+            POOL.close()
+            POOL.join()
 
-    for RESULT in ASYNC_RESULTS:
-        if not RESULT.get():
-            sys.stderr.write("An error occured in a child process\n")
-            sys.exit(1)
+        for RESULT in ASYNC_RESULTS:
+            if not RESULT.get():
+                sys.stderr.write("An error occured in a child process\n")
+                sys.exit(1)
+
+    except KeyboardInterrupt:
+        print("Caught KeyboardInterrupt, terminating workers")
+        pool.terminate()
+        pool.join()
+        sys.exit(1)
 
     #Write results to file
     # ALL_SCORES = []

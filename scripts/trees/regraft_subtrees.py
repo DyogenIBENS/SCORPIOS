@@ -16,6 +16,7 @@ import traceback
 import os
 import sys
 import pathlib
+import signal
 import argparse
 import gzip
 
@@ -25,6 +26,8 @@ from . import utilities as ut
 from . import genetree as gt
 from . import speciestree as spt
 
+def init_worker():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 def topo_changes(lca, stree, leaves_to_move, outgr, authorized_sp):
 
@@ -446,41 +449,47 @@ def multiprocess_rec_brlgth(trees, alis, ncores, modified_trees, folder_cor, spt
     if alis.split('.')[-1] == 'gz':
         open_f = gzip.open
 
-    async_res = []
-    pool = multiprocessing.Pool(ncores, maxtasksperchild=20)
+    try:
 
-    if brlengths:
-        with open(trees, "r") as infile_t, open_f(alis, "rt") as infile_a:
-            for i, (input_tree, input_ali) in enumerate(zip(ut.read_multiple_objects(infile_t),
-                                                            ut.read_multiple_objects(infile_a))):
+        async_res = []
+        pool = multiprocessing.Pool(ncores, init_worker, maxtasksperchild=200)
 
-                if i in modified_trees:
-                    res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
-                                                                    sptree, input_ali, prefix,
-                                                                    brlengths, resume, raxml))
-                    async_res += [res]
-            pool.close()
-            pool.join()
-    else:
+        if brlengths:
+            with open(trees, "r") as infile_t, open_f(alis, "rt") as infile_a:
+                for i, (input_tree, input_ali) in enumerate(zip(ut.read_multiple_objects(infile_t),
+                                                                ut.read_multiple_objects(infile_a))):
 
-        with open(trees, "r") as infile_t:
+                    if i in modified_trees:
+                        res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
+                                                                        sptree, input_ali, prefix,
+                                                                        brlengths, resume, raxml))
+                        async_res += [res]
+                pool.close()
+                pool.join()
+        else:
 
-            for i, input_tree in enumerate(ut.read_multiple_objects(infile_t)):
+            with open(trees, "r") as infile_t:
 
-                if i in modified_trees:
-                    res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
-                                                                    sptree, '', prefix,
-                                                                    brlengths, resume))
-                    async_res += [res]
-            pool.close()
-            pool.join()
+                for i, input_tree in enumerate(ut.read_multiple_objects(infile_t)):
 
-    for res in async_res:
-        if not res.get():
-            sys.stderr.write("An error occured in a child process\n")
-            sys.exit(1)
+                    if i in modified_trees:
+                        res = pool.apply_async(worker_rec_brlgth, args=(input_tree, folder_cor, str(i),
+                                                                        sptree, '', prefix,
+                                                                        brlengths, resume))
+                        async_res += [res]
+                pool.close()
+                pool.join()
 
+        for res in async_res:
+            if not res.get():
+                sys.stderr.write("An error occured in a child process\n")
+                sys.exit(1)
 
+    except KeyboardInterrupt:
+        print("Caught KeyboardInterrupt, terminating workers")
+        pool.terminate()
+        pool.join()
+        sys.exit(1)
 
 if __name__ == '__main__':
 
@@ -604,26 +613,33 @@ if __name__ == '__main__':
                 SISTERS_OF_OUTGR[SUBS_WGD][sp] = spt.get_sister_species(ARGS['Species_tree'],
                                                                         sp, SUBS_WGD)
 
-        POOL = multiprocessing.Pool(NCORES, maxtasksperchild=200)
-        #correct the forest for the current WGD (topology only)
-        with open(TREES, "r") as infile:
+        try:
+            POOL = multiprocessing.Pool(NCORES, init_worker, maxtasksperchild=200)
+            #correct the forest for the current WGD (topology only)
+            with open(TREES, "r") as infile:
 
-            for TREE_IND, TREE in enumerate(ut.read_multiple_objects(infile)):
+                for TREE_IND, TREE in enumerate(ut.read_multiple_objects(infile)):
 
-                POOL.apply_async(correct_wtrees, args=(TREE, CORRECTED_SUBTREES_CURRENT,
-                                                       CORRECTION_STATS, TREE_IND,
-                                                       CORFOLDER+'/cor_', SISTERS_OF_OUTGR,
-                                                       sp_other_wgd, sp_wgd, wgd))
+                    POOL.apply_async(correct_wtrees, args=(TREE, CORRECTED_SUBTREES_CURRENT,
+                                                           CORRECTION_STATS, TREE_IND,
+                                                           CORFOLDER+'/cor_', SISTERS_OF_OUTGR,
+                                                           sp_other_wgd, sp_wgd, wgd))
 
-            POOL.close()
-            POOL.join()
+                POOL.close()
+                POOL.join()
 
-        #Write the new forest and print some statistics
-        ut.write_forest(TREES, ARGS["out"]+'_'+str(j), CORRECTION_STATS, wgd)
+            #Write the new forest and print some statistics
+            ut.write_forest(TREES, ARGS["out"]+'_'+str(j), CORRECTION_STATS, wgd)
 
-        #clean temp
-        if j != 0:
-            os.remove(TREES)
+            #clean temp
+            if j != 0:
+                os.remove(TREES)
+
+        except KeyboardInterrupt:
+            print("Caught KeyboardInterrupt, terminating workers")
+            pool.terminate()
+            pool.join()
+            sys.exit(1)
 
 
     j = len(WGDS) - 1

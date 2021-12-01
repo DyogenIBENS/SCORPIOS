@@ -17,11 +17,14 @@ import gzip
 import multiprocessing
 import traceback
 import glob
+import signal
 
 from ete3 import Tree
 
 from . import utilities as ut
 
+def init_worker():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 def worker_build_tree(ali, genes_sp, sptree, ali_id, tmp_folder='', X=10):
 
@@ -124,30 +127,36 @@ if __name__ == '__main__':
     if ARGS["ali"].split('.')[-1] == 'gz':
         OPEN = gzip.open
 
-    POOL = multiprocessing.Pool(ARGS["ncores"])
+    try:
+        POOL = multiprocessing.Pool(ARGS["ncores"], init_worker)
 
-    i = 0
+        i = 0
 
-    with OPEN(ARGS["ali"], "rt") as INFILE_A, open(ARGS["genes_sp_map"], 'r') as INFILE_GSP:
+        with OPEN(ARGS["ali"], "rt") as INFILE_A, open(ARGS["genes_sp_map"], 'r') as INFILE_GSP:
 
-        ASYNC_RES = []
+            ASYNC_RES = []
 
-        for i, (ALI, MAP) in enumerate(zip(ut.read_multiple_objects(INFILE_A),
-                                           ut.read_multiple_objects(INFILE_GSP))):
+            for i, (ALI, MAP) in enumerate(zip(ut.read_multiple_objects(INFILE_A),
+                                               ut.read_multiple_objects(INFILE_GSP))):
 
-            RES = POOL.apply_async(worker_build_tree, args=(ALI, MAP, ARGS["species_tree"], i,
-                                                            ARGS["tmp_folder"], ARGS["X"]))
-            ASYNC_RES += [RES]
+                RES = POOL.apply_async(worker_build_tree, args=(ALI, MAP, ARGS["species_tree"], i,
+                                                                ARGS["tmp_folder"], ARGS["X"]))
+                ASYNC_RES += [RES]
 
-    POOL.close()
-    POOL.join()
+        POOL.close()
+        POOL.join()
 
 
-    for RES in ASYNC_RES:
-        if not RES.get():
-            sys.stderr.write("An error occured in a child process\n")
-            sys.exit(1)
+        for RES in ASYNC_RES:
+            if not RES.get():
+                sys.stderr.write("An error occured in a child process\n")
+                sys.exit(1)
 
+    except KeyboardInterrupt:
+        print("Caught KeyboardInterrupt, terminating workers")
+        pool.terminate()
+        pool.join()
+        sys.exit(1)
 
     sys.stderr.write("Writing trees into a single gene tree forest file...\n")
 
