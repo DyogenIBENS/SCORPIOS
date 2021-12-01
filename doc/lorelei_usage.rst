@@ -14,7 +14,7 @@ An example configuration file for SCORPiOs LORelEi is provided: `config_example2
 
 
 As introduced in the previous chapter, two modes are available to run SCORPiOs LORelEi:
-:code:`diagnostic` (:ref:`Example 1 <Example 1: SCORPiOs LORelEi diagnostic mode>`) and :code:`likelihood_tests` (:ref:`Example 2 <Example 2: SCORPiOs LORelEi likelihood_tests mode>`). LORelEi can of course be run in each mode, either one after the other, or even at the same time if you run the commands concurrently. We also show how to use SCORPiOs iterative correction in conjonction with LORelEi (:ref:`Example 3 <Example 3: SCORPiOs iterative and LORelEi>`).
+:code:`diagnostic` (:ref:`Example 1 <Example 1: SCORPiOs LORelEi diagnostic mode>`) and :code:`likelihood_tests` (:ref:`Example 2 <Example 2: SCORPiOs LORelEi likelihood_tests mode>`). We also show how to use SCORPiOs iterative correction in conjonction with LORelEi (:ref:`Example 3 <Example 3: SCORPiOs iterative and LORelEi>`).
 
 
 .. important::
