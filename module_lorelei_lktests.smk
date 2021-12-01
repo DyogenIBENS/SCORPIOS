@@ -186,7 +186,7 @@ rule add_legend_and_title:
     Adds a correct legend and a title for the RIdeogram plot.
     """
     input: f"{OUTFOLDER}/lore_aore_on_genome_tmp2.svg"
-    output: f"{OUTFOLDER}/lore_aore_on_genome_hiodon.svg"
+    output: f"{OUTFOLDER}/lore_aore_on_genome.svg"
     params: sp = SP, labels = LABELS, nb_classes = len(LABELS.split())
     conda: "envs/plots.yaml"
     shell:
