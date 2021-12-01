@@ -147,18 +147,25 @@ def barplot(data, output, title='', xlabel='', ylabel='', avg=None, avg_lab='', 
     ax = sns.barplot(x=xlabel, y=ylabel, data=bars, palette=clrs)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right', fontsize=8)
 
+    found = False
+    sys.stdout.write("### Homeologs enriched in sequence-syteny conflicts: ###\n")
     if sign_all:
         sign = [i for i, rej in enumerate(data[3]) if rej]
         for i in sign:
             sys.stdout.write(f"{data[0][i]}, pval={data[-1][i]}\n")
+            found = True
     elif sign_up_only:
         sign = [i for i, rej in enumerate(data[3]) if rej and data[2][i] == 'enrichment']
         for i in sign:
             sys.stdout.write(f"{data[0][i]} significantly enriched, pval={data[-1][i]}\n")
+            found = True
     elif sign_down_only:
         sign = [i for i, rej in enumerate(data[3]) if rej and data[2][i] == 'depletion']
         for i in sign:
             sys.stdout.write(f"{data[0][i]} significantly depleted, pval={data[-1][i]}\n")
+            found = True
+    if not found:
+        sys.stdout.write("No significantly enriched homeolog.\n")
 
 
     plot_sign(ax, sign)

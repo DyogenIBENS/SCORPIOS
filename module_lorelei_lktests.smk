@@ -1,5 +1,7 @@
 import glob
 import os
+import shutil
+
 
 PWD = os.getcwd()
 ALIS = SCORPIOS_CONFIG["alis"]
@@ -49,11 +51,11 @@ rule check_ali_lktests:
     Checks the input alignment with RAxML.
     """
     input: f"{OUTFOLDER}/subalis/{{tree}}.fa"
-    output: f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa"
+    output: temp(f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa")
     shell:
         "rm {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree} || true && "
         "raxmlHPC -f c --print-identical-sequences -n {wildcards.tree} -m GTRGAMMA "
-        "-s {input} -w {PWD}/{OUTFOLDER}/subalis/ && "
+        "-s {input} -w {PWD}/{OUTFOLDER}/subalis/ >&2 && "
         "if [ ! -s {OUTFOLDER}/subalis/{wildcards.tree}.fa.reduced ]; "
         "then cp {input} {output}; else mv {OUTFOLDER}/subalis/{wildcards.tree}.fa.reduced {output};fi"
 
@@ -61,27 +63,39 @@ rule check_ali_lktests:
 rule aore_lore_tree:
     """
     Builds the LORe and AORe (depending on the `class` wildcard) tree with RAxML.
+    Logs are saved in {class}_trees/RAxML_info.{tree}.
     """
     input: ali = f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa", ctree = f"{OUTFOLDER}/ctree_{{class}}/{{tree}}.nh"
-    output: subtree = f"{OUTFOLDER}/{{class}}_trees/{{tree}}.nh"
+    output: tree = f"{OUTFOLDER}/{{class}}_trees/{{tree}}.nh",
+            log = f"{OUTFOLDER}/{{class}}_trees/RAxML_info.{{tree}}"
+            tmp_log = temp(f"{OUTFOLDER}/subalis/RAxML_log.{{tree}}_{{class}}"),
+            tmp_tree = temp(f"{OUTFOLDER}/subalis/RAxML_result.{{tree}}_{{class}}"),
+            tmp_pars =  temp(f"{OUTFOLDER}/subalis/RAxML_parsimonyTree.{{tree}}_{{class}}")
     params: raxml_seed = RAXML_SEED
     shell:
         "rm {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree}_{wildcards.class} || true &&"
         "raxmlHPC -g {input.ctree} -n {wildcards.tree}_{wildcards.class} -m GTRGAMMA -p {params.raxml_seed} "
-        "-s {input.ali} -w {PWD}/{OUTFOLDER}/subalis/ && "
-        "mv {OUTFOLDER}/subalis/RAxML_bestTree.{wildcards.tree}_{wildcards.class} {output}"
+        "-s {input.ali} -w {PWD}/{OUTFOLDER}/subalis/ >&2 && "
+        "mv {OUTFOLDER}/subalis/RAxML_bestTree.{wildcards.tree}_{wildcards.class} {output.tree} && "
+        "mv {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree}_{wildcards.class} {output.log}"
+
 
 rule ml_tree:
     """
-    Builds the Maximum Likelihood (ML) tree with RAxML.
+    Builds the Maximum Likelihood (ML) tree with RAxML. 
+    Logs are saved in ml_trees/RAxML_info.{tree}.
     """
     input: ali = f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa"
-    output: subtree = f"{OUTFOLDER}/ml_trees/{{tree}}.nh"
+    output: tree = f"{OUTFOLDER}/ml_trees/{{tree}}.nh",
+            log = f"{OUTFOLDER}/ml_trees/RAxML_info.{{tree}}",
+            tmp_tree = temp(f"{OUTFOLDER}/subalis/RAxML_result.{{tree}}_ml"),
+            tmp_pars =  temp(f"{OUTFOLDER}/subalis/RAxML_parsimonyTree.{{tree}}_ml")
     params: raxml_seed = RAXML_SEED
     shell:
         "rm {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree}_ml || true &&"
         "raxmlHPC -p {params.raxml_seed} -n {wildcards.tree}_ml -m GTRGAMMA -s {input.ali} -w {PWD}/{OUTFOLDER}/subalis/ && "
-        "mv {OUTFOLDER}/subalis/RAxML_bestTree.{wildcards.tree}_ml {output}"
+        "mv {OUTFOLDER}/subalis/RAxML_bestTree.{wildcards.tree}_ml {output.tree} >&2 && "
+        "mv {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree}_ml {output.log}"
 
 
 rule lk_test:
@@ -116,7 +130,7 @@ rule list_lktest:
     Lists all of the CONSEL Likelihood-tests result files (files to parse in later steps). 
     """
     input: get_result
-    output: outf = OUTFOLDER+"/file_list.txt"
+    output: temp(outf = OUTFOLDER+"/file_list.txt")
     run:
         with open(output.outf, 'w') as fw1:
             for f in input:
@@ -132,6 +146,17 @@ rule make_summary:
     shell:
         "python -m scripts.trees.parse_au_test -i {input} -o {output} --lore -w {LORE_WGD}"
 
+
+rule clean_subalis_folder:
+    input: OUTFOLDER+"/lore_aore_summary.txt"
+    output: touch(OUTFOLDER+"/.clean_alis")
+    params: clean = config.get("clean_alis", True)
+    run:
+        if params.clean:
+            try:
+                shutil.rmtree(mydir)
+            except OSError as e:
+                print(f"Error: {e.filename} - {e.strerror}.")
 
 rule lore_aore_full_summary:
     """
