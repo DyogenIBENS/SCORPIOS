@@ -123,10 +123,17 @@ if MODE.lower() == "diagnostic":
             f"SCORPiOs-LORelEi_{JOBNAME_L}/diagnostic/seq_synteny_conflicts_by_homeologs.svg",
             f"SCORPiOs-LORelEi_{JOBNAME_L}/diagnostic/seq_synteny_conflicts_on_genome.svg"
 
+    #include SCORPiOs LORelEi diagnostic
+    include: "module_lorelei_diagnostic.smk"
+
 else:
     rule Target:
         input:
             "SCORPiOs-LORelEi_"+JOBNAME_L+"/lktests/lore_aore_on_genome.svg"
+
+    #include SCORPiOs LORelEi lktests
+    include: "module_lorelei_lktests.smk"
+
 
 rule check_scorpios_output_integrity:
     """
@@ -142,8 +149,3 @@ rule check_scorpios_output_integrity:
         if not set(ctrees_a) or set(ctrees_a) != set(ctrees_b):
             print("Please re-run SCORPiOs, output of the checkpoint rule appears to be incomplete.")
             sys.exit(1)
-
-
-#include SCORPiOs LORelEi modules
-include: "module_lorelei_diagnostic.smk"
-include: "module_lorelei_lktests.smk"
