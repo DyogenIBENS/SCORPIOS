@@ -6,13 +6,11 @@
 
  SCORPiOs is implemented as a [Snakemake](https://snakemake.readthedocs.io/en/stable/) pipeline. SCORPiOs takes as input either gene trees or multiple alignments, and outputs the corresponding optimized gene trees.
 
-
- ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/scorpios_illustrated.png)
-
-
 | :sparkles:  New in SCORPiOs 2.0.0: LORelEi (Lineage-specific Ohnolog Resolution Extension)|
 |:---------------------------|
 | SCORPiOs LORelEi analyzes sequence-synteny conflicts in gene trees and diagnose cases of delayed rediploidisation following WGD. To learn how to use SCORPiOs and SCORPiOs LORelEi, take a look at [SCORPiOs documentation](https://scorpios.readthedocs.io/en/latest/)!     |
+
+ ![SCORPiOs illustrated](https://github.com/DyogenIBENS/SCORPIOS/blob/master/doc/img/scorpios_illustrated.png)
 
 If you use SCORPiOs, please cite:
 
