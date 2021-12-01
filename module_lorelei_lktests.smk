@@ -67,10 +67,9 @@ rule aore_lore_tree:
     """
     input: ali = f"{OUTFOLDER}/subalis/{{tree}}.reduced.fa", ctree = f"{OUTFOLDER}/ctree_{{class}}/{{tree}}.nh"
     output: tree = f"{OUTFOLDER}/{{class}}_trees/{{tree}}.nh",
-            log = f"{OUTFOLDER}/{{class}}_trees/RAxML_info.{{tree}}"
+            log = f"{OUTFOLDER}/{{class}}_trees/RAxML_info.{{tree}}",
             tmp_log = temp(f"{OUTFOLDER}/subalis/RAxML_log.{{tree}}_{{class}}"),
             tmp_tree = temp(f"{OUTFOLDER}/subalis/RAxML_result.{{tree}}_{{class}}"),
-            tmp_pars =  temp(f"{OUTFOLDER}/subalis/RAxML_parsimonyTree.{{tree}}_{{class}}")
     params: raxml_seed = RAXML_SEED
     shell:
         "rm {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree}_{wildcards.class} || true &&"
@@ -89,7 +88,6 @@ rule ml_tree:
     output: tree = f"{OUTFOLDER}/ml_trees/{{tree}}.nh",
             log = f"{OUTFOLDER}/ml_trees/RAxML_info.{{tree}}",
             tmp_tree = temp(f"{OUTFOLDER}/subalis/RAxML_result.{{tree}}_ml"),
-            tmp_pars =  temp(f"{OUTFOLDER}/subalis/RAxML_parsimonyTree.{{tree}}_ml")
     params: raxml_seed = RAXML_SEED
     shell:
         "rm {OUTFOLDER}/subalis/RAxML_info.{wildcards.tree}_ml || true &&"
@@ -130,7 +128,7 @@ rule list_lktest:
     Lists all of the CONSEL Likelihood-tests result files (files to parse in later steps). 
     """
     input: get_result
-    output: temp(outf = OUTFOLDER+"/file_list.txt")
+    output: outf = temp(OUTFOLDER+"/file_list.txt")
     run:
         with open(output.outf, 'w') as fw1:
             for f in input:
@@ -163,7 +161,7 @@ rule lore_aore_full_summary:
     Writes a full summary of likelihood-tests results confronting the LORe and AORe hypotheses.
     Lists all genes in the AORe and LORe gene trees.
     """
-    input: clusters = OUTFOLDER+"/lore_aore_summary.txt"
+    input: clusters = OUTFOLDER+"/lore_aore_summary.txt", clean = OUTFOLDER+"/.clean_alis"
     output: f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv"
     params: treedir = f"{OUTFOLDER}/ml_trees/" #FIXME: may break stuff for reruns (explicit input?)
     shell: "python -m scripts.lorelei.write_ancgenes_treeclass -t {params.treedir} "
