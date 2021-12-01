@@ -13,7 +13,7 @@ Welcome to SCORPiOs documentation!
 .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
 
-.. image:: https://img.shields.io/badge/snakemake-≥5.5.4-brightgreen.svg
+.. image:: https://img.shields.io/badge/snakemake-≥6.6.1-brightgreen.svg
     :target: https://snakemake.bitbucket.io
 
 .. image:: https://readthedocs.org/projects/scorpios/badge/?version=latest
