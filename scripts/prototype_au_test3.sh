@@ -25,19 +25,20 @@ echo ${alifile}
 mv "${alidir}/RAxML_perSiteLLs.${name}_lktest" "${alidir}/${name}.lk"
 
 #workaround since consel decides to trim filenames containing '.' (looks like extension split issue)
-namenew="${name%.*}"
+namenew="${name//./}"
+mv "${alidir}/${name}.lk" "${alidir}/${namenew}.lk"
 
 #test if difference in likelihood is signifiant with the AU-Test using consel
-makermt --puzzle "${alidir}/${name}.lk" >&2
-consel "${alidir}/${name}" >&2
+makermt --puzzle "${alidir}/${namenew}.lk" >&2
+consel "${alidir}/${namenew}" >&2
 catpv "${alidir}/$namenew.pv" > "$output"
 
 
 ## CLEAN ALL TEMP ##
 #clean all consel temp
-rm "${alidir}/${name}.lk"
-rm "${alidir}/${name}.rmt"
-rm "${alidir}/${name}.vt"
-rm "${alidir}/${name}"
+rm "${alidir}/${namenew}.lk"
+rm "${alidir}/${namenew}.rmt"
+rm "${alidir}/${namenew}.vt"
+rm "${alidir}/${namenew}"
 rm "${alidir}/${namenew}.pv"
 rm "${alidir}/${namenew}.ci"
