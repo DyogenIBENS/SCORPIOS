@@ -265,7 +265,7 @@ if __name__ == '__main__':
 
     if not ARGS["is_outgroup"]:
         sys.stderr.write('Loading ancestral karyotype...')
-        PM = load_pm(ARGS["homeologs"], ARGS["post-dup"])
+        PM = load_pm(ARGS["homeologs"], ARGS["post_dup"])
         sys.stderr.write('ok\n')
 
         sys.stderr.write("Transferring homeologs from the ancestral karyotype to SCORPiOs families "

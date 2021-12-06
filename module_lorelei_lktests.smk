@@ -140,13 +140,13 @@ rule make_summary:
     Lists the family IDs (outgroup gene name) of AORe and LORe gene trees.
     """
     input: OUTFOLDER+"/file_list.txt"
-    output: OUTFOLDER+"/lore_aore_summary.txt"
+    output: OUTFOLDER+"/lore_aore_summary_au_all.txt"
     shell:
         "python -m scripts.trees.parse_au_test -i {input} -o {output} --lore -w {LORE_WGD}"
 
 
 rule clean_subalis_folder:
-    input: OUTFOLDER+"/lore_aore_summary.txt"
+    input: OUTFOLDER+"/lore_aore_summary_au_all.txt"
     output: touch(OUTFOLDER+"/.clean_alis")
     params: clean = config.get("clean_alis", True)
     run:
@@ -162,7 +162,7 @@ rule lore_aore_full_summary:
     Lists all genes in the AORe and LORe gene trees.
     """
     input: clusters = OUTFOLDER+"/lore_aore_summary.txt", clean = OUTFOLDER+"/.clean_alis"
-    output: f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv"
+    output: f"{OUTFOLDER}/lore_aore_summary.tsv"
     params: treedir = f"{OUTFOLDER}/ml_trees/" #FIXME: may break stuff for reruns (explicit input?)
     shell: "python -m scripts.lorelei.write_ancgenes_treeclass -t {params.treedir} "
            "-c {input.clusters} -o {output} -r 'lore rejected' 'aore rejected'"
@@ -172,7 +172,7 @@ rule prepare_lore_aore_for_rideogram:
     """
     Prepares input files for the RIdeogram karyotype plot.
     """
-    input: c = f"{OUTFOLDER}/lore_aore_summary_ancgenes.tsv", genes = GENES
+    input: c = f"{OUTFOLDER}/lore_aore_summary.tsv", genes = GENES
     output: karyo = f"{OUTFOLDER}/karyo_ide.txt",
             feat = f"{OUTFOLDER}/lore_aore_ide.txt"
     params: arg_min = ARG_MIN
