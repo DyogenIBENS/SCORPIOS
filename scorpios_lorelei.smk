@@ -81,8 +81,9 @@ if MODE == "diagnostic":
         if "use_outgr" in config["pre_dup_proxy"]:
             LORE_OUTGR = config["pre_dup_proxy"]["use_outgr"]
     else:
-        config["pre_dup_proxy"] = config.get("pre_dup_proxy", {})
-        config["pre_dup_proxy"]["use_outgr"] = config.get("use_outgr", LORE_OUTGR)
+        if "use_anc" not in config["pre_dup_proxy"]:
+            config["pre_dup_proxy"] = config.get("pre_dup_proxy", {})
+            config["pre_dup_proxy"]["use_outgr"] = config.get("use_outgr", LORE_OUTGR)
     
 
 # Get SCORPiOs outputs
