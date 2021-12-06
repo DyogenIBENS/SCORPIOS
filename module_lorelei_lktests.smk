@@ -161,7 +161,7 @@ rule lore_aore_full_summary:
     Writes a full summary of likelihood-tests results confronting the LORe and AORe hypotheses.
     Lists all genes in the AORe and LORe gene trees.
     """
-    input: clusters = OUTFOLDER+"/lore_aore_summary.txt", clean = OUTFOLDER+"/.clean_alis"
+    input: clusters = OUTFOLDER+"/lore_aore_summary_au_all.txt", clean = OUTFOLDER+"/.clean_alis"
     output: f"{OUTFOLDER}/lore_aore_summary.tsv"
     params: treedir = f"{OUTFOLDER}/ml_trees/" #FIXME: may break stuff for reruns (explicit input?)
     shell: "python -m scripts.lorelei.write_ancgenes_treeclass -t {params.treedir} "
