@@ -1,6 +1,6 @@
 All notable changes to SCORPiOs, added after the first released version v1.0.0, will be documented here.
 
-[Version 2.0.0] UNRELEASED
+[Version 2.0.0] - 13/12/2021 - `v2.0.0 <https://github.com/DyogenIBENS/SCORPIOS/tree/v2.0.0>`_
 ----------------------------
 
 Introducing SCORPiOs LORelEi (Lineage-specific Ohnolog Resolution Extension), an extension to SCORPiOs to detect LORe. Note that the scorpios environment has to be updated and that additional snakemake arguments are required to run scorpios (--scheduler=greedy and --cores, see the docs for updated usage instructions).
