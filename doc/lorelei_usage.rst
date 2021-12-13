@@ -52,7 +52,7 @@ Since the configuration is very simple here, you can even omit the configuration
 
      snakemake -s scorpios_lorelei.smk --config scorpios_config=config_example2.yaml mode=likelihood_tests dup_genome=Oryzias.latipes --use-conda --cores 4 --scheduler=greedy
 
-The following LORelEi outputs should be generated: :code:`SCORPiOs-LORelEi_example2/lktests/lore_aore_on_genome.svg` (figure) and :code:`SCORPiOs-LORelEi_example2/lktests/lore_aore_summary_ancgenes.tsv` (summary of LORe and AORe gene families).
+The following LORelEi outputs should be generated: :code:`SCORPiOs-LORelEi_example2/lktests/lore_aore_on_genome.svg` (figure) and :code:`SCORPiOs-LORelEi_example2/lktests/lore_aore_summary.tsv` (summary of LORe and AORe gene families).
 
 Example 3: SCORPiOs iterative and LORelEi
 ------------------------------------------
