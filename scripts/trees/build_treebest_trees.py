@@ -154,8 +154,8 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt:
         print("Caught KeyboardInterrupt, terminating workers")
-        pool.terminate()
-        pool.join()
+        POOL.terminate()
+        POOL.join()
         sys.exit(1)
 
     sys.stderr.write("Writing trees into a single gene tree forest file...\n")
