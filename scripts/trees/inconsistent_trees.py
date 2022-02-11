@@ -273,14 +273,12 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
                              or i[0] in ctree_leaves]
 
             leavesnames_in_fam = {i[0] for i in leaves_in_fam}
-
             #keep all genes present in the family
             if len(ctree_leaves) < len(leaves):
 
                 to_replace_inside = leavesnames_in_fam.difference(ctree_leaves)
 
                 all_families[outgr_leaf[1]].update_constrained_tree(to_replace_inside, lca)
-
             if discard_sp:
                 keep = [i for i in ctree_leaves if i.split('_')[-1] not in discard_sp]
                 ctree.prune(keep)
@@ -288,7 +286,7 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
                 lca.prune(keep)
                 leavesnames_in_fam = set(keep)
 
-            if len(leavesnames_in_fam) <= 2:
+            if len(leavesnames_in_fam) <= 3:
                 sfile.write(outgr_leaf[1]+"\t"+"Too few genes"+'\n')
                 stats['Too few genes'] = stats.get('Too few genes', 0) + 1
                 continue
