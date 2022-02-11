@@ -191,7 +191,7 @@ def correct_wtrees(tree, to_cor, res, tree_id, outfiles, outgroup_sp, sp_below_w
             if hasattr(leaf, "MOVED_ID_"+tag):
                 delattr(leaf, "MOVED_ID_"+tag)
 
-        whole_tree = ('_').join([i.name for i in cor_subtrees])
+        whole_tree = sorted([i.name for i in cor_subtrees])[0]
 
         d_sp = {}
         for leaf in wleaves:
