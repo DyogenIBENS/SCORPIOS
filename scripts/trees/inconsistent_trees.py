@@ -220,7 +220,7 @@ class FamilyOrthologies():
 
 
 def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr, oal, stats=None,
-                           discard_sp=None, no_ctree=False):
+                           discard_sp=None, no_ctree=False, correct_only=set()):
 
     """
     For a given ensembl tree, check whether synteny-derived constrained topologies are consistent
@@ -236,18 +236,26 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
         cfile (str): file to write name of synteny consistent subtrees
         mfile (str): file to write name of multigenic subtrees
         stats (dict, optional): dict to count the number of consistent and inconsistent trees
+        correct_only (set, optional): correct only the gene trees that contain >=1 gene from the provided set
 
     """
 
     whole_tree = Tree(tree, format=1)
 
+    leaves_all = set()
     for leaf in whole_tree.get_leaves():
 
         namesp = leaf.name + '_' + leaf.S
         leaf.prev_name = leaf.name
         leaf.name = namesp
+        leaves_all.add(leaf.prev_name)
 
     cached_whole_tree = whole_tree.get_cached_content(store_attr=['name', 'prev_name', 'S'])
+
+    skip_correction = False
+    if correct_only:
+        if not correct_only.intersection(leaves_all):
+            skip_correction = True
 
     outgr_leaves = [i for i in cached_whole_tree[whole_tree] if i[2] in outgroups]
 
@@ -294,7 +302,7 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
             comparison = ctree.compare(lca)
 
             #check if the constraint is present in the tree
-            if comparison['source_edges_in_ref'] != 1:
+            if comparison['source_edges_in_ref'] != 1 and not skip_correction:
 
 
                 #check if family is not too multigenic, in whih case correction is difficult
@@ -332,9 +340,13 @@ def get_inconsistent_trees(tree, ali, outgroups, all_families, sfile, octr, otr,
                     sfile.write(outgr_leaf[1]+"\t"+"Inconsistent_multigenic"+'\n')
                     stats['Inconsistent_multigenic'] = stats.get('Inconsistent_multigenic', 0) + 1
 
-            else:
+            elif comparison['source_edges_in_ref'] == 1 and not skip_correction:
                 sfile.write(outgr_leaf[1]+"\t"+"Consistent"+'\n')
                 stats['Consistent'] = stats.get('Consistent', 0) + 1
+
+            elif skip_correction: #skip regardless of consistent vs inconsistent status
+                sfile.write(outgr_leaf[1]+"\t"+"Skipped"+'\n')
+                stats['Skipped'] = stats.get('Skipped', 0) + 1
 
 
 def print_out_stats(stats_dict, wgd=''):
@@ -353,9 +365,11 @@ def print_out_stats(stats_dict, wgd=''):
         cons = stats_dict.get('Consistent', 0)
         incons = stats_dict.get('Inconsistent', 0)
         sm = stats_dict.get('Too few genes', 0)
-        tot = cons + incons
+        skipped = stats_dict.get('Skipped', 0)
+        tot = cons + incons + skipped
         consp = round((cons/tot)*100, 2)
         inconsp = round((incons/tot)*100, 2)
+        skipsp = round((skipped/tot)*100, 2)
 
         print('\n')
         print("------------------------TREES vs SYNTENY CONSTRAINTS------------------------")
@@ -369,6 +383,10 @@ def print_out_stats(stats_dict, wgd=''):
 
         print(" {} out of {} ({} %) synteny-inconsistent subtrees to correct"\
               .format(incons, tot, inconsp))
+
+        if skipped:
+            print(" {} out of {} ({} %) skipped subtrees, as per user request."\
+              .format(skipped, tot, skipsp))
 
         print("----------------------------------------------------------------------------")
         print("\n")
@@ -425,6 +443,10 @@ if __name__ == '__main__':
                         help='File to write summary of prediction combination across outgroups',
                         required=False, default='ouy')
 
+    PARSER.add_argument('--correct_only', type=str,
+                        help='File with gene IDs corresponding to a subset of trees to correct.',
+                        required=False, default='')
+
     PARSER.add_argument('-di', '--discard_sp', nargs='+', default=None)
 
     PARSER.add_argument('--no_ctree', action='store_true')
@@ -474,6 +496,11 @@ if __name__ == '__main__':
 
     sys.stderr.write("Searching gene trees for synteny-inconsistent topologies...\n")
 
+    CORRECT_ONLY = set()
+    if ARGS['correct_only']:
+        with open(ARGS['correct_only'], 'r') as infile:
+            CORRECT_ONLY = {line.strip() for line in infile}
+
     STATS = {}
 
     OPEN = open
@@ -490,6 +517,6 @@ if __name__ == '__main__':
 
             get_inconsistent_trees(TREE, ALI, OUTGROUPS, ALL_GRAPH_CUT, outfile_summary,\
                                    ARGS["outCons"], ARGS["outTree"], ARGS["outAli"], STATS,\
-                                   ARGS["discard_sp"], ARGS["no_ctree"])
+                                   ARGS["discard_sp"], ARGS["no_ctree"], CORRECT_ONLY)
 
     print_out_stats(STATS, wgd=ARGS["wgd_tag"])

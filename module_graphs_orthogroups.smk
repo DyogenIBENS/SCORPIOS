@@ -9,6 +9,10 @@ if SPECTRAL and SPECTRAL.lower() not in ['n', 'no', 'false']:
 else:
     SPECTRAL = ""
 
+SUBSET_TO_CORRECT = config.get('subset_to_correct', '') #should be a file, one gene per line (one gene per tree to correct), if provided in config
+if SUBSET_TO_CORRECT:
+    SUBSET_TO_CORRECT = '--correct_only '+SUBSET_TO_CORRECT
+
 rule cut_orthology_graphs:
     """
     Loads orthology graphs and uses community detection algorithms to identify the 2 orthogroups.
@@ -64,11 +68,12 @@ checkpoint gene_trees_to_correct:
             gsum = lambda wildcards, input: ",".join(list(input.graph_cuts_summaries)),
             otable = lambda wildcards, input: ",".join(list(input.orthotables)),
             outgroups = lambda wildcards: config['WGDs'][wildcards.wgd],
-            outcombin = outcombin.replace("{{wgd}}", "{{wildcards.wgd}}")
+            outcombin = outcombin.replace("{{wgd}}", "{{wildcards.wgd}}"),
+            args_subset_to_correct = SUBSET_TO_CORRECT
 
     shell:"""
     python -m scripts.trees.inconsistent_trees -n {params.outgroups} -i {params.graphs}\
     -f {params.otable} -t {input_trees} -a {config[alis]} -oc {output.ctrees} -oa {output.subalis}\
     -ot {output.subtrees} -gs {params.gsum} -s {output.tsum} -wgd {wildcards.wgd}\
-    -fcombin {params.outcombin}
+    -fcombin {params.outcombin} {params.args_subset_to_correct}
     """

@@ -12,6 +12,12 @@ if RAXML:
     if RAXML.lower() == "raxml":
         RAXML_ARG = '--raxml'
 
+# This is to conform with other boolean args but structure is a bit heavy (and also I don't have any assertion elsewhere...)
+config['skip_profilenj'] = config.get('skip_profilenj', 'n').lower()
+assert config['skip_profilenj'] in ['y', 'n'], "skip_profilenj argument should be y or n."
+SKIP_PROFILNJ = False
+if  config['skip_profilenj'] == 'y':
+    SKIP_PROFILNJ = True
 
 rule remove_anc_in_sptree:
     """
@@ -23,49 +29,57 @@ rule remove_anc_in_sptree:
         spt.remove_anc(config["species_tree"], NO_ANC_TREE)
 
 
-rule distance_matrix:
-    """
-    For each subtree to correct, builds a distance matrix using treebest distmat.
-    """
-    input: SUBALIS+"/{wgd}/{ctrees}.fa"
-    output: temp(tmp_matrix+"_{ctrees}.phy")
-    shell:"""
-    treebest distmat kimura {input} > {output}
-    """
+if not SKIP_PROFILNJ:
+
+    rule distance_matrix:
+        """
+        For each subtree to correct, builds a distance matrix using treebest distmat.
+        """
+        input: SUBALIS+"/{wgd}/{ctrees}.fa"
+        output: temp(tmp_matrix+"_{ctrees}.phy")
+        shell:"""
+        treebest distmat kimura {input} > {output}
+        """
 
 
-rule build_tree_polytomysolver:
-    """
-    For each subtree to correct, find a corrected subtree in agreement with the constraints,
-    using profileNJ.
-    Note: An empty file is generated if fastdist failed.
-    """
-    input: ctree = CTREES+"/{wgd}/C_{ctrees}.nh", matrix = tmp_matrix+"_{ctrees}.phy",
-           sp_tree = NO_ANC_TREE, ali = SUBALIS+"/{wgd}/{ctrees}.fa"
-    output: PolyS+"/{wgd}/{ctrees}.nh"
-    conda: "envs/polytomysolver.yaml"
-    shell:"""
-    if [ -s {input.matrix} ]; then
-        profileNJ -s {input.sp_tree} -g {input.ctree} --sep '_' -d {input.matrix} -o {output}\
-                  --slimit 1 --spos postfix  >&2;
-    else touch {output};
-    fi;
-    sed -i.bak 1d {output}; rm {output}.bak;
-    """
+    rule build_tree_polytomysolver:
+        """
+        For each subtree to correct, find a corrected subtree in agreement with the constraints,
+        using profileNJ.
+        Note: An empty file is generated if fastdist failed.
+        """
+        input: ctree = CTREES+"/{wgd}/C_{ctrees}.nh", matrix = tmp_matrix+"_{ctrees}.phy",
+               sp_tree = NO_ANC_TREE, ali = SUBALIS+"/{wgd}/{ctrees}.fa"
+        output: PolyS+"/{wgd}/{ctrees}.nh"
+        conda: "envs/polytomysolver.yaml"
+        shell:"""
+        if [ -s {input.matrix} ]; then
+            profileNJ -s {input.sp_tree} -g {input.ctree} --sep '_' -d {input.matrix} -o {output}\
+                      --slimit 1 --spos postfix  >&2;
+        else touch {output};
+        fi;
+        sed -i.bak 1d {output}; rm {output}.bak;
+        """
 
 
-rule test_polyS:
-    """
-    Test profileNJ solution against the original tree using a likelihood test.
-    """
-    input:  polys = PolyS+"/{wgd}/{ctrees}.nh", ali = SUBALIS+"/{wgd}/{ctrees}.fa",
-            ori_tree = SUBTREES+"/{wgd}/{ctrees}.nh"
-    output: OutPolylk+"/{wgd}/Res_{ctrees}.txt", SUBALIS+"/{wgd}/{ctrees}_a.lk"
-    threads: 1
-    shell:"""
-    bash scripts/make_lk_test_consel.sh {wildcards.ctrees} {input.ori_tree} {input.ali}\
-                                        {input.polys} {output}
-    """
+    rule test_polyS:
+        """
+        Test profileNJ solution against the original tree using a likelihood test.
+        """
+        input:  polys = PolyS+"/{wgd}/{ctrees}.nh", ali = SUBALIS+"/{wgd}/{ctrees}.fa",
+                ori_tree = SUBTREES+"/{wgd}/{ctrees}.nh"
+        output: OutPolylk+"/{wgd}/Res_{ctrees}.txt", SUBALIS+"/{wgd}/{ctrees}_a.lk"
+        threads: 1
+        shell:"""
+        bash scripts/make_lk_test_consel.sh {wildcards.ctrees} {input.ori_tree} {input.ali}\
+                                            {input.polys} {output}
+        """
+
+else:
+
+    rule skip_profilenj:
+        input: SUBALIS+"/{wgd}/{ctrees}.fa", ori_tree = SUBTREES+"/{wgd}/{ctrees}.nh"
+        output: touch(OutPolylk+"/{wgd}/Res_{ctrees}.txt"), touch(SUBALIS+"/{wgd}/{ctrees}_a.lk")
 
 
 rule build_test_tree_treebest:

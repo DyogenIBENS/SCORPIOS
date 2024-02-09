@@ -23,6 +23,10 @@ species_tree: data/example/species_tree.nwk
 # Gene-to-species mapping file : a single text file with two columns: gene_name species_name.
 #genes_sp_mapping: data/example/genes_sp_mapping.txt
 
+# Restrict correction to gene trees that contain the gene id listed in the following file:
+# (any gene id within a given tree can be listed and will induce correction of this tree)
+# subset_to_correct: 'data/example/correct_only_genelist.txt'
+
 
 #----------------------------------------- OUTPUTS ------------------------------------------#
 
@@ -78,6 +82,11 @@ save_tmp_trees: 'y'
 # - AU-tests outputs
 # Should be set to 'y' if you intent to run LORelEi.
 save_subtrees_lktest: 'y'
+
+
+#Skip profileNJ solution and only resolve synteny-derived multifurcated trees with treebest
+#skip_profilenj: 'y'
+
 
 # Optionally, use spectral clustering instead of Girvan-Newman for graph community detection.
 spectral: 'n'
