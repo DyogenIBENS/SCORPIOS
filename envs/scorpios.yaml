@@ -13,7 +13,9 @@ dependencies:
   - raxml=8.2.12
   - roman
   - six=1.12.0
+  - smart_open=5.2
   - snakemake=6.6.1
   - snakemake-minimal=6.6.1
   - shyaml
+  - tabulate=0.8
   - treebest=1.9.2.post1
